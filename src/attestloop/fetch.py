@@ -53,6 +53,11 @@ def _is_pdf_url(url: str) -> bool:
     return "/PDF/" in url or parsed.path.lower().endswith(".pdf")
 
 
+def _looks_like_pdf_bytes(content: bytes) -> bool:
+    """Magic-byte sniff: a real PDF starts with the literal '%PDF-' header."""
+    return content[:5] == b"%PDF-"
+
+
 def _extract_pdf_text(content: bytes, source_url: str) -> tuple[str | None, str]:
     reader = PdfReader(io.BytesIO(content))
 
@@ -97,12 +102,15 @@ def resolve_eur_lex_url(url: str) -> list[str]:
     return list(dict.fromkeys(candidates))
 
 
-def _write_fetch_log(run_dir: Path | None, source: str, candidate_url: str) -> None:
+def _write_fetch_log(
+    run_dir: Path | None, source: str, candidate_url: str, final_url: str
+) -> None:
     if run_dir is None:
         return
-    (run_dir / "fetch.log").write_text(
-        f"# Source: {source}\n# URL: {candidate_url}\n"
-    )
+    body = f"# Source: {source}\n# URL: {candidate_url}\n"
+    if final_url != candidate_url:
+        body += f"# Final URL (after redirects): {final_url}\n"
+    (run_dir / "fetch.log").write_text(body)
 
 
 def fetch_publication(url: str, run_dir: Path | None = None) -> Publication:
@@ -125,11 +133,28 @@ def fetch_publication(url: str, run_dir: Path | None = None) -> Publication:
                 continue
 
             content_type = response.headers.get("content-type", "").lower()
-            treat_as_pdf = "application/pdf" in content_type or _is_pdf_url(candidate)
+            final_url = str(response.url)
 
-            if treat_as_pdf:
+            # Detection precedence: magic bytes (ground truth) > Content-Type
+            # (server hint) > URL pattern (heuristic). Use the post-redirect URL
+            # for the URL check so newsroom-style redirects to a .pdf target
+            # are caught.
+            if _looks_like_pdf_bytes(response.content):
+                source_kind = "PDF (magic bytes)"
+                parse_as_pdf = True
+            elif content_type.startswith("application/pdf"):
+                source_kind = "PDF (content-type)"
+                parse_as_pdf = True
+            elif _is_pdf_url(final_url):
+                source_kind = "PDF (URL)"
+                parse_as_pdf = True
+            else:
+                source_kind = "HTML"
+                parse_as_pdf = False
+
+            if parse_as_pdf:
                 try:
-                    title, cleaned_text = _extract_pdf_text(response.content, candidate)
+                    title, cleaned_text = _extract_pdf_text(response.content, final_url)
                 except (PdfReadError, ValueError, OSError) as e:
                     _console.print(
                         f"[yellow]fetch: {candidate} PDF parse failed: {e!r}[/yellow]"
@@ -137,15 +162,13 @@ def fetch_publication(url: str, run_dir: Path | None = None) -> Publication:
                     attempts.append(f"{candidate} (failed: PDF parse {e!r})")
                     continue
                 raw_html = ""
-                source_kind = "PDF"
             else:
                 raw_html = response.text
                 title, cleaned_text = _clean_text(raw_html)
-                source_kind = "HTML"
 
             usable_chars = len(cleaned_text.strip())
             if usable_chars >= _MIN_USABLE_CHARS:
-                _write_fetch_log(run_dir, source_kind, candidate)
+                _write_fetch_log(run_dir, source_kind, candidate, final_url)
                 return Publication(
                     url=candidate,
                     title=title,
@@ -155,12 +178,12 @@ def fetch_publication(url: str, run_dir: Path | None = None) -> Publication:
                 )
 
             _console.print(
-                f"[yellow]fetch: {candidate} ({source_kind}) produced only "
+                f"[yellow]fetch: {candidate} [{source_kind}] produced only "
                 f"{usable_chars} usable chars (< {_MIN_USABLE_CHARS}); trying "
                 "next candidate.[/yellow]"
             )
             attempts.append(
-                f"{candidate} ({source_kind}, insufficient: {usable_chars} chars)"
+                f"{candidate} [{source_kind}, insufficient: {usable_chars} chars]"
             )
 
     raise EmptyPublicationError(
