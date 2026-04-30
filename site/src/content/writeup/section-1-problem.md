@@ -1,5 +1,4 @@
 ---
-section: 1
 title: The problem
 status: draft
 updated: 2026-04-30
