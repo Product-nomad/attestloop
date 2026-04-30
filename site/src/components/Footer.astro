@@ -1,0 +1,70 @@
+---
+const githubUrl = "https://github.com/Product-nomad/attestloop";
+const linkedinUrl = "https://www.linkedin.com/in/simondewey/";
+const contactEmail = "simon@incubatelabs.ai";
+---
+
+<footer class="border-t border-border-subtle mt-24 sm:mt-32">
+  <div class="mx-auto max-w-[64rem] px-6 sm:px-8 py-12 sm:py-16">
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-8 sm:gap-12">
+      <div>
+        <p class="font-serif text-lg text-text-primary mb-3">Attestloop</p>
+        <p class="text-sm text-text-secondary leading-relaxed">
+          An agentic regulatory attestation pipeline. Research artefact, not a
+          production compliance product.
+        </p>
+      </div>
+
+      <div>
+        <p class="text-sm font-medium text-text-primary mb-3">Links</p>
+        <ul class="space-y-2 text-sm">
+          <li>
+            <a
+              href={githubUrl}
+              class="text-text-secondary hover:text-text-primary transition-colors duration-150"
+              >GitHub</a
+            >
+          </li>
+          <li>
+            <a
+              href="/writeup"
+              class="text-text-secondary hover:text-text-primary transition-colors duration-150"
+              >Writeup</a
+            >
+          </li>
+        </ul>
+      </div>
+
+      <div>
+        <p class="text-sm font-medium text-text-primary mb-3">Contact</p>
+        <ul class="space-y-2 text-sm">
+          <li class="text-text-secondary">Simon Dewey</li>
+          <li>
+            <a
+              href={`mailto:${contactEmail}`}
+              class="text-text-secondary hover:text-text-primary transition-colors duration-150"
+              >{contactEmail}</a
+            >
+          </li>
+          <li>
+            <a
+              href={linkedinUrl}
+              class="text-text-secondary hover:text-text-primary transition-colors duration-150"
+              >LinkedIn</a
+            >
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <hr class="border-border-subtle my-8 sm:my-10" />
+
+    <p class="text-xs text-text-muted">
+      Built by Simon Dewey. v1.0.0 — see <a
+        href={githubUrl}
+        class="text-text-secondary hover:text-text-primary transition-colors duration-150"
+        >GitHub</a
+      > for source.
+    </p>
+  </div>
+</footer>

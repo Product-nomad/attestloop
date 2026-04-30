@@ -1,0 +1,45 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+---
+
+<BaseLayout
+  title="Writeup — Attestloop"
+  description="Long-form writeup of the Attestloop pipeline, design choices, and v5 canonical run results. Coming soon."
+>
+  <section
+    class="min-h-[80svh] flex items-center justify-center px-6 sm:px-8 py-24"
+  >
+    <div class="max-w-[42rem] mx-auto text-center">
+      <p
+        class="text-xs font-mono uppercase tracking-[0.18em] text-accent mb-6"
+      >
+        Writeup
+      </p>
+      <h1
+        class="font-serif font-normal text-text-primary text-[2.25rem] sm:text-[3rem] leading-tight mb-6"
+      >
+        Coming soon
+      </h1>
+      <p class="text-base text-text-secondary leading-relaxed mb-8">
+        A long-form writeup of the design choices, the four prompt
+        revisions, and the v5 canonical run is in progress. In the
+        meantime, the full source, the architectural decision records,
+        and every artefact from the v5 run are on GitHub.
+      </p>
+      <div class="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
+        <a
+          href="/github"
+          class="inline-flex items-center justify-center px-6 py-3 bg-bg-elevated border border-border-default text-text-primary text-sm hover:bg-bg-overlay hover:border-accent transition-colors duration-150"
+        >
+          Source on GitHub
+        </a>
+        <a
+          href="/"
+          class="inline-flex items-center justify-center px-6 py-3 border border-border-subtle text-text-secondary text-sm hover:text-text-primary hover:border-border-default transition-colors duration-150"
+        >
+          Back to home
+        </a>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

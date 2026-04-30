@@ -1,0 +1,82 @@
+@import "tailwindcss";
+
+@import "@fontsource/inter/400.css";
+@import "@fontsource/inter/500.css";
+@import "@fontsource/inter/600.css";
+@import "@fontsource/jetbrains-mono/400.css";
+
+@theme {
+  --color-bg-base: #0e1014;
+  --color-bg-elevated: #16191f;
+  --color-bg-overlay: #1c2027;
+  --color-border-subtle: #252932;
+  --color-border-default: #363b46;
+  --color-text-primary: #e6e8eb;
+  --color-text-secondary: #a8adb8;
+  --color-text-muted: #6b7280;
+  --color-accent: #7c8ea3;
+  --color-accent-bright: #9caebf;
+
+  --font-sans: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-serif: "Iowan Old Style", "Charter", "Georgia", serif;
+  --font-mono: "JetBrains Mono", "IBM Plex Mono", "SFMono-Regular", monospace;
+
+  --container-prose: 42rem;
+  --container-content: 64rem;
+}
+
+:root {
+  color-scheme: dark;
+}
+
+html {
+  background-color: var(--color-bg-base);
+  color: var(--color-text-primary);
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--font-sans);
+  font-size: 1rem;
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+::selection {
+  background: var(--color-accent);
+  color: var(--color-bg-base);
+}
+
+@media (max-width: 640px) {
+  body {
+    font-size: 0.95rem;
+  }
+}
+
+/* Section fade-in. Restrained, runs once per element. */
+.fade-in {
+  opacity: 0;
+  transform: translateY(8px);
+  transition:
+    opacity 200ms ease-out,
+    transform 200ms ease-out;
+}
+
+.fade-in.is-visible {
+  opacity: 1;
+  transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fade-in,
+  .fade-in.is-visible {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+
+  html {
+    scroll-behavior: auto;
+  }
+}

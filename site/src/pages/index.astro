@@ -1,0 +1,55 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import HeroSection from "../components/HeroSection.astro";
+import QuestionSection from "../components/QuestionSection.astro";
+import PipelineDiagram from "../components/PipelineDiagram.astro";
+import NumbersTable from "../components/NumbersTable.astro";
+import LiveRerunSection from "../components/LiveRerunSection.astro";
+
+const questions = [
+  {
+    anchor: "q-coverage",
+    question: "Are we covered?",
+    elaboration:
+      "Has this regulator publication actually got us in scope? The classifier reads the document and decides whether it creates binding obligations on us, or whether it is press release / commentary about something that does.",
+  },
+  {
+    anchor: "q-obligations",
+    question: "What do we need to do, and by when?",
+    elaboration:
+      "If we are in scope, what specifically do we have to do — and what is the deadline? The extractor pulls discrete, citeable obligations from the document text, with each one tagged to its source paragraph and any deadline the regulator named.",
+  },
+  {
+    anchor: "q-evidence",
+    question: "Prove it.",
+    elaboration:
+      "Where in our existing controls do we already meet this obligation, and where do we have a gap? The mapper proposes one to three controls from a named framework for each obligation, with a confidence score and a written justification — or returns nothing when the framework genuinely does not cover the duty.",
+  },
+  {
+    anchor: "q-future",
+    question: "What's coming next?",
+    elaboration:
+      "How do we keep this current as the regulation evolves? Versioned prompts and per-call cost logs make every run reproducible; the next iteration adds a frozen golden set and weekly drift monitoring against it.",
+  },
+];
+---
+
+<BaseLayout>
+  <HeroSection />
+
+  {
+    questions.map((q, i) => (
+      <QuestionSection
+        index={i + 1}
+        total={questions.length}
+        anchor={q.anchor}
+        question={q.question}
+        elaboration={q.elaboration}
+      />
+    ))
+  }
+
+  <PipelineDiagram />
+  <NumbersTable />
+  <LiveRerunSection />
+</BaseLayout>
