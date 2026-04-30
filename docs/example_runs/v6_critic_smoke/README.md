@@ -1,0 +1,1 @@
+Spot-check of the v6 Critic agent's first run on the Commission Guidelines URL. 42 obligations reviewed, 14 flagged for human review. Each flagged obligation has the Critic's reasoning naming the specific control mismatch and one or more proposed alternatives. Captured here as evidence for the v6 writeup.
