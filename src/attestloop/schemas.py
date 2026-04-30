@@ -111,3 +111,4 @@ class LLMCallLog(BaseModel):
     started_at: datetime
     prompt: str
     response: str
+    metadata: dict[str, int | float | str] | None = None

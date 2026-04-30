@@ -1,5 +1,6 @@
 import json
 import time
+from collections.abc import Callable
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -57,9 +58,12 @@ def call_with_logging(
     output_schema: type[BaseModel],
     run_dir: Path,
     prompt_version: str,
+    metadata_factory: Callable[[BaseModel], dict[str, int | float | str]] | None = None,
 ) -> BaseModel:
     """Call Claude with a single tool whose schema matches output_schema, and
-    log the call to run_dir/<agent>.json."""
+    log the call to run_dir/<agent>.json. If metadata_factory is provided, it
+    is called with the parsed result and its return value is recorded on the
+    LLMCallLog's metadata field."""
 
     tool_name = output_schema.__name__
     tool = {
@@ -109,6 +113,14 @@ def call_with_logging(
 
     parsed = output_schema.model_validate(tool_block.input)
 
+    metadata: dict[str, int | float | str] | None = None
+    if metadata_factory is not None:
+        try:
+            metadata = metadata_factory(parsed)
+        except Exception:
+            # Observability is best-effort; don't fail the call over a metadata bug.
+            metadata = None
+
     log_entry = LLMCallLog(
         agent=agent,
         model=model,
@@ -122,6 +134,7 @@ def call_with_logging(
         started_at=started_at,
         prompt=f"SYSTEM:\n{system_prompt}\n\nUSER:\n{user_message}",
         response=json.dumps(tool_block.input, ensure_ascii=False),
+        metadata=metadata,
     )
     _append_log(run_dir, agent, log_entry)
 
