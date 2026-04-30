@@ -1,7 +1,7 @@
 ## Reporting a vulnerability
 
 If you discover a security issue in Attestloop, please report it
-privately to <your email here — Simon to fill in>. You should expect
+privately to simon@attestloop.ai. You should expect
 acknowledgement within 5 working days. Please do not file public GitHub
 issues for security matters.
 
