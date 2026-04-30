@@ -49,6 +49,23 @@ const runs = defineCollection({
   schema: runMetadataSchema,
 });
 
+const writeup = defineCollection({
+  loader: glob({
+    pattern: "*.md",
+    base: "./src/content/writeup",
+  }),
+  schema: z.object({
+    section: z.number().optional(),
+    title: z.string().optional(),
+    subtitle: z.string().optional(),
+    status: z.string().optional(),
+    not_published: z.boolean().optional(),
+    // YAML interprets bare YYYY-MM-DD as a Date; coerce to string so
+    // either form (quoted string or unquoted date) round-trips cleanly.
+    updated: z.coerce.string().optional(),
+  }),
+});
+
 export const obligationsFileSchema = z.object({
   obligations: z.array(obligationSchema),
 });
@@ -57,4 +74,4 @@ export const mappingsFileSchema = z.object({
   mappings: z.array(controlMappingSchema),
 });
 
-export const collections = { runs };
+export const collections = { runs, writeup };

@@ -1,45 +1,232 @@
 ---
+import { getEntry, render } from "astro:content";
 import BaseLayout from "../layouts/BaseLayout.astro";
+
+const entry = await getEntry("writeup", "full");
+if (!entry) {
+  throw new Error(
+    "writeup/full.md not found. Build the writeup collection or run `pnpm dev`.",
+  );
+}
+const { Content } = await render(entry);
+const { title, subtitle, updated, status } = entry.data;
 ---
 
-<BaseLayout
-  title="Writeup — Attestloop"
-  description="Long-form writeup of the Attestloop pipeline, design choices, and v5 canonical run results. Coming soon."
->
-  <section
-    class="min-h-[80svh] flex items-center justify-center px-6 sm:px-8 py-24"
-  >
-    <div class="max-w-[42rem] mx-auto text-center">
-      <p
-        class="text-xs font-mono uppercase tracking-[0.18em] text-accent mb-6"
-      >
-        Writeup
-      </p>
-      <h1
-        class="font-serif font-normal text-text-primary text-[2.25rem] sm:text-[3rem] leading-tight mb-6"
-      >
-        Coming soon
-      </h1>
-      <p class="text-base text-text-secondary leading-relaxed mb-8">
-        A long-form writeup of the design choices, the four prompt
-        revisions, and the v5 canonical run is in progress. In the
-        meantime, the full source, the architectural decision records,
-        and every artefact from the v5 run are on GitHub.
-      </p>
-      <div class="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
-        <a
-          href="/github"
-          class="inline-flex items-center justify-center px-6 py-3 bg-bg-elevated border border-border-default text-text-primary text-sm hover:bg-bg-overlay hover:border-accent transition-colors duration-150"
-        >
-          Source on GitHub
-        </a>
-        <a
-          href="/"
-          class="inline-flex items-center justify-center px-6 py-3 border border-border-subtle text-text-secondary text-sm hover:text-text-primary hover:border-border-default transition-colors duration-150"
-        >
-          Back to home
-        </a>
-      </div>
+<BaseLayout title={title ?? "Writeup — Attestloop"} description={subtitle}>
+  <article class="writeup">
+    <header class="writeup-header fade-in">
+      {
+        status === "draft" && (
+          <p class="writeup-status">
+            Draft · last updated {updated}
+          </p>
+        )
+      }
+      {
+        title && (
+          <h1 class="writeup-title">{title}</h1>
+        )
+      }
+      {
+        subtitle && (
+          <p class="writeup-subtitle">{subtitle}</p>
+        )
+      }
+    </header>
+
+    <div class="writeup-body">
+      <Content />
     </div>
-  </section>
+
+    <footer class="writeup-footer">
+      <a href="/" class="writeup-back">← Back to home</a>
+    </footer>
+  </article>
 </BaseLayout>
+
+<style>
+  .writeup {
+    max-width: 42rem;
+    margin: 0 auto;
+    padding: 5rem 1.5rem 6rem;
+  }
+  @media (min-width: 641px) {
+    .writeup {
+      padding: 7rem 2rem 8rem;
+    }
+  }
+
+  /* Header strip */
+  .writeup-header {
+    border-bottom: 1px solid var(--color-border-subtle);
+    padding-bottom: 2.5rem;
+    margin-bottom: 3rem;
+  }
+  .writeup-status {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    color: var(--color-text-muted);
+    margin-bottom: 1.25rem;
+  }
+  .writeup-title {
+    font-family: var(--font-serif);
+    font-weight: 400;
+    color: var(--color-text-primary);
+    font-size: 2rem;
+    line-height: 1.15;
+    letter-spacing: -0.01em;
+    margin: 0 0 1rem;
+  }
+  @media (min-width: 641px) {
+    .writeup-title {
+      font-size: 2.75rem;
+    }
+  }
+  .writeup-subtitle {
+    font-family: var(--font-serif);
+    font-style: italic;
+    color: var(--color-text-secondary);
+    font-size: 1.1rem;
+    line-height: 1.5;
+    margin: 0;
+  }
+
+  /* Body — long-form serif typography on dark */
+  .writeup-body {
+    font-family: var(--font-serif);
+    color: var(--color-text-secondary);
+    font-size: 1.05rem;
+    line-height: 1.75;
+  }
+  @media (min-width: 641px) {
+    .writeup-body {
+      font-size: 1.125rem;
+    }
+  }
+  .writeup-body :global(h2) {
+    font-family: var(--font-serif);
+    font-weight: 400;
+    color: var(--color-text-primary);
+    font-size: 1.35rem;
+    line-height: 1.25;
+    margin: 3.5rem 0 1.25rem;
+    padding-top: 2.5rem;
+    border-top: 1px solid var(--color-border-subtle);
+    letter-spacing: -0.005em;
+  }
+  @media (min-width: 641px) {
+    .writeup-body :global(h2) {
+      font-size: 1.625rem;
+    }
+  }
+  .writeup-body :global(h2:first-child) {
+    margin-top: 0;
+    padding-top: 0;
+    border-top: 0;
+  }
+  .writeup-body :global(p) {
+    margin: 0 0 1.5rem;
+  }
+  .writeup-body :global(strong) {
+    color: var(--color-text-primary);
+    font-weight: 600;
+  }
+  .writeup-body :global(em) {
+    color: var(--color-text-primary);
+  }
+  .writeup-body :global(a) {
+    color: var(--color-accent-bright);
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 3px;
+    transition: color 150ms ease;
+  }
+  .writeup-body :global(a:hover) {
+    color: var(--color-text-primary);
+  }
+  .writeup-body :global(ul),
+  .writeup-body :global(ol) {
+    margin: 0 0 1.5rem;
+    padding-left: 1.5rem;
+  }
+  .writeup-body :global(li) {
+    margin-bottom: 0.6rem;
+  }
+  .writeup-body :global(li::marker) {
+    color: var(--color-text-muted);
+  }
+
+  /* Code */
+  .writeup-body :global(code) {
+    font-family: var(--font-mono);
+    font-size: 0.9em;
+    color: var(--color-text-primary);
+    background: var(--color-bg-elevated);
+    padding: 0.1rem 0.35rem;
+    border-radius: 0;
+    border: 1px solid var(--color-border-subtle);
+  }
+  .writeup-body :global(pre) {
+    background: var(--color-bg-elevated);
+    border: 1px solid var(--color-border-subtle);
+    padding: 1.25rem 1.5rem;
+    margin: 1.75rem 0;
+    overflow-x: auto;
+    font-size: 0.85rem;
+    line-height: 1.55;
+  }
+  .writeup-body :global(pre code) {
+    background: transparent;
+    border: 0;
+    padding: 0;
+    font-size: inherit;
+    color: var(--color-text-secondary);
+  }
+
+  /* Tables — sit on their own row, slim borders, mono numerics */
+  .writeup-body :global(table) {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1.75rem 0;
+    font-size: 0.9rem;
+    font-family: var(--font-sans);
+  }
+  .writeup-body :global(th),
+  .writeup-body :global(td) {
+    padding: 0.65rem 0.85rem;
+    text-align: left;
+    border-bottom: 1px solid var(--color-border-subtle);
+    vertical-align: top;
+  }
+  .writeup-body :global(th) {
+    font-family: var(--font-mono);
+    font-weight: 400;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--color-text-secondary);
+    border-bottom-color: var(--color-border-default);
+  }
+  .writeup-body :global(td) {
+    color: var(--color-text-primary);
+  }
+
+  /* Footer */
+  .writeup-footer {
+    margin-top: 4.5rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--color-border-subtle);
+  }
+  .writeup-back {
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    color: var(--color-text-secondary);
+    text-decoration: none;
+    transition: color 150ms ease;
+  }
+  .writeup-back:hover {
+    color: var(--color-text-primary);
+  }
+</style>
