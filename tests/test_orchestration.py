@@ -170,8 +170,10 @@ def test_clarifier_supersedes_classification_in_state(tmp_path):
     assert result["clarifier_output"] == fake_clarifier_output
     # Initial preserved on the audit-trail object
     assert result["clarifier_output"].initial_classification == initial
-    # And the disk artefact landed
-    assert (tmp_path / "clarifier.json").exists()
+    # And the disk artefact landed (v6 task 5 renamed
+    # clarifier.json -> clarifier_output.json so the call log can take
+    # the .calls.json suffix without collision).
+    assert (tmp_path / "clarifier_output.json").exists()
 
 
 def test_route_after_clarify_handles_three_outcomes():

@@ -12,7 +12,7 @@ Concurrency is bounded inside the agent rather than via LangGraph's
 Send / fan-out edges. The graph still shows one Mapper node; the
 parallelism is implementation detail. Disk-write race conditions are
 avoided by buffering LLMCallLog entries in memory under an asyncio.Lock
-and writing the full mapper.json once after asyncio.gather completes.
+and writing the full mapper.calls.json once after asyncio.gather completes.
 Per-call failures are caught with `return_exceptions=True` and surfaced
 as MapperFailure entries — the audit trail records what errored, the
 other 70 calls still produce mappings.
@@ -333,8 +333,9 @@ async def _map_to_controls_async(
     # Flush the buffered LLMCallLog list to disk in one write — same
     # shape call_with_logging produces (a JSON list of LLMCallLog
     # entries) so report.aggregate_usage() picks up the costs unchanged.
+    # Filename matches the v6 task 5 convention (<agent>.calls.json).
     log_entries = buffer.all_calls()
-    log_path = run_dir / "mapper.json"
+    log_path = run_dir / "mapper.calls.json"
     log_path.write_text(
         json.dumps(
             [json.loads(e.model_dump_json()) for e in log_entries],

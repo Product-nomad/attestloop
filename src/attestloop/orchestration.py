@@ -96,6 +96,9 @@ def classify_node(state: PipelineState) -> dict:
         state["regulation"],
         state["run_dir"],
     )
+    (state["run_dir"] / "classification.json").write_text(
+        classification.model_dump_json(indent=2)
+    )
     return {"classification": classification}
 
 
@@ -250,7 +253,7 @@ def clarify_node(state: PipelineState) -> dict:
         state["regulation"],
         state["run_dir"],
     )
-    (state["run_dir"] / "clarifier.json").write_text(
+    (state["run_dir"] / "clarifier_output.json").write_text(
         output.model_dump_json(indent=2)
     )
     return {

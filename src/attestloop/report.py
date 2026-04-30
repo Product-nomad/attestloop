@@ -27,31 +27,105 @@ def sha256_of_path(path: Path) -> str:
     return hashlib.sha256(path.read_text().encode("utf-8")).hexdigest()
 
 
+# Files in run_dir that are NOT per-call LLM logs — structured agent
+# outputs, run metadata, and side-channel artefacts. aggregate_usage
+# explicitly skips these so accidental new structured outputs don't
+# get summed as token costs.
+_NON_LOG_FILES = frozenset(
+    {
+        "publication.json",
+        "classification.json",
+        "obligations.json",
+        "mappings.json",
+        "mapper_failures.json",
+        "critic_decisions.json",
+        "clarifier_output.json",
+        "run_metadata.json",
+    }
+)
+
+_LEGACY_AGENTS = ("classifier", "extractor", "mapper", "critic", "clarifier")
+
+
 def aggregate_usage(run_dir: Path) -> tuple[float, int, int]:
-    """Sum cost_usd / input_tokens / output_tokens across every per-agent
-    JSON log in the run directory. Skips non-log artefacts."""
+    """Sum cost_usd / input_tokens / output_tokens across every
+    per-agent JSON log in the run directory.
+
+    Reads both naming schemes:
+      - v6 task 5+: <agent>.calls.json (preferred when present)
+      - v1–v5: <agent>.json (fallback for legacy snapshots)
+
+    For each known agent, the .calls.json takes precedence: if it
+    exists the legacy <agent>.json is ignored, so a directory
+    containing both (e.g. a manually-merged snapshot) is read as the
+    new convention rather than double-counted.
+    """
     cost = 0.0
     in_tok = 0
     out_tok = 0
+    seen: set[Path] = set()
+
+    # Pass 1: prefer <agent>.calls.json for known agents.
+    for agent in _LEGACY_AGENTS:
+        new_path = run_dir / f"{agent}.calls.json"
+        old_path = run_dir / f"{agent}.json"
+        path = new_path if new_path.exists() else old_path
+        if not path.exists():
+            continue
+        seen.add(path)
+        c, i, o = _sum_log_file(path)
+        cost += c
+        in_tok += i
+        out_tok += o
+
+    # Pass 2: any *.calls.json files we didn't anticipate (e.g. a new
+    # agent name added later). Plus a final sweep over *.json that
+    # weren't already counted and aren't structured outputs — keeps
+    # the function future-proof for agents we don't yet know about.
+    for log_path in run_dir.glob("*.calls.json"):
+        if log_path in seen:
+            continue
+        seen.add(log_path)
+        c, i, o = _sum_log_file(log_path)
+        cost += c
+        in_tok += i
+        out_tok += o
+
     for log_path in run_dir.glob("*.json"):
-        if log_path.name in {
-            "publication.json",
-            "obligations.json",
-            "mappings.json",
-            "critic_decisions.json",
-            "run_metadata.json",
-        }:
+        if log_path in seen or log_path.name in _NON_LOG_FILES:
             continue
-        try:
-            entries = json.loads(log_path.read_text())
-        except json.JSONDecodeError:
+        # Skip the legacy <agent>.json if its <agent>.calls.json sibling
+        # was already counted above.
+        if (run_dir / f"{log_path.stem}.calls.json").exists():
             continue
-        if not isinstance(entries, list):
+        seen.add(log_path)
+        c, i, o = _sum_log_file(log_path)
+        cost += c
+        in_tok += i
+        out_tok += o
+
+    return cost, in_tok, out_tok
+
+
+def _sum_log_file(log_path: Path) -> tuple[float, int, int]:
+    """Sum a single per-call log file. Returns zeros if the file is
+    not a JSON list (e.g. a structured output that slipped past the
+    filename filter)."""
+    try:
+        entries = json.loads(log_path.read_text())
+    except json.JSONDecodeError:
+        return 0.0, 0, 0
+    if not isinstance(entries, list):
+        return 0.0, 0, 0
+    cost = 0.0
+    in_tok = 0
+    out_tok = 0
+    for entry in entries:
+        if not isinstance(entry, dict):
             continue
-        for entry in entries:
-            cost += float(entry.get("cost_usd", 0.0))
-            in_tok += int(entry.get("input_tokens", 0))
-            out_tok += int(entry.get("output_tokens", 0))
+        cost += float(entry.get("cost_usd", 0.0))
+        in_tok += int(entry.get("input_tokens", 0))
+        out_tok += int(entry.get("output_tokens", 0))
     return cost, in_tok, out_tok
 
 

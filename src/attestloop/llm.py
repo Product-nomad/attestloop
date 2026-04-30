@@ -75,7 +75,10 @@ def _flatten_text(value: str | list[dict]) -> str:
 
 
 def _append_log(run_dir: Path, agent: str, entry: LLMCallLog) -> None:
-    log_path = run_dir / f"{agent}.json"
+    """Append the call entry to <agent>.calls.json. v6 task 5 renamed
+    these files from <agent>.json — see report.aggregate_usage which
+    reads both schemes for backwards-compat with v1–v5 snapshots."""
+    log_path = run_dir / f"{agent}.calls.json"
     if log_path.exists():
         existing = json.loads(log_path.read_text())
     else:
