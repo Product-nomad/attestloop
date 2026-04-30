@@ -68,7 +68,12 @@ no-op; if `ANTHROPIC_API_KEY` is still unset after loading, the CLI exits
 with a clear error pointing at `.env.example`. You can also export the key
 directly in your shell instead of using `.env`.
 
-Run logs land in `runs/<run_id>/`.
+Run logs land in `runs/<run_id>/`. The `runs/` directory itself is
+gitignored, but a representative end-to-end run is preserved in
+[`docs/example_run/`](docs/example_run/) as the canonical example output —
+classifier / extractor / mapper logs, fetch trace, full obligation list,
+control mappings, and the rendered `report.md` from a real EU AI Act
+guidelines run.
 
 ## Status
 
