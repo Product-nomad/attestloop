@@ -111,7 +111,7 @@ prompt caching is a known follow-up.
 | Drift monitoring (weekly run vs golden)    | 🚧 next                             |
 | Chunked extractor (lift 50 K truncation)   | 🚧 backlog                          |
 | Mapper batching + prompt caching           | 🚧 backlog                          |
-| Threat model (`THREAT_MODEL.md`)           | 🚧 backlog                          |
+| Threat model (`THREAT_MODEL.md`)           | ✅ done                             |
 
 ## Honest scope
 
