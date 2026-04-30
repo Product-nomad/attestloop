@@ -1,0 +1,20 @@
+---
+section: 8
+title: Failure modes
+status: draft
+updated: 2026-04-30
+---
+
+Six things that broke or surprised during development. Each is preserved in the git history; the stories are what makes the writeup credible to a reader who has built systems like this.
+
+EUR-Lex's PDF-on-demand quirk. The first attempt to fetch the AI Act guidelines from EUR-Lex returned an HTTP 202 response with an empty body. EUR-Lex generates PDFs on demand; the first request kicks off generation, and the client is expected to retry. The fetcher needed magic-byte detection — checking the first five bytes of the response for %PDF- — because both Content-Type and URL-pattern checks failed on the redirect chain. Real regulator scraping is materially harder than the demos suggest.
+
+The model that recognised a 404 page. During development, one fetch returned a Commission "Page not found" template — about 489 characters of navigation HTML with no actual document content. The Classifier marked it out_of_scope with confidence 0.98 and reasoning that explicitly noted the URL suggested a guidelines page but the content was a 404 template. The first reaction was to debug the system; the actual outcome was the system refusing to extract obligations from a non-document. Belief calibration the right way around.
+
+Slot-fill in the Mapper. The v2 prompt asked for "1–3 mappings per obligation"; the model interpreted this as "always 3" and produced reasoning hedges to fill the slots. Phrases like "thematically aligned" and "not a verbatim match but" appeared on roughly a third of the v2 mappings. The fix wasn't tighter post-filtering — it was an explicit confidence floor in the prompt with examples of what not to return. After v3, the pre-filter and post-filter counts matched, proving the model was self-regulating rather than the code post-hoc.
+
+Chunked extraction producing paraphrased duplicates. v2's chunked extractor was catching obligations at chunk boundaries — exactly what 2,000-character overlap was meant to do — but the Article 5(1)(c) prohibition appeared in three different chunks with slightly different wording each time. Substring-match deduplication couldn't catch the paraphrases. The fix was rapidfuzz.token_set_ratio at threshold 80, which merged 12 paraphrased duplicates in v5. The lesson: chunk overlap is a correctness mechanism, but the dedup pass it requires is non-trivial to get right.
+
+Anthropic's 5-minute cache TTL exceeded by rate-limit retries. v4's prompt caching delivered a 97% hit rate, not 100%. The 3% misses were caused by rate-limit retries inserting 30-second backoff pauses; with multiple consecutive backoffs on a long run, the cache TTL would expire and the next call would write a fresh cache entry. The cost of the rewrites was small — two extra cache writes on a 71-call run — but the diagnostic process surfaced a useful observation: latency variance from rate limits is itself an orchestration problem, and the right v6 fix is parallel execution to keep the call cadence inside the cache window.
+
+The model's tendency to map every prohibition to GOVERN-1.1. GOVERN-1.1 — "legal and regulatory requirements involving AI are understood, managed, and documented" — is a defensible mapping for almost any Article 5 prohibition. The v2 Mapper used it on 26% of all mappings. v3's confidence floor brought that to 21% by dropping the weakest catch-all uses. v5's targeted prompt nudge for substantive provider obligations restored some legitimate uses, settling at 32%. The v5 share is correct: GOVERN-1.1 is the right control for most prohibition-shaped obligations, and the trajectory wasn't "use it less" but "use it precisely."
