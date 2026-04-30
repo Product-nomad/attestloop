@@ -32,7 +32,7 @@ change.
 Each agent stage is one Anthropic call with a versioned, regulation-specific
 prompt. Inputs and outputs are typed Pydantic models.
 
-## Agents (one sentence each)
+## Agents
 
 - **classifier** — decides whether a fetched publication is in scope for the
   named regulation, and what category of document it is.
