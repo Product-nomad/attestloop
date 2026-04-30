@@ -58,20 +58,28 @@ def _looks_like_pdf_bytes(content: bytes) -> bool:
     return content[:5] == b"%PDF-"
 
 
+def _looks_like_filename(value: str) -> bool:
+    """Heuristic for "this title looks like the URL filename": numeric-only
+    strings (e.g. '112367') are the canonical case from the Commission
+    newsroom redirect endpoint."""
+    return value.isdigit()
+
+
+def _title_from_body(text: str) -> str | None:
+    """Scan the first 1000 characters of the cleaned body for the first
+    non-trivial line plausibly being the document title: 30-200 chars long,
+    not all-uppercase (rules out section banners like 'EUROPEAN COMMISSION'),
+    and contains at least one space (rules out filename-like single tokens)."""
+    head = text[:1000]
+    for raw_line in head.splitlines():
+        line = raw_line.strip()
+        if 30 <= len(line) <= 200 and not line.isupper() and " " in line:
+            return line
+    return None
+
+
 def _extract_pdf_text(content: bytes, source_url: str) -> tuple[str | None, str]:
     reader = PdfReader(io.BytesIO(content))
-
-    title: str | None = None
-    if reader.metadata is not None:
-        meta_title = reader.metadata.title
-        if meta_title:
-            title_str = str(meta_title).strip()
-            if title_str:
-                title = title_str
-    if title is None:
-        parsed = urlparse(source_url)
-        filename = parsed.path.rstrip("/").rpartition("/")[2]
-        title = filename or None
 
     pages: list[str] = []
     for page in reader.pages:
@@ -81,6 +89,25 @@ def _extract_pdf_text(content: bytes, source_url: str) -> tuple[str | None, str]
             pages.append("")
     text = "\n\n".join(p for p in pages if p)
     text = re.sub(r"\n{3,}", "\n\n", text).strip()
+
+    # Title resolution precedence: PDF /Title metadata (if non-empty and not
+    # a numeric filename) → first plausible body line → URL filename fallback.
+    title: str | None = None
+    if reader.metadata is not None:
+        meta_title = reader.metadata.title
+        if meta_title:
+            title_str = str(meta_title).strip()
+            if title_str and not _looks_like_filename(title_str):
+                title = title_str
+
+    if not title:
+        title = _title_from_body(text)
+
+    if not title:
+        parsed = urlparse(source_url)
+        filename = parsed.path.rstrip("/").rpartition("/")[2]
+        title = filename or None
+
     return title, text
 
 

@@ -1,6 +1,7 @@
 import hashlib
 from pathlib import Path
 
+from rapidfuzz import fuzz
 from rich.console import Console
 
 from attestloop.llm import call_with_logging
@@ -11,6 +12,7 @@ _MODEL = "claude-sonnet-4-6"
 _CHUNK_CHARS = 40_000
 _CHUNK_OVERLAP = 2_000
 _DEFAULT_OBLIGATION_PREFIX = "OBL"
+_DEDUP_SIMILARITY_FLOOR = 80
 
 _console = Console()
 
@@ -53,42 +55,80 @@ def _build_user_message(
     )
 
 
-def _dedupe_obligations(obligations: list[Obligation]) -> tuple[list[Obligation], int]:
-    """Case-insensitive substring dedup. Keeps the most-complete (longest) version.
+def _merge_optional_fields(winner: Obligation, loser: Obligation) -> Obligation:
+    """If the winner's deadline / evidence_required are empty or None, copy
+    the loser's non-empty value into the winner. Returns the (possibly
+    updated) winner."""
+    updates: dict[str, str] = {}
+    if not winner.deadline and loser.deadline:
+        updates["deadline"] = loser.deadline
+    if not winner.evidence_required and loser.evidence_required:
+        updates["evidence_required"] = loser.evidence_required
+    if updates:
+        return winner.model_copy(update=updates)
+    return winner
 
-    Iterating in order, for each candidate:
-      - if any kept obligation's text contains the candidate's text → drop the candidate
-        (the kept one is at least as complete)
-      - else if any kept obligation's text is contained in the candidate's text →
-        replace the kept entry with the candidate (candidate is more complete)
-      - else → append as a new unique obligation
 
-    Returns (kept_obligations, n_duplicates_removed).
+def _dedupe_obligations(
+    obligations: list[Obligation], chunk_indices: list[int]
+) -> tuple[list[Obligation], int]:
+    """Fuzzy dedup using rapidfuzz token_set_ratio. Two obligations are
+    duplicates if their requirement_text similarity score >= 80. When
+    duplicates are found, keep the one with the more specific (longer)
+    source_paragraph; on ties, keep the earlier-extracted obligation.
+    Optional fields (deadline, evidence_required) from the loser are merged
+    into the winner if the winner's are empty.
+
+    Each merge is logged via rich. Returns (kept_obligations, n_merged).
     """
     kept: list[Obligation] = []
-    removed = 0
-    for candidate in obligations:
-        cand_text = candidate.requirement_text.lower().strip()
+    kept_chunks: list[int] = []
+    n_merged = 0
+
+    for candidate, cand_chunk in zip(obligations, chunk_indices):
+        cand_text = candidate.requirement_text.strip()
         if not cand_text:
-            removed += 1
+            n_merged += 1
             continue
 
-        skip = False
-        replaced = False
+        best_idx = -1
+        best_score = 0
         for i, existing in enumerate(kept):
-            existing_text = existing.requirement_text.lower().strip()
-            if cand_text == existing_text or cand_text in existing_text:
-                removed += 1
-                skip = True
-                break
-            if existing_text in cand_text:
-                kept[i] = candidate
-                removed += 1
-                replaced = True
-                break
-        if not (skip or replaced):
+            score = int(fuzz.token_set_ratio(cand_text, existing.requirement_text))
+            if score >= _DEDUP_SIMILARITY_FLOOR and score > best_score:
+                best_score = score
+                best_idx = i
+
+        if best_idx < 0:
             kept.append(candidate)
-    return kept, removed
+            kept_chunks.append(cand_chunk)
+            continue
+
+        existing = kept[best_idx]
+        existing_chunk = kept_chunks[best_idx]
+        cand_src_len = len(candidate.source_paragraph)
+        existing_src_len = len(existing.source_paragraph)
+
+        if cand_src_len > existing_src_len:
+            winner, loser = candidate, existing
+            winner_chunk, loser_chunk = cand_chunk, existing_chunk
+        else:
+            # Equal-length sources: keep the earlier-extracted (existing) one.
+            winner, loser = existing, candidate
+            winner_chunk, loser_chunk = existing_chunk, cand_chunk
+
+        winner = _merge_optional_fields(winner, loser)
+        kept[best_idx] = winner
+        kept_chunks[best_idx] = winner_chunk
+
+        _console.print(
+            f"[yellow]extractor: merging {loser.id} (chunk "
+            f"{loser_chunk + 1}, similarity {best_score}) into "
+            f"{winner.id} (chunk {winner_chunk + 1})[/yellow]"
+        )
+        n_merged += 1
+
+    return kept, n_merged
 
 
 def _infer_prefix(obligations: list[Obligation]) -> str:
@@ -127,6 +167,7 @@ def extract(
         )
 
     all_obligations: list[Obligation] = []
+    chunk_indices: list[int] = []
     for i, chunk in enumerate(chunks):
         result = call_with_logging(
             agent="extractor",
@@ -145,18 +186,22 @@ def extract(
                 }
             ),
         )
-        all_obligations.extend(result.obligations)
+        for obl in result.obligations:
+            all_obligations.append(obl)
+            chunk_indices.append(i)
 
     if n_chunks <= 1:
+        _console.print(
+            f"[yellow]extractor: deduplication merged 0 obligations; "
+            f"final count {len(all_obligations)}[/yellow]"
+        )
         return ExtractorOutput(obligations=all_obligations)
 
-    deduped, removed = _dedupe_obligations(all_obligations)
-    if removed > 0:
-        _console.print(
-            f"[yellow]extractor: deduplicated {removed} obligations "
-            f"(case-insensitive substring match); {len(deduped)} remain "
-            f"from {len(all_obligations)} raw extractions.[/yellow]"
-        )
+    deduped, n_merged = _dedupe_obligations(all_obligations, chunk_indices)
+    _console.print(
+        f"[yellow]extractor: deduplication merged {n_merged} obligations; "
+        f"final count {len(deduped)}[/yellow]"
+    )
     prefix = _infer_prefix(deduped)
     renumbered = _renumber(deduped, prefix=prefix)
     return ExtractorOutput(obligations=renumbered)

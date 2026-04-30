@@ -68,8 +68,24 @@ def _aggregate_usage(run_dir: Path) -> tuple[float, int, int]:
     return cost, in_tok, out_tok
 
 
+_NULLISH_CELL_VALUES = {"", "null", "none"}
+
+
 def _md_escape_cell(text: str) -> str:
     return text.replace("|", "\\|").replace("\n", " ").strip()
+
+
+def _md_nullable_cell(value) -> str:
+    """Render a possibly-empty / possibly-null-literal cell as an em-dash.
+    Treats None, the strings 'null'/'None' (any case), and empty/whitespace
+    strings as missing data — preventing the literal word "null" from
+    leaking into the report when the LLM emits it for an optional field."""
+    if value is None:
+        return "—"
+    s = str(value).strip()
+    if s.lower() in _NULLISH_CELL_VALUES:
+        return "—"
+    return _md_escape_cell(s)
 
 
 def _obligations_table(obligations: list[Obligation]) -> str:
@@ -83,12 +99,12 @@ def _obligations_table(obligations: list[Obligation]) -> str:
     for o in obligations:
         rows.append(
             "| {id} | {src} | {req} | {scope} | {dl} | {ev} |".format(
-                id=_md_escape_cell(o.id),
-                src=_md_escape_cell(o.source_paragraph),
-                req=_md_escape_cell(o.requirement_text),
-                scope=_md_escape_cell(o.scope),
-                dl=_md_escape_cell(o.deadline or "—"),
-                ev=_md_escape_cell(o.evidence_required or "—"),
+                id=_md_nullable_cell(o.id),
+                src=_md_nullable_cell(o.source_paragraph),
+                req=_md_nullable_cell(o.requirement_text),
+                scope=_md_nullable_cell(o.scope),
+                dl=_md_nullable_cell(o.deadline),
+                ev=_md_nullable_cell(o.evidence_required),
             )
         )
     return header + "\n".join(rows) + "\n"
@@ -107,11 +123,11 @@ def _mappings_table(mappings, controls_by_id: dict) -> str:
         function = ctl.function if ctl else "—"
         rows.append(
             "| {oid} | {cid} | {fn} | {conf:.2f} | {why} |".format(
-                oid=_md_escape_cell(m.obligation_id),
-                cid=_md_escape_cell(m.control_id),
-                fn=_md_escape_cell(function),
+                oid=_md_nullable_cell(m.obligation_id),
+                cid=_md_nullable_cell(m.control_id),
+                fn=_md_nullable_cell(function),
                 conf=m.confidence,
-                why=_md_escape_cell(m.reasoning),
+                why=_md_nullable_cell(m.reasoning),
             )
         )
     return header + "\n".join(rows) + "\n"
@@ -128,10 +144,10 @@ def _unmapped_table(unmapped: list[Obligation]) -> str:
     for o in unmapped:
         rows.append(
             "| {id} | {src} | {req} | {scope} |".format(
-                id=_md_escape_cell(o.id),
-                src=_md_escape_cell(o.source_paragraph),
-                req=_md_escape_cell(o.requirement_text),
-                scope=_md_escape_cell(o.scope),
+                id=_md_nullable_cell(o.id),
+                src=_md_nullable_cell(o.source_paragraph),
+                req=_md_nullable_cell(o.requirement_text),
+                scope=_md_nullable_cell(o.scope),
             )
         )
     return header + "\n".join(rows) + "\n"

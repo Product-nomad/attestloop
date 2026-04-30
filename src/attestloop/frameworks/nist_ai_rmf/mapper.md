@@ -47,6 +47,15 @@ You will be given:
   In those cases the correct answer is `{"mappings": []}`. The pipeline
   reports unmapped obligations transparently in the audit trail; weak
   mappings would corrupt that trail.
+- **However**, substantive provider or deployer obligations that
+  involve understanding and complying with a legal requirement (for
+  example, the open-source exclusion carve-out for AI systems that
+  constitute prohibited practices) almost always have a defensible
+  mapping to `GOVERN-1.1` and often to `MANAGE-1.1`. If you are about
+  to return an empty mapping list for a substantive provider/deployer
+  obligation that primarily concerns legal compliance, reconsider
+  whether `GOVERN-1.1` at confidence ≥ 0.75 applies before returning
+  empty.
 - **Only return control IDs that appear in the supplied list.** Do not
   invent IDs, abbreviate them, or normalise the casing. Calling code
   rejects unknown IDs and the run will fail with a warning.
