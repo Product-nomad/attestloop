@@ -52,17 +52,23 @@ uv sync --extra dev
 uv run pytest
 ```
 
-When the pipeline lands (part 2/3), invocation will look roughly like:
+Once an `ANTHROPIC_API_KEY` is set, invocation looks like:
 
 ```bash
 cp .env.example .env  # then paste your ANTHROPIC_API_KEY
 uv run python -m attestloop.pipeline \
-    --url <regulator-publication-url> \
     --regulation eu_ai_act \
-    --framework nist_ai_rmf
+    --framework nist_ai_rmf \
+    <regulator-publication-url>
 ```
 
-Run logs land in `runs/<run_id>.json`.
+The pipeline auto-loads `.env` from the current working directory (or any
+parent) at startup via `python-dotenv`. If `.env` is missing the loader is a
+no-op; if `ANTHROPIC_API_KEY` is still unset after loading, the CLI exits
+with a clear error pointing at `.env.example`. You can also export the key
+directly in your shell instead of using `.env`.
+
+Run logs land in `runs/<run_id>/`.
 
 ## Status
 

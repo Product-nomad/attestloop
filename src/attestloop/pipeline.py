@@ -1,10 +1,12 @@
 import argparse
 import hashlib
 import json
+import os
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
+from dotenv import load_dotenv
 from rich.console import Console
 
 from attestloop.agents.classifier import classify
@@ -218,6 +220,20 @@ def _build_out_of_scope_report(
 
 
 def main(argv: list[str] | None = None) -> int:
+    # Auto-load .env from CWD or any parent before constructing any Anthropic
+    # client. No-op if the file is absent.
+    load_dotenv()
+    if not os.environ.get("ANTHROPIC_API_KEY"):
+        print(
+            "error: ANTHROPIC_API_KEY is not set.\n"
+            "Copy .env.example to .env and paste your key, e.g.:\n"
+            "    cp .env.example .env\n"
+            "    # then edit .env and set ANTHROPIC_API_KEY=sk-ant-...\n"
+            "Or export ANTHROPIC_API_KEY in your shell before running.",
+            file=sys.stderr,
+        )
+        return 2
+
     parser = argparse.ArgumentParser(
         prog="attestloop",
         description="Run the Attestloop attestation pipeline against a single URL.",
