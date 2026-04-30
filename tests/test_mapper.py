@@ -140,13 +140,28 @@ def test_async_mapper_concurrency_respects_cap(tmp_path):
 
 
 def test_sync_wrapper_preserves_signature():
-    """The public sync entrypoint's signature must remain compatible
-    with the orchestration's map_node call site."""
+    """The public sync entrypoint's first three positional parameters
+    must remain compatible with the orchestration's map_node call site.
+    Additional optional parameters (e.g. v6 task 5's mapper_concurrency)
+    are allowed only if keyword-only and defaulted."""
     sig = inspect.signature(map_to_controls)
     params = list(sig.parameters.values())
-    assert len(params) == 3
-    assert [p.name for p in params] == ["input", "framework", "run_dir"]
+    positional = [
+        p for p in params
+        if p.kind in (
+            inspect.Parameter.POSITIONAL_ONLY,
+            inspect.Parameter.POSITIONAL_OR_KEYWORD,
+        )
+    ]
+    assert [p.name for p in positional] == ["input", "framework", "run_dir"]
     assert sig.return_annotation is MapperOutput
-    assert params[0].annotation is MapperInput
-    assert params[1].annotation is Framework
-    assert params[2].annotation is Path
+    assert positional[0].annotation is MapperInput
+    assert positional[1].annotation is Framework
+    assert positional[2].annotation is Path
+
+    extra = [p for p in params if p.kind == inspect.Parameter.KEYWORD_ONLY]
+    for p in extra:
+        assert p.default is not inspect.Parameter.empty, (
+            f"keyword-only param {p.name} must have a default to preserve "
+            f"the v5 call site"
+        )

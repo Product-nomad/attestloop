@@ -296,6 +296,7 @@ async def _map_to_controls_async(
     framework: Framework,
     framework_id: str,
     run_dir: Path,
+    mapper_concurrency: int = MAPPER_CONCURRENCY,
 ) -> tuple[list[ControlMapping], list[MapperFailure]]:
     """Async fan-out implementation. Returns (mappings_in_input_order,
     failures). Writes the buffered call log to mapper.json on completion."""
@@ -304,7 +305,7 @@ async def _map_to_controls_async(
     valid_ids = {c.id for c in framework.controls}
 
     client = AsyncAnthropic(timeout=_TIMEOUT_SECONDS)
-    semaphore = asyncio.Semaphore(MAPPER_CONCURRENCY)
+    semaphore = asyncio.Semaphore(mapper_concurrency)
     buffer = MapperCallBuffer()
 
     tasks = [
@@ -324,7 +325,7 @@ async def _map_to_controls_async(
 
     _console.print(
         f"[cyan]mapper: dispatching {len(tasks)} obligations with "
-        f"concurrency={MAPPER_CONCURRENCY}.[/cyan]"
+        f"concurrency={mapper_concurrency}.[/cyan]"
     )
 
     results = await asyncio.gather(*tasks)
@@ -371,10 +372,15 @@ async def _map_to_controls_async(
 
 
 def map_to_controls(
-    input: MapperInput, framework: Framework, run_dir: Path
+    input: MapperInput,
+    framework: Framework,
+    run_dir: Path,
+    *,
+    mapper_concurrency: int = MAPPER_CONCURRENCY,
 ) -> MapperOutput:
-    """Synchronous public entrypoint — unchanged signature. Wraps the
-    async fan-out implementation. Persists mapper_failures.json when
+    """Synchronous public entrypoint — keyword-only `mapper_concurrency`
+    keeps the v5 (input, framework, run_dir) positional contract. Wraps
+    the async fan-out implementation. Persists mapper_failures.json when
     any obligation errored permanently so the orchestration node can
     pull them onto PipelineState for the report."""
     mappings, failures = asyncio.run(
@@ -383,6 +389,7 @@ def map_to_controls(
             framework,
             input.framework_id,
             run_dir,
+            mapper_concurrency=mapper_concurrency,
         )
     )
 

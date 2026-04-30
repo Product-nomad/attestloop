@@ -67,12 +67,14 @@ def _build_user_message(
     )
 
 
-def _needs_review(mappings: list[ControlMapping]) -> bool:
-    """True iff any mapping for this obligation is below the
-    LOW_CONFIDENCE_THRESHOLD. Empty list returns False — no mappings
-    means a framework gap, which the Mapper has already surfaced as
-    `unmapped` and the Critic does not need to look at."""
-    return any(m.confidence < LOW_CONFIDENCE_THRESHOLD for m in mappings)
+def _needs_review(
+    mappings: list[ControlMapping], threshold: float = LOW_CONFIDENCE_THRESHOLD
+) -> bool:
+    """True iff any mapping for this obligation is below `threshold`.
+    Empty list returns False — no mappings means a framework gap, which
+    the Mapper has already surfaced as `unmapped` and the Critic does
+    not need to look at."""
+    return any(m.confidence < threshold for m in mappings)
 
 
 def review_mappings(
@@ -80,11 +82,14 @@ def review_mappings(
     mappings: list[ControlMapping],
     framework: Framework,
     run_dir: Path,
+    *,
+    confidence_threshold: float = LOW_CONFIDENCE_THRESHOLD,
 ) -> CriticOutput:
     """Review the subset of obligations whose Mapper output contains at
-    least one mapping below 0.80 confidence. Returns one CriticDecision
-    per reviewed obligation; obligations whose mappings are all
-    high-confidence (or empty) are skipped without LLM call."""
+    least one mapping below `confidence_threshold` (default 0.80).
+    Returns one CriticDecision per reviewed obligation; obligations
+    whose mappings are all high-confidence (or empty) are skipped
+    without LLM call."""
     system_prompt_text = framework.critic_prompt_path.read_text()
     prompt_version = hashlib.sha256(system_prompt_text.encode("utf-8")).hexdigest()
 
@@ -115,8 +120,8 @@ def review_mappings(
         obl_mappings = by_obligation.get(obligation.id, [])
         if not obl_mappings:
             continue  # framework gap; not the Critic's concern
-        if not _needs_review(obl_mappings):
-            continue  # all mappings >= 0.80; nothing to review
+        if not _needs_review(obl_mappings, confidence_threshold):
+            continue  # all mappings >= threshold; nothing to review
 
         result = call_with_logging(
             agent="critic",

@@ -10,6 +10,7 @@ from pathlib import Path
 from dotenv import load_dotenv
 from rich.console import Console
 
+from attestloop.config import DEFAULT, V5_EQUIVALENT, V6_CANONICAL, PipelineConfig
 from attestloop.fetch import EmptyPublicationError
 from attestloop.orchestration import PipelineState, build_pipeline_graph
 from attestloop.registry import get_framework, get_regulation
@@ -17,8 +18,18 @@ from attestloop.runs import create_run_dir
 
 _console = Console()
 
+_CONFIG_CHOICES = {
+    "v5": V5_EQUIVALENT,
+    "v6": V6_CANONICAL,
+}
 
-def run(url: str, regulation_id: str, framework_id: str) -> Path:
+
+def run(
+    url: str,
+    regulation_id: str,
+    framework_id: str,
+    config: PipelineConfig = DEFAULT,
+) -> Path:
     """Execute the pipeline against a single URL and return the path to
     the rendered report.md. Raises EmptyPublicationError if the fetch
     step produced nothing usable; other LLM/IO errors propagate from
@@ -35,7 +46,7 @@ def run(url: str, regulation_id: str, framework_id: str) -> Path:
         "framework": get_framework(framework_id),
     }
 
-    graph = build_pipeline_graph()
+    graph = build_pipeline_graph(config)
     final_state = graph.invoke(initial_state)
     return final_state["report_path"]
 
@@ -59,7 +70,19 @@ def main(argv: list[str] | None = None) -> int:
         prog="attestloop",
         description="Run the Attestloop attestation pipeline against a single URL.",
     )
-    parser.add_argument("url", help="URL of the regulator publication to assess.")
+    # Accept both `--url <url>` and a positional URL for backwards-
+    # compatibility with the v1–v5 invocation style.
+    parser.add_argument(
+        "url_positional",
+        nargs="?",
+        metavar="url",
+        help="URL of the regulator publication to assess (positional form).",
+    )
+    parser.add_argument(
+        "--url",
+        dest="url_option",
+        help="URL of the regulator publication to assess.",
+    )
     parser.add_argument(
         "--regulation",
         default="eu_ai_act",
@@ -70,11 +93,30 @@ def main(argv: list[str] | None = None) -> int:
         default="nist_ai_rmf",
         help="Framework registry id (default: nist_ai_rmf).",
     )
+    parser.add_argument(
+        "--config",
+        choices=sorted(_CONFIG_CHOICES.keys()),
+        default="v6",
+        help=(
+            "Pipeline configuration preset (default: v6). v5 disables the "
+            "Critic, the Clarifier routing, and parallel Mapper execution "
+            "for like-for-like baselining against the historical v5 run."
+        ),
+    )
     args = parser.parse_args(argv)
+
+    url = args.url_option or args.url_positional
+    if not url:
+        parser.error("a URL is required (pass as positional or via --url)")
 
     try:
         with _console.status("Running pipeline..."):
-            report_path = run(args.url, args.regulation, args.framework)
+            report_path = run(
+                url,
+                args.regulation,
+                args.framework,
+                config=_CONFIG_CHOICES[args.config],
+            )
     except EmptyPublicationError as e:
         print(
             "error: Fetched page returned no usable content. The page may be "
