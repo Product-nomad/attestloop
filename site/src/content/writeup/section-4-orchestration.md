@@ -2,7 +2,6 @@
 section: 4
 title: Orchestration
 status: draft
-word_count: 700
 updated: 2026-04-30
 ---
 

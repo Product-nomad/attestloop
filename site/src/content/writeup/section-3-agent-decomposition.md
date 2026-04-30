@@ -2,7 +2,6 @@
 section: 3
 title: Agent decomposition
 status: draft
-word_count: 860
 updated: 2026-04-30
 ---
 

@@ -2,7 +2,6 @@
 section: 1
 title: The problem
 status: draft
-word_count: 430
 updated: 2026-04-30
 ---
 

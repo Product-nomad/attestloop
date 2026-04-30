@@ -2,7 +2,6 @@
 section: 2
 title: Why multi-agent
 status: draft
-word_count: 580
 updated: 2026-04-30
 ---
 

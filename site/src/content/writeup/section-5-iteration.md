@@ -2,7 +2,6 @@
 section: 5
 title: Iteration
 status: draft
-word_count: 850
 updated: 2026-04-30
 ---
 
