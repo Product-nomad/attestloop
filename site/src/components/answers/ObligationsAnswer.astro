@@ -1,0 +1,90 @@
+---
+import obligationsFile from "../../content/runs/v5_obligations.json";
+
+const FEATURED_IDS = [
+  "EUAIA-OBL-001",
+  "EUAIA-OBL-008",
+  "EUAIA-OBL-020",
+  "EUAIA-OBL-051",
+];
+
+const byId = new Map(obligationsFile.obligations.map((o) => [o.id, o]));
+const rows = FEATURED_IDS.map((id) => byId.get(id)).filter(
+  (o): o is NonNullable<typeof o> => Boolean(o),
+);
+
+function truncate(s: string, max: number): string {
+  if (s.length <= max) return s;
+  return s.slice(0, max - 1).trimEnd() + "…";
+}
+
+function articleLabel(source: string): string {
+  // Extract just the article-like prefix for the second column;
+  // strip "AI Act" suffix and "(as referenced in ...)" trailers.
+  const cleaned = source.replace(/\s*\(as referenced in[^)]*\)\s*/g, "").trim();
+  const articleMatch = cleaned.match(/^Article\s+[0-9A-Za-z()/. ,–-]+/);
+  if (articleMatch) {
+    return articleMatch[0].replace(/\s+AI Act.*$/, "").trim();
+  }
+  return cleaned;
+}
+
+const columns = ["ID", "Article", "Requirement", "Scope", "Deadline"];
+---
+
+<div class="border border-border-subtle bg-bg-elevated">
+  <div class="overflow-x-auto">
+    <table class="w-full text-left border-collapse">
+      <thead>
+        <tr class="border-b border-border-subtle">
+          {
+            columns.map((col) => (
+              <th class="px-4 py-3 text-xs font-mono uppercase tracking-[0.12em] text-text-secondary font-normal whitespace-nowrap">
+                {col}
+              </th>
+            ))
+          }
+        </tr>
+      </thead>
+      <tbody>
+        {
+          rows.map((row, i) => (
+            <tr
+              class:list={[
+                i > 0 && "border-t border-border-subtle",
+                "align-top",
+              ]}
+            >
+              <td class="px-4 py-4 text-sm font-mono text-text-primary whitespace-nowrap">
+                {row.id}
+              </td>
+              <td class="px-4 py-4 text-sm font-mono text-text-secondary whitespace-nowrap">
+                {articleLabel(row.source_paragraph)}
+              </td>
+              <td class="px-4 py-4 font-serif text-text-primary leading-snug min-w-[20rem]">
+                {truncate(row.requirement_text, 120)}
+              </td>
+              <td class="px-4 py-4 font-serif text-text-secondary leading-snug">
+                {truncate(row.scope, 80)}
+              </td>
+              <td class="px-4 py-4 text-sm font-mono text-text-secondary whitespace-nowrap">
+                {row.deadline ?? "—"}
+              </td>
+            </tr>
+          ))
+        }
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<p class="text-xs font-mono text-text-muted mt-4 leading-relaxed">
+  Excerpt from the v5 run. The full report contains {
+    obligationsFile.obligations.length
+  } obligations with mapped control IDs and proposed actions.
+  <a
+    href="https://github.com/Product-nomad/attestloop/blob/main/docs/example_runs/v5_clean/report.md"
+    class="text-text-secondary hover:text-text-primary transition-colors duration-150 underline underline-offset-4"
+    >View the full report on GitHub.</a
+  >
+</p>

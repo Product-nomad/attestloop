@@ -1,0 +1,47 @@
+[
+  {
+    "version": "v1",
+    "approach": "Truncated extractor (50 K char cap), mapper unconstrained",
+    "obligations": 18,
+    "mappings": 54,
+    "unmapped": 0,
+    "cost_usd": 0.62,
+    "runtime_seconds": 317
+  },
+  {
+    "version": "v2",
+    "approach": "Chunked extractor (12 chunks), mapper unconstrained",
+    "obligations": 68,
+    "mappings": 203,
+    "unmapped": 0,
+    "cost_usd": 2.61,
+    "runtime_seconds": 1282
+  },
+  {
+    "version": "v3",
+    "approach": "Mapper confidence floor 0.75, no slot-filling",
+    "obligations": 72,
+    "mappings": 164,
+    "unmapped": 12,
+    "cost_usd": 2.78,
+    "runtime_seconds": 2495
+  },
+  {
+    "version": "v4",
+    "approach": "Anthropic prompt caching on mapper controls list",
+    "obligations": 69,
+    "mappings": 124,
+    "unmapped": 24,
+    "cost_usd": 1.19,
+    "runtime_seconds": 891
+  },
+  {
+    "version": "v5",
+    "approach": "Fuzzy dedup, title fallback, null rendering, mapper nudge",
+    "obligations": 71,
+    "mappings": 154,
+    "unmapped": 13,
+    "cost_usd": 1.31,
+    "runtime_seconds": 1037
+  }
+]

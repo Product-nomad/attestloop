@@ -1,0 +1,51 @@
+---
+import reportText from "../../content/runs/v5_report.md?raw";
+
+// Extract everything from "## Provenance" to the next H2 (or end of file).
+function extractProvenance(text: string): string {
+  const start = text.indexOf("## Provenance");
+  if (start === -1) return "";
+  const tail = text.slice(start).replace(/^## Provenance\s*\n?/, "");
+  const nextHeading = tail.search(/\n## /);
+  const block = nextHeading === -1 ? tail : tail.slice(0, nextHeading);
+  return block.trim();
+}
+
+const provenanceBlock = extractProvenance(reportText);
+
+const auditBullets = [
+  "Per-call audit trail",
+  "Hashed prompt versions",
+  "Sourced control library",
+  "Reproducible against same source",
+];
+---
+
+<div class="border border-border-subtle bg-bg-elevated">
+  <div class="px-6 py-3 border-b border-border-subtle">
+    <p
+      class="text-xs font-mono uppercase tracking-[0.18em] text-text-muted"
+    >
+      Provenance footer · v5 run
+    </p>
+  </div>
+  <pre
+    class="px-6 py-6 text-xs sm:text-sm font-mono text-text-secondary leading-relaxed overflow-x-auto whitespace-pre-wrap break-words"><code>{provenanceBlock}</code></pre>
+</div>
+
+<p class="text-sm text-text-secondary mt-6 leading-relaxed max-w-[42rem]">
+  Every LLM call also logs input, output, model, prompt version, cost, and
+  latency to immutable JSON. Each run produces a hashed provenance footer
+  that survives audit.
+</p>
+
+<ul class="mt-5 grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2 max-w-[42rem]">
+  {
+    auditBullets.map((bullet) => (
+      <li class="text-sm font-mono text-text-secondary flex items-start gap-3">
+        <span class="text-text-muted select-none">·</span>
+        <span>{bullet}</span>
+      </li>
+    ))
+  }
+</ul>

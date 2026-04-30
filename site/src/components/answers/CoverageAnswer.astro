@@ -1,0 +1,68 @@
+---
+import runMetadata from "../../content/runs/v5_run_metadata.json";
+import obligationsFile from "../../content/runs/v5_obligations.json";
+import mappingsFile from "../../content/runs/v5_mappings.json";
+
+const obligations = obligationsFile.obligations;
+const mappings = mappingsFile.mappings;
+
+const totalObligations = obligations.length;
+const mappedObligationIds = new Set<string>(mappings.map((m) => m.obligation_id));
+const mappedCount = obligations.filter((o) => mappedObligationIds.has(o.id))
+  .length;
+const unmappedCount = totalObligations - mappedCount;
+
+const startedAt = new Date(runMetadata.started_at);
+const isoDate = startedAt.toISOString().slice(0, 10);
+
+const runtimeSeconds = 1037; // wall-clock from the v5 run
+const runtimeMinutes = Math.floor(runtimeSeconds / 60);
+const runtimeRemainder = runtimeSeconds % 60;
+const runtimeLabel = `${runtimeMinutes} minutes ${runtimeRemainder} seconds`;
+
+const cost = runMetadata.total_cost_usd;
+const costLabel = `$${cost.toFixed(2)}`;
+
+const stats = [
+  { value: totalObligations, label: "binding obligations identified" },
+  { value: mappedCount, label: "mapped to existing controls" },
+  { value: unmappedCount, label: "framework gaps surfaced" },
+];
+---
+
+<div
+  class="border border-border-subtle bg-bg-elevated rounded-none px-6 py-8 sm:px-10 sm:py-10"
+>
+  <p
+    class="text-xs font-mono text-text-muted leading-relaxed mb-8 sm:mb-10 break-words"
+  >
+    Source: Commission Guidelines on prohibited AI practices · Mapped against:
+    NIST AI Risk Management Framework 1.0
+  </p>
+
+  <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 sm:gap-0">
+    {
+      stats.map((stat, i) => (
+        <div
+          class:list={[
+            "text-center px-2 sm:px-6",
+            i > 0 && "sm:border-l sm:border-border-subtle",
+          ]}
+        >
+          <p class="font-serif font-normal text-text-primary text-[3rem] sm:text-[3.5rem] leading-none mb-3">
+            {stat.value}
+          </p>
+          <p class="text-xs font-mono uppercase tracking-[0.12em] text-text-secondary leading-relaxed">
+            {stat.label}
+          </p>
+        </div>
+      ))
+    }
+  </div>
+
+  <p
+    class="text-xs font-mono text-text-muted text-center mt-8 sm:mt-10 leading-relaxed"
+  >
+    Run completed {isoDate} in {runtimeLabel} · {costLabel} total cost
+  </p>
+</div>

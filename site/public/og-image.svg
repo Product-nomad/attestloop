@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <style>
+    .bg { fill: #0e1014; }
+    .wordmark {
+      font-family: "Iowan Old Style", "Charter", "Georgia", "DejaVu Serif", serif;
+      font-weight: 400;
+      font-size: 96pt;
+      fill: #e6e8eb;
+    }
+    .rule { stroke: #363b46; stroke-width: 1; }
+    .caption {
+      font-family: "JetBrains Mono", "DejaVu Sans Mono", monospace;
+      font-weight: 400;
+      font-size: 24pt;
+      fill: #a8adb8;
+      letter-spacing: 0.04em;
+    }
+    .version {
+      font-family: "JetBrains Mono", "DejaVu Sans Mono", monospace;
+      font-weight: 400;
+      font-size: 14pt;
+      fill: #6b7280;
+    }
+  </style>
+
+  <rect class="bg" x="0" y="0" width="1200" height="630" />
+
+  <!-- Centred wordmark, baseline at y=280 -->
+  <text class="wordmark" x="600" y="280" text-anchor="middle">Attestloop</text>
+
+  <!-- 240 px horizontal rule, 24 px below the wordmark baseline -->
+  <line class="rule" x1="480" y1="360" x2="720" y2="360" />
+
+  <!-- Mono caption, 24 px below the rule -->
+  <text class="caption" x="600" y="410" text-anchor="middle">Agentic regulatory attestation</text>
+
+  <!-- Bottom-left version line at (48, 590) -->
+  <text class="version" x="48" y="590">v1.0.0 · attestloop.ai</text>
+</svg>

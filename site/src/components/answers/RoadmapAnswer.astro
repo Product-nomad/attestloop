@@ -1,0 +1,58 @@
+---
+type Status = "live" | "architected" | "backlog";
+
+interface Item {
+  status: Status;
+  statusLabel: string;
+  body: string;
+}
+
+const items: Item[] = [
+  {
+    status: "live",
+    statusLabel: "Live in v1",
+    body: "Single-document attestation against EU AI Act and NIST AI RMF, on demand.",
+  },
+  {
+    status: "architected",
+    statusLabel: "Architected, not yet shipping",
+    body: "Watcher agent polls regulator sources (EUR-Lex, FCA Handbook, EBA, ICO) on a schedule, deduplicates against history, alerts on new in-scope publications.",
+  },
+  {
+    status: "backlog",
+    statusLabel: "v2 backlog",
+    body: "Multi-framework mapping (ISO 42001, SOC 2 AI Trust Criteria), customer-supplied control libraries, mapper batching for cost optimisation, longer-TTL cache for sustained throughput.",
+  },
+];
+
+const statusClass: Record<Status, string> = {
+  live: "text-accent",
+  architected: "text-text-secondary",
+  backlog: "text-text-muted",
+};
+---
+
+<div class="space-y-4">
+  {
+    items.map((item) => (
+      <div class="border border-border-subtle bg-bg-elevated px-6 py-6 sm:px-8 sm:py-7">
+        <p
+          class:list={[
+            "text-xs font-mono uppercase tracking-[0.18em] mb-3",
+            statusClass[item.status],
+          ]}
+        >
+          {item.statusLabel}
+        </p>
+        <p class="font-serif text-text-primary text-base sm:text-lg leading-relaxed">
+          {item.body}
+        </p>
+      </div>
+    ))
+  }
+</div>
+
+<p class="text-xs font-mono text-text-muted mt-5 leading-relaxed">
+  Honesty about scope is itself an audit-trail feature. Where v1 doesn't
+  reach, the system says so.
+</p>

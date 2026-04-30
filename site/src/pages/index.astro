@@ -5,31 +5,47 @@ import QuestionSection from "../components/QuestionSection.astro";
 import PipelineDiagram from "../components/PipelineDiagram.astro";
 import NumbersTable from "../components/NumbersTable.astro";
 import LiveRerunSection from "../components/LiveRerunSection.astro";
+import CoverageAnswer from "../components/answers/CoverageAnswer.astro";
+import ObligationsAnswer from "../components/answers/ObligationsAnswer.astro";
+import EvidenceAnswer from "../components/answers/EvidenceAnswer.astro";
+import RoadmapAnswer from "../components/answers/RoadmapAnswer.astro";
 
 const questions = [
   {
     anchor: "q-coverage",
     question: "Are we covered?",
     elaboration:
-      "Has this regulator publication actually got us in scope? The classifier reads the document and decides whether it creates binding obligations on us, or whether it is press release / commentary about something that does.",
+      "When a regulator publishes something new, leadership wants to know whether it affects us — and whether our existing controls already handle it. The honest answer is usually \"we don't know yet, give us two weeks.\" Attestloop closes that gap to about fifteen minutes.",
+    technicalNote:
+      "Classifier agent confirms scope; Extractor agent identifies binding obligations from the source PDF; Mapper agent compares each to the active control framework with explicit confidence floors.",
+    AnswerComponent: CoverageAnswer,
   },
   {
     anchor: "q-obligations",
     question: "What do we need to do, and by when?",
     elaboration:
-      "If we are in scope, what specifically do we have to do — and what is the deadline? The extractor pulls discrete, citeable obligations from the document text, with each one tagged to its source paragraph and any deadline the regulator named.",
+      "Once a regulation is in scope, compliance teams need a list of concrete actions, owners, and deadlines — not \"review your AI governance posture\" but actual tasks tied to actual control IDs.",
+    technicalNote:
+      "Each obligation extracted with source paragraph, regulator-defined scope, deadline where specified, and evidence required. Mapper produces 1–3 control mappings per obligation, each with confidence score and reasoning anchored in specific control text.",
+    AnswerComponent: ObligationsAnswer,
   },
   {
     anchor: "q-evidence",
     question: "Prove it.",
     elaboration:
-      "Where in our existing controls do we already meet this obligation, and where do we have a gap? The mapper proposes one to three controls from a named framework for each obligation, with a confidence score and a written justification — or returns nothing when the framework genuinely does not cover the duty.",
+      "At audit or board review time, compliance teams need evidence: which obligations were assessed, when, by whom, against which version of the regulation, with what conclusion. This is what most existing tools do badly because they weren't designed for AI-pace regulatory change.",
+    technicalNote:
+      "Provenance is a first-class output, not an afterthought. The system is designed so that every claim in the report links back through a chain of inputs, prompts, model versions, and timestamps that an auditor can verify.",
+    AnswerComponent: EvidenceAnswer,
   },
   {
     anchor: "q-future",
     question: "What's coming next?",
     elaboration:
-      "How do we keep this current as the regulation evolves? Versioned prompts and per-call cost logs make every run reproducible; the next iteration adds a frozen golden set and weekly drift monitoring against it.",
+      "Boards ask about the regulatory pipeline, not just last week's publication. What's in flight at the regulator that we should be preparing for? This is the strategic question — and the one v1 doesn't yet answer.",
+    technicalNote:
+      "The architecture supports the watcher and the multi-framework registry already; v1 ships with the on-demand path enabled. Adding a new regulation is a config plus a small set of regulator-specific prompts.",
+    AnswerComponent: RoadmapAnswer,
   },
 ];
 ---
@@ -38,15 +54,21 @@ const questions = [
   <HeroSection />
 
   {
-    questions.map((q, i) => (
-      <QuestionSection
-        index={i + 1}
-        total={questions.length}
-        anchor={q.anchor}
-        question={q.question}
-        elaboration={q.elaboration}
-      />
-    ))
+    questions.map((q, i) => {
+      const Answer = q.AnswerComponent;
+      return (
+        <QuestionSection
+          index={i + 1}
+          total={questions.length}
+          anchor={q.anchor}
+          question={q.question}
+          elaboration={q.elaboration}
+          technicalNote={q.technicalNote}
+        >
+          <Answer slot="answerCard" />
+        </QuestionSection>
+      );
+    })
   }
 
   <PipelineDiagram />

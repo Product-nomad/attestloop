@@ -1,4 +1,21 @@
 ---
+import evolution from "../content/runs/evolution.json";
+
+function formatRuntime(seconds: number): string {
+  const m = Math.floor(seconds / 60);
+  const s = seconds % 60;
+  return `${m}m ${String(s).padStart(2, "0")}s`;
+}
+
+const columns = [
+  "Version",
+  "Approach",
+  "Obligations",
+  "Mappings",
+  "Unmapped",
+  "Cost (USD)",
+  "Runtime",
+];
 ---
 
 <section
@@ -13,22 +30,95 @@
     </p>
 
     <h2
-      class="font-serif font-normal text-text-primary text-[1.5rem] sm:text-[2rem] leading-tight mb-6"
+      class="font-serif font-normal text-text-primary text-[1.5rem] sm:text-[2rem] leading-tight mb-4"
     >
       What it produces
     </h2>
 
-    <p class="text-base text-text-secondary max-w-[42rem] mb-10 leading-relaxed">
-      A structured attestation report per run: every binding obligation
-      extracted from the source, every proposed control mapping with its
-      confidence and reasoning, plus the obligations no control framework
-      subcategory could honestly cover.
+    <p
+      class="text-base text-text-secondary leading-relaxed max-w-[42rem] mb-10"
+    >
+      v1 through v5 on the same source document. Each iteration changed
+      exactly one thing.
     </p>
 
-    <div
-      class="border border-border-subtle bg-bg-elevated px-5 py-4 text-sm text-text-muted font-mono"
-    >
-      Numbers table lands in task B.
+    <div class="border border-border-subtle bg-bg-elevated overflow-x-auto">
+      <table class="w-full text-left border-collapse">
+        <thead>
+          <tr class="border-b border-border-subtle">
+            {
+              columns.map((col, idx) => (
+                <th
+                  class:list={[
+                    "px-4 py-3 text-xs font-mono uppercase tracking-[0.12em] text-text-secondary font-normal whitespace-nowrap",
+                    idx >= 2 ? "text-right" : "text-left",
+                  ]}
+                >
+                  {col}
+                </th>
+              ))
+            }
+          </tr>
+        </thead>
+        <tbody>
+          {
+            evolution.map((row, i) => (
+              <tr
+                class:list={[i > 0 && "border-t border-border-subtle"]}
+              >
+                <td class="px-4 py-4 text-sm font-mono text-text-primary whitespace-nowrap">
+                  {row.version}
+                </td>
+                <td class="px-4 py-4 text-sm text-text-secondary leading-snug min-w-[18rem]">
+                  {row.approach}
+                </td>
+                <td class="px-4 py-4 text-sm font-mono text-text-primary text-right whitespace-nowrap">
+                  {row.obligations}
+                </td>
+                <td class="px-4 py-4 text-sm font-mono text-text-primary text-right whitespace-nowrap">
+                  {row.mappings}
+                </td>
+                <td class="px-4 py-4 text-sm font-mono text-text-primary text-right whitespace-nowrap">
+                  {row.unmapped}
+                </td>
+                <td class="px-4 py-4 text-sm font-mono text-text-primary text-right whitespace-nowrap">
+                  ${row.cost_usd.toFixed(2)}
+                </td>
+                <td class="px-4 py-4 text-sm font-mono text-text-primary text-right whitespace-nowrap">
+                  {formatRuntime(row.runtime_seconds)}
+                </td>
+              </tr>
+            ))
+          }
+        </tbody>
+      </table>
     </div>
+
+    <p
+      class="text-base text-text-secondary leading-relaxed max-w-[42rem] mt-10"
+    >
+      Five iterations from a 50,000-character truncated baseline to a
+      full-document run with confidence-floored mappings, prompt caching,
+      and fuzzy deduplication. Each step kept the previous quality while
+      changing one variable. The v5 cost shape — $1.31 per run, 17 minutes
+      wall-clock — is what production-grade attestation against a single
+      regulation looks like at this scale.
+    </p>
+
+    <p
+      class="text-sm text-text-muted leading-relaxed max-w-[42rem] mt-6"
+    >
+      v3 → v4 caching delivered a 30× return on the cache write cost.
+      v4 → v5 dedup removed 12 paraphrased duplicates that substring-match
+      missed. Both changes informed the architecture writeup. Read it for
+      the engineering detail.
+    </p>
+
+    <a
+      href="/writeup"
+      class="inline-flex items-center text-sm font-mono text-accent hover:text-accent-bright transition-colors duration-150 mt-8"
+    >
+      Read the writeup →
+    </a>
   </div>
 </section>

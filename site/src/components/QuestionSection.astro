@@ -5,9 +5,11 @@ interface Props {
   anchor: string;
   question: string;
   elaboration: string;
+  technicalNote: string;
 }
 
-const { index, total, anchor, question, elaboration } = Astro.props;
+const { index, total, anchor, question, elaboration, technicalNote } =
+  Astro.props;
 const indexLabel = String(index).padStart(2, "0");
 const totalLabel = String(total).padStart(2, "0");
 ---
@@ -35,10 +37,14 @@ const totalLabel = String(total).padStart(2, "0");
       {elaboration}
     </p>
 
-    <div
-      class="border border-border-subtle bg-bg-elevated px-5 py-4 text-sm text-text-muted font-mono"
-    >
-      Content lands in task B.
+    <div class="mb-8">
+      <slot name="answerCard" />
     </div>
+
+    <p
+      class="text-sm text-text-muted italic max-w-[42rem] leading-relaxed border-l border-border-subtle pl-4"
+    >
+      {technicalNote}
+    </p>
   </div>
 </section>
