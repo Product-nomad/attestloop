@@ -54,5 +54,9 @@ jobs:
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: pages deploy dist --project-name=attestloop --branch=main --commit-hash=${{ github.sha }} --commit-message="${{ github.event.head_commit.message }}"
+          # --commit-message intentionally omitted: multi-line commit
+          # messages get shell-split by the action and rejected by
+          # wrangler as "Unknown arguments". The commit hash already
+          # identifies the deploy in the Cloudflare dashboard.
+          command: pages deploy dist --project-name=attestloop --branch=main --commit-hash=${{ github.sha }}
           workingDirectory: site
