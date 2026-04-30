@@ -13,6 +13,7 @@ from typing import TypedDict
 from langgraph.graph import END, StateGraph
 
 from attestloop.agents.classifier import classify
+from attestloop.agents.critic import review_mappings
 from attestloop.agents.extractor import extract
 from attestloop.agents.mapper import map_to_controls
 from attestloop.fetch import fetch_publication
@@ -26,6 +27,7 @@ from attestloop.schemas import (
     ClassifierInput,
     ClassifierOutput,
     ControlMapping,
+    CriticDecision,
     ExtractorInput,
     ExtractorOutput,
     MapperInput,
@@ -56,6 +58,7 @@ class PipelineState(TypedDict, total=False):
     classification: ClassifierOutput
     obligations: list[Obligation]
     mappings: list[ControlMapping]
+    critic_decisions: list[CriticDecision]
 
     # Final
     report_path: Path
@@ -114,6 +117,29 @@ def map_node(state: PipelineState) -> dict:
     return {"mappings": mapper_output.mappings}
 
 
+def critic_node(state: PipelineState) -> dict:
+    """Run the second-pass Critic on any obligation whose mappings
+    include at least one entry below 0.80 confidence. Always invoked
+    in the in-scope path; produces an empty decisions list when there
+    is nothing to review.
+
+    The structured CriticOutput is persisted to critic_decisions.json
+    rather than critic.json — the latter is reserved for the per-call
+    LLMCallLog list written by call_with_logging, matching the
+    obligations.json / mappings.json convention for the upstream agents.
+    """
+    output = review_mappings(
+        state["obligations"],
+        state["mappings"],
+        state["framework"],
+        state["run_dir"],
+    )
+    (state["run_dir"] / "critic_decisions.json").write_text(
+        output.model_dump_json(indent=2)
+    )
+    return {"critic_decisions": output.decisions}
+
+
 def report_node(state: PipelineState) -> dict:
     cost, in_tok, out_tok = aggregate_usage(state["run_dir"])
     report = build_in_scope_report(
@@ -121,6 +147,7 @@ def report_node(state: PipelineState) -> dict:
         classifier_output=state["classification"],
         extractor_output=ExtractorOutput(obligations=state["obligations"]),
         mapper_output=MapperOutput(mappings=state["mappings"]),
+        critic_decisions=state.get("critic_decisions", []),
         regulation=state["regulation"],
         framework=state["framework"],
         run_id=state["run_id"],
@@ -197,6 +224,7 @@ def build_pipeline_graph():
     graph.add_node("classify", classify_node)
     graph.add_node("extract", extract_node)
     graph.add_node("map", map_node)
+    graph.add_node("critic", critic_node)
     graph.add_node("report", report_node)
     graph.add_node("out_of_scope", out_of_scope_node)
 
@@ -208,7 +236,8 @@ def build_pipeline_graph():
         {"extract": "extract", "out_of_scope": "out_of_scope"},
     )
     graph.add_edge("extract", "map")
-    graph.add_edge("map", "report")
+    graph.add_edge("map", "critic")
+    graph.add_edge("critic", "report")
     graph.add_edge("report", END)
     graph.add_edge("out_of_scope", END)
 

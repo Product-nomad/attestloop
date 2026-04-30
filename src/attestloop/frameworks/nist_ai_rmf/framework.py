@@ -8,4 +8,5 @@ FRAMEWORK = Framework(
     name="NIST AI Risk Management Framework 1.0",
     controls=CONTROLS,
     mapper_prompt_path=Path(__file__).parent / "mapper.md",
+    critic_prompt_path=Path(__file__).parent / "critic.md",
 )

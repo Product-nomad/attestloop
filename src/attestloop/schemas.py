@@ -72,6 +72,22 @@ class ControlMapping(BaseModel):
     reasoning: str
 
 
+class CriticDecision(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    obligation_id: str
+    decision: Literal["confirm", "flag_for_review"]
+    reasoning: str
+    confidence: float = Field(ge=0.0, le=1.0)
+    reviewed_mappings: list[str]
+
+
+class CriticOutput(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    decisions: list[CriticDecision]
+
+
 class MapperInput(BaseModel):
     model_config = ConfigDict(extra="forbid")
 

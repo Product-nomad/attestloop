@@ -23,6 +23,7 @@ class Framework(BaseModel):
     name: str
     controls: list[Control]
     mapper_prompt_path: Path
+    critic_prompt_path: Path
 
 
 def get_regulation(regulation_id: str) -> Regulation:

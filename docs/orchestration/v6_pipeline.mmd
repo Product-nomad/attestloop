@@ -9,15 +9,17 @@ graph TD;
 	classify(classify)
 	extract(extract)
 	map(map)
+	critic(critic)
 	report(report)
 	out_of_scope(out_of_scope)
 	__end__([<p>__end__</p>]):::last
 	__start__ --> fetch;
 	classify -.-> extract;
 	classify -.-> out_of_scope;
+	critic --> report;
 	extract --> map;
 	fetch --> classify;
-	map --> report;
+	map --> critic;
 	out_of_scope --> __end__;
 	report --> __end__;
 	classDef default fill:#f2f0ff,line-height:1.2

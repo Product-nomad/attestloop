@@ -8,6 +8,7 @@ from pathlib import Path
 from attestloop.registry import Framework, Regulation
 from attestloop.schemas import (
     ClassifierOutput,
+    CriticDecision,
     ExtractorOutput,
     MapperOutput,
     Obligation,
@@ -17,6 +18,7 @@ from attestloop.schemas import (
 CLASSIFIER_MODEL = "claude-haiku-4-5-20251001"
 EXTRACTOR_MODEL = "claude-sonnet-4-6"
 MAPPER_MODEL = "claude-sonnet-4-6"
+CRITIC_MODEL = "claude-sonnet-4-6"
 
 
 def sha256_of_path(path: Path) -> str:
@@ -34,6 +36,7 @@ def aggregate_usage(run_dir: Path) -> tuple[float, int, int]:
             "publication.json",
             "obligations.json",
             "mappings.json",
+            "critic_decisions.json",
             "run_metadata.json",
         }:
             continue
@@ -92,27 +95,76 @@ def _obligations_table(obligations: list[Obligation]) -> str:
     return header + "\n".join(rows) + "\n"
 
 
-def _mappings_table(mappings, controls_by_id: dict) -> str:
+_CRITIC_STATUS_LABELS = {
+    "confirm": "✓ confirm",
+    "flag_for_review": "⚠ flag",
+}
+
+
+def _mappings_table(
+    mappings, controls_by_id: dict, critic_by_obligation: dict[str, CriticDecision]
+) -> str:
     if not mappings:
         return "_No control mappings were produced._\n"
     header = (
-        "| Obligation | Control ID | Function | Confidence | Reasoning |\n"
-        "|---|---|---|---|---|\n"
+        "| Obligation | Control ID | Function | Confidence | Status | Reasoning |\n"
+        "|---|---|---|---|---|---|\n"
     )
     rows = []
     for m in mappings:
         ctl = controls_by_id.get(m.control_id)
         function = ctl.function if ctl else "—"
+        decision = critic_by_obligation.get(m.obligation_id)
+        status = (
+            _CRITIC_STATUS_LABELS.get(decision.decision, "—")
+            if decision is not None
+            else "—"
+        )
         rows.append(
-            "| {oid} | {cid} | {fn} | {conf:.2f} | {why} |".format(
+            "| {oid} | {cid} | {fn} | {conf:.2f} | {status} | {why} |".format(
                 oid=_md_nullable_cell(m.obligation_id),
                 cid=_md_nullable_cell(m.control_id),
                 fn=_md_nullable_cell(function),
                 conf=m.confidence,
+                status=status,
                 why=_md_nullable_cell(m.reasoning),
             )
         )
     return header + "\n".join(rows) + "\n"
+
+
+def _flagged_section(
+    flagged: list[CriticDecision],
+    mappings_by_obligation: dict[str, list],
+) -> str:
+    if not flagged:
+        return ""
+    lines = [
+        f"\n## Mappings flagged for human review ({len(flagged)})\n",
+        (
+            "These obligations had at least one mapping the Critic agent "
+            "flagged. The Mapper's output stands as the report's "
+            "recommendation — the Critic does not auto-replace mappings — "
+            "but a human reviewer should look at these before the report "
+            "ships.\n\n"
+        ),
+        "| Obligation | Mappings | Critic confidence | Reasoning |\n",
+        "|---|---|---:|---|\n",
+    ]
+    for d in flagged:
+        related = mappings_by_obligation.get(d.obligation_id, [])
+        rendered = ", ".join(
+            f"{m.control_id} ({m.confidence:.2f})" for m in related
+        ) or "—"
+        lines.append(
+            "| {oid} | {mps} | {conf:.2f} | {why} |\n".format(
+                oid=_md_nullable_cell(d.obligation_id),
+                mps=_md_nullable_cell(rendered),
+                conf=d.confidence,
+                why=_md_nullable_cell(d.reasoning),
+            )
+        )
+    return "".join(lines)
 
 
 def _unmapped_table(unmapped: list[Obligation]) -> str:
@@ -141,6 +193,7 @@ def build_in_scope_report(
     classifier_output: ClassifierOutput,
     extractor_output: ExtractorOutput,
     mapper_output: MapperOutput,
+    critic_decisions: list[CriticDecision],
     regulation: Regulation,
     framework: Framework,
     run_id: str,
@@ -176,6 +229,12 @@ def build_in_scope_report(
     controls_by_id = {c.id: c for c in framework.controls}
     unmapped_obligations = [o for o in obligations if o.id not in mapped_obligation_ids]
 
+    critic_by_obligation = {d.obligation_id: d for d in critic_decisions}
+    flagged = [d for d in critic_decisions if d.decision == "flag_for_review"]
+    mappings_by_obligation: dict[str, list] = {}
+    for m in mapper_output.mappings:
+        mappings_by_obligation.setdefault(m.obligation_id, []).append(m)
+
     parts = [
         f"# Attestation report — {regulation.name}\n",
         f"**Source:** [{pub_title}]({publication.url})\n",
@@ -185,7 +244,8 @@ def build_in_scope_report(
         "\n## Obligations\n",
         _obligations_table(obligations),
         "\n## Control mappings\n",
-        _mappings_table(mapper_output.mappings, controls_by_id),
+        _mappings_table(mapper_output.mappings, controls_by_id, critic_by_obligation),
+        _flagged_section(flagged, mappings_by_obligation),
         f"\n## Obligations with no high-confidence framework mapping ({n_unmapped})\n",
         (
             "These obligations were extracted from the source but no "
@@ -203,9 +263,12 @@ def build_in_scope_report(
         f"- Classifier model: `{CLASSIFIER_MODEL}`\n",
         f"- Extractor model: `{EXTRACTOR_MODEL}`\n",
         f"- Mapper model: `{MAPPER_MODEL}`\n",
+        f"- Critic model: `{CRITIC_MODEL}`\n",
         f"- Classifier prompt SHA-256: `{sha256_of_path(regulation.classifier_prompt_path)}`\n",
         f"- Extractor prompt SHA-256: `{sha256_of_path(regulation.extractor_prompt_path)}`\n",
         f"- Mapper prompt SHA-256: `{sha256_of_path(framework.mapper_prompt_path)}`\n",
+        f"- Critic prompt SHA-256: `{sha256_of_path(framework.critic_prompt_path)}`\n",
+        f"- Critic decisions: {len(critic_decisions)} reviewed ({len(flagged)} flagged)\n",
         f"- Started at: {started_at.isoformat()}\n",
         f"- Total cost: ${cost_usd:.4f}\n",
         f"- Total tokens: {input_tokens:,} input / {output_tokens:,} output\n",
