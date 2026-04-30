@@ -263,7 +263,7 @@ def main(argv: list[str] | None = None) -> int:
 
     try:
         with _console.status("Fetching..."):
-            publication = fetch_publication(args.url)
+            publication = fetch_publication(args.url, run_dir=run_dir)
     except EmptyPublicationError as e:
         print(
             "error: Fetched page returned no usable content. The page may be "

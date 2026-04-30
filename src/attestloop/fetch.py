@@ -1,7 +1,12 @@
+import io
 import re
 from datetime import datetime, timezone
+from pathlib import Path
+from urllib.parse import urlparse
 
 import httpx
+from pypdf import PdfReader
+from pypdf.errors import PdfReadError
 from rich.console import Console
 from selectolax.parser import HTMLParser
 
@@ -43,6 +48,37 @@ def _clean_text(html: str) -> tuple[str | None, str]:
     return title, text
 
 
+def _is_pdf_url(url: str) -> bool:
+    parsed = urlparse(url)
+    return "/PDF/" in url or parsed.path.lower().endswith(".pdf")
+
+
+def _extract_pdf_text(content: bytes, source_url: str) -> tuple[str | None, str]:
+    reader = PdfReader(io.BytesIO(content))
+
+    title: str | None = None
+    if reader.metadata is not None:
+        meta_title = reader.metadata.title
+        if meta_title:
+            title_str = str(meta_title).strip()
+            if title_str:
+                title = title_str
+    if title is None:
+        parsed = urlparse(source_url)
+        filename = parsed.path.rstrip("/").rpartition("/")[2]
+        title = filename or None
+
+    pages: list[str] = []
+    for page in reader.pages:
+        try:
+            pages.append(page.extract_text() or "")
+        except Exception:  # pypdf raises a variety of types per-page; isolate per-page failures
+            pages.append("")
+    text = "\n\n".join(p for p in pages if p)
+    text = re.sub(r"\n{3,}", "\n\n", text).strip()
+    return title, text
+
+
 def resolve_eur_lex_url(url: str) -> list[str]:
     """If the URL contains a CELEX identifier, return ordered candidate content
     URLs (original, then HTML-only view, then PDF view). Otherwise return the
@@ -61,7 +97,15 @@ def resolve_eur_lex_url(url: str) -> list[str]:
     return list(dict.fromkeys(candidates))
 
 
-def fetch_publication(url: str) -> Publication:
+def _write_fetch_log(run_dir: Path | None, source: str, candidate_url: str) -> None:
+    if run_dir is None:
+        return
+    (run_dir / "fetch.log").write_text(
+        f"# Source: {source}\n# URL: {candidate_url}\n"
+    )
+
+
+def fetch_publication(url: str, run_dir: Path | None = None) -> Publication:
     headers = {"User-Agent": _USER_AGENT}
     candidates = resolve_eur_lex_url(url)
     attempts: list[str] = []
@@ -70,14 +114,6 @@ def fetch_publication(url: str) -> Publication:
         headers=headers, timeout=_FETCH_TIMEOUT_SECONDS, follow_redirects=True
     ) as client:
         for candidate in candidates:
-            if "/PDF/" in candidate:
-                _console.print(
-                    f"[yellow]fetch: skipping PDF candidate {candidate} "
-                    "(binary fetch not supported in v1).[/yellow]"
-                )
-                attempts.append(f"{candidate} (skipped: PDF)")
-                continue
-
             try:
                 response = client.get(candidate)
                 response.raise_for_status()
@@ -88,11 +124,28 @@ def fetch_publication(url: str) -> Publication:
                 attempts.append(f"{candidate} (failed: {e!r})")
                 continue
 
-            raw_html = response.text
-            title, cleaned_text = _clean_text(raw_html)
-            usable_chars = len(cleaned_text.strip())
+            content_type = response.headers.get("content-type", "").lower()
+            treat_as_pdf = "application/pdf" in content_type or _is_pdf_url(candidate)
 
+            if treat_as_pdf:
+                try:
+                    title, cleaned_text = _extract_pdf_text(response.content, candidate)
+                except (PdfReadError, ValueError, OSError) as e:
+                    _console.print(
+                        f"[yellow]fetch: {candidate} PDF parse failed: {e!r}[/yellow]"
+                    )
+                    attempts.append(f"{candidate} (failed: PDF parse {e!r})")
+                    continue
+                raw_html = ""
+                source_kind = "PDF"
+            else:
+                raw_html = response.text
+                title, cleaned_text = _clean_text(raw_html)
+                source_kind = "HTML"
+
+            usable_chars = len(cleaned_text.strip())
             if usable_chars >= _MIN_USABLE_CHARS:
+                _write_fetch_log(run_dir, source_kind, candidate)
                 return Publication(
                     url=candidate,
                     title=title,
@@ -102,10 +155,13 @@ def fetch_publication(url: str) -> Publication:
                 )
 
             _console.print(
-                f"[yellow]fetch: {candidate} produced only {usable_chars} "
-                f"usable chars (< {_MIN_USABLE_CHARS}); trying next candidate.[/yellow]"
+                f"[yellow]fetch: {candidate} ({source_kind}) produced only "
+                f"{usable_chars} usable chars (< {_MIN_USABLE_CHARS}); trying "
+                "next candidate.[/yellow]"
             )
-            attempts.append(f"{candidate} (insufficient: {usable_chars} chars)")
+            attempts.append(
+                f"{candidate} ({source_kind}, insufficient: {usable_chars} chars)"
+            )
 
     raise EmptyPublicationError(
         f"No candidate URL produced >= {_MIN_USABLE_CHARS} chars of usable "
