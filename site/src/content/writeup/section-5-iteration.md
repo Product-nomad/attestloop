@@ -1,5 +1,4 @@
 ---
-section: 5
 title: Iteration
 status: draft
 updated: 2026-04-30
