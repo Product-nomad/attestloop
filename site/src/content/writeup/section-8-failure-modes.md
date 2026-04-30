@@ -1,5 +1,4 @@
 ---
-section: 8
 title: Failure modes
 status: draft
 updated: 2026-04-30
