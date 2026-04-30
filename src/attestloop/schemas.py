@@ -91,6 +91,18 @@ class ClarifierOutput(BaseModel):
     reclassification: "ClassifierOutput"
 
 
+class MapperFailure(BaseModel):
+    """An obligation that errored permanently during parallel Mapper
+    execution (after all retries inside _call_mapper_async). Surfaced
+    in the report so the audit trail records what didn't get mapped,
+    and why."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    obligation_id: str
+    error: str
+
+
 class CriticDecision(BaseModel):
     model_config = ConfigDict(extra="forbid")
 

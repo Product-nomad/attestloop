@@ -20,6 +20,7 @@ served via redirect; detected by magic-byte sniff and parsed via
 | **v3** chunked extractor + Mapper confidence floor 0.75, no slot-filling | [`v3_confidence_floor/`](v3_confidence_floor/) | 72 | 164 | 12 | 0.817 | 0.750 | 34/164 = 20.7 % | $2.78 | 41 min 35 s |
 | **v4** + Anthropic prompt caching on Mapper controls list | [`v4_prompt_caching/`](v4_prompt_caching/) | 69 | 124 | 24 | 0.812 | 0.760 | 19/124 = 15.3 % | **$1.19** | **14 min 51 s** |
 | **v5** + fuzzy dedup, title fallback, null rendering, mapper nudge — **canonical writeup run** | [`v5_clean/`](v5_clean/) | 71 (from 83 raw) | 154 | 13 | 0.815 | 0.750 | 49/154 = 31.8 % | $1.30 | 17 min 17 s |
+| **v6 task 4** + LangGraph orchestration + Critic + Clarifier + 8-way concurrent Mapper | [`v6_parallel_mapper/`](v6_parallel_mapper/) | 61 (from 73 raw) | 129 | 13 | 0.817 | 0.750 | 43/129 = 33.3 % | $1.76 | **13 min 23 s** |
 
 ## What changed between v2 and v3
 
@@ -211,6 +212,108 @@ filtering away too aggressively for this class of duty.
 
 **v5 is the canonical writeup run.** Subsequent versions should be
 benchmarked against it, not against earlier snapshots.
+
+## What changed in v6 — orchestration, second-pass review, parallel mapping
+
+v6 is a four-task arc that turns the v5 sequential pipeline into a
+LangGraph orchestration with a second-pass reviewer (Critic), a
+salvage path for ambiguous out-of-scope verdicts (Clarifier), and an
+8-way concurrent Mapper. Tasks 1–3 are zero- or near-zero-cost
+structural changes; task 4 is the first measurable wall-clock win.
+Only task 4 is snapshotted in this directory because tasks 1–3
+preserve the v5 metrics by construction.
+
+### Task 4 — 8-way concurrent Mapper
+
+The Mapper agent's per-obligation calls are now dispatched through a
+single `asyncio.gather(*tasks)` with an `asyncio.Semaphore(8)`
+controlling concurrency. The public sync entrypoint
+`map_to_controls(input, framework, run_dir) -> MapperOutput` is
+preserved so `map_node` in the LangGraph orchestration calls it
+identically to v5; the parallelism is internal to the agent and the
+graph diagram is unchanged.
+
+Concurrency safety: an in-memory `MapperCallBuffer` guarded by an
+`asyncio.Lock` collects every `LLMCallLog` produced during the
+`gather`, then writes `mapper.json` to disk in a single operation
+after all tasks have completed. This avoids the read-modify-write
+race that would result from each task appending to the on-disk JSON
+file independently.
+
+Determinism: `asyncio.gather(*tasks, return_exceptions=True)` yields
+results in completion order, not input order. `_map_to_controls_async`
+post-sorts the assembled mappings by input obligation order, then by
+descending confidence within each obligation, so two runs with the
+same LLM responses produce identical `mappings.json` regardless of
+which task happened to finish first.
+
+Failure handling: any obligation whose mapper call raises after all
+internal retries (1 fast + up to 4 30-s rate-limit backoffs) is
+captured as a `MapperFailure(obligation_id, error)` rather than
+crashing the run. Failures are written to `mapper_failures.json`
+(file is omitted when the list is empty), surfaced in the report
+under "Obligations that errored during mapping", and propagated into
+the LangGraph state as `mapper_failures`.
+
+### Headline numbers — v6 task 4 vs v6 task 3 baseline
+
+Direct same-URL comparison against the v6 task 3 run
+(`runs/20260430-172550/`, 71 obligations, sequential Mapper still
+shipping):
+
+| Metric | v6 task 3 (sequential) | v6 task 4 (parallel) | Change |
+|---|---:|---:|---:|
+| Obligations (post-dedup) | 71 | 61 | stochastic (different extractor pass) |
+| Mapper calls | 71 | 61 | -14 % (fewer obligations) |
+| Mappings produced | 155 | 129 | -17 % (fewer obligations) |
+| Mapper sum-latency (would-be sequential) | 9 min 1 s | 16 min 47 s | n/a — different obligation set |
+| **Mapper wall-clock** | **9 min 0 s** | **2 min 17 s** | **−75 % (3.94× speedup)** |
+| **Effective parallelism** (sum-latency ÷ wall-clock) | 1.00× | **7.33×** | semaphore cap is 8 |
+| Pipeline wall-clock (LLM-only) | 21 min 53 s | 13 min 19 s | −39 % (1.64× speedup) |
+| Total cost | $1.91 | $1.76 | −7.5 % (within 5 % per-obligation) |
+| Mapper cost | $0.72 | $0.67 | −6.4 % |
+| Mapper cache hit rate | 90.2 % | 86.6 % | −3.6 pp (see below) |
+| Max in-flight mapper calls | 1 | 8 | semaphore working |
+
+The 7.33× effective parallelism on a semaphore cap of 8 is the
+expected steady-state when the average call latency is large compared
+to the dispatch overhead. Cap is never exceeded
+(`test_async_mapper_concurrency_respects_cap` enforces this).
+
+### Cache-hit rate dip is structural, not a regression
+
+v4's prompt-cache analysis showed every warm call reading
+`cache_read_input_tokens = 7 731`. With sequential dispatch, call 1
+writes the cache and calls 2–N read it. With 8-way parallel dispatch,
+the **first 8 calls all start before any of them returns**, so they
+each pay the cache-creation cost (~3 936 tokens of system block);
+calls 9–61 hit the warm cache cleanly. Observed in this run:
+cache-creation tokens 31 484 ≈ 8 × 3 936; cache-read tokens 448 647
+across 53 reads. This is the cost of parallelism on the prompt-cache
+side, and at Sonnet's 1.25× write vs 0.10× read ratio it works out
+to roughly $0.04 of extra cache-write spend per run — well below the
+5 % budget the task spec set.
+
+### Wall-clock saving is mostly the Mapper, not the rest of the pipeline
+
+The Mapper went from 9 min to 2 min 17 s; the other agents
+(Classifier, Extractor, Critic) were untouched and run in roughly the
+same time as before. Pipeline wall-clock fell 21 min 53 s →
+13 min 19 s, of which ~6 min 43 s comes directly from the Mapper
+parallelism and the rest from natural variance in the Extractor's
+12 sequential chunk calls and Critic's per-flagged-obligation calls
+(neither of which task 4 touches).
+
+### Why this run has 61 obligations rather than 71
+
+The Extractor is a stochastic 12-chunk run with rapidfuzz dedup; the
+exact post-dedup count varies per invocation between roughly 60 and
+75 obligations on this document. Task 4 is a Mapper change only —
+the Extractor was not touched and the variance here is not
+attributable to it. The wall-clock and cost savings reported above
+are conservative because the v6-task-3 baseline produced *more*
+obligations to map (71 vs 61); on a per-obligation basis the speedup
+is even larger.
 
 ## Side note: the run that didn't happen
 

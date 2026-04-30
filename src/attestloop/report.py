@@ -11,6 +11,7 @@ from attestloop.schemas import (
     ClassifierOutput,
     CriticDecision,
     ExtractorOutput,
+    MapperFailure,
     MapperOutput,
     Obligation,
     Publication,
@@ -134,6 +135,44 @@ def _mappings_table(
     return header + "\n".join(rows) + "\n"
 
 
+def _mapper_failures_section(
+    failures: list[MapperFailure],
+    obligations: list[Obligation],
+) -> str:
+    """Render the section that surfaces obligations the parallel Mapper
+    couldn't process — permanent errors (post-retry) from
+    asyncio.gather. Empty string when there are no failures."""
+    if not failures:
+        return ""
+    by_id = {o.id: o for o in obligations}
+    lines = [
+        f"\n## Obligations that errored during mapping ({len(failures)})\n",
+        (
+            "The following obligations could not be mapped because the "
+            "Mapper call errored permanently (after the wrapper's retry "
+            "budget). The Mapper's reasoning, where any was produced, "
+            "is preserved in `mapper.json`. **Manual review recommended.**\n\n"
+        ),
+        "| ID | Source | Requirement | Error |\n",
+        "|---|---|---|---|\n",
+    ]
+    for f in failures:
+        obl = by_id.get(f.obligation_id)
+        src = obl.source_paragraph if obl else "—"
+        req = obl.requirement_text if obl else "—"
+        if len(req) > 160:
+            req = req[:159].rstrip() + "…"
+        lines.append(
+            "| {oid} | {src} | {req} | {err} |\n".format(
+                oid=_md_nullable_cell(f.obligation_id),
+                src=_md_nullable_cell(src),
+                req=_md_nullable_cell(req),
+                err=_md_nullable_cell(f.error),
+            )
+        )
+    return "".join(lines)
+
+
 def _flagged_section(
     flagged: list[CriticDecision],
     mappings_by_obligation: dict[str, list],
@@ -217,6 +256,7 @@ def build_in_scope_report(
     clarifier_output: ClarifierOutput | None,
     extractor_output: ExtractorOutput,
     mapper_output: MapperOutput,
+    mapper_failures: list[MapperFailure],
     critic_decisions: list[CriticDecision],
     regulation: Regulation,
     framework: Framework,
@@ -270,6 +310,7 @@ def build_in_scope_report(
         "\n## Control mappings\n",
         _mappings_table(mapper_output.mappings, controls_by_id, critic_by_obligation),
         _flagged_section(flagged, mappings_by_obligation),
+        _mapper_failures_section(mapper_failures, obligations),
         f"\n## Obligations with no high-confidence framework mapping ({n_unmapped})\n",
         (
             "These obligations were extracted from the source but no "

@@ -33,12 +33,14 @@ from attestloop.schemas import (
     CriticDecision,
     ExtractorInput,
     ExtractorOutput,
+    MapperFailure,
     MapperInput,
     MapperOutput,
     Obligation,
     Publication,
     RunMetadata,
 )
+import json as _json
 
 # Below this confidence on an out_of_scope verdict, the pipeline routes
 # to the Clarifier rather than committing to the out-of-scope report.
@@ -66,6 +68,7 @@ class PipelineState(TypedDict, total=False):
     clarifier_output: ClarifierOutput
     obligations: list[Obligation]
     mappings: list[ControlMapping]
+    mapper_failures: list[MapperFailure]
     critic_decisions: list[CriticDecision]
 
     # Final
@@ -122,7 +125,21 @@ def map_node(state: PipelineState) -> dict:
     (state["run_dir"] / "mappings.json").write_text(
         mapper_output.model_dump_json(indent=2)
     )
-    return {"mappings": mapper_output.mappings}
+
+    # Parallel Mapper writes mapper_failures.json only when at least one
+    # obligation errored permanently — read it back so report_node can
+    # surface the failures section. Empty list when the file is absent.
+    failures: list[MapperFailure] = []
+    failures_path = state["run_dir"] / "mapper_failures.json"
+    if failures_path.exists():
+        failures = [
+            MapperFailure(**entry) for entry in _json.loads(failures_path.read_text())
+        ]
+
+    return {
+        "mappings": mapper_output.mappings,
+        "mapper_failures": failures,
+    }
 
 
 def critic_node(state: PipelineState) -> dict:
@@ -156,6 +173,7 @@ def report_node(state: PipelineState) -> dict:
         clarifier_output=state.get("clarifier_output"),
         extractor_output=ExtractorOutput(obligations=state["obligations"]),
         mapper_output=MapperOutput(mappings=state["mappings"]),
+        mapper_failures=state.get("mapper_failures", []),
         critic_decisions=state.get("critic_decisions", []),
         regulation=state["regulation"],
         framework=state["framework"],

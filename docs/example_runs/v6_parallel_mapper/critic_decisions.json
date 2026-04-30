@@ -1,0 +1,393 @@
+{
+  "decisions": [
+    {
+      "obligation_id": "EUAIA-OBL-001",
+      "decision": "confirm",
+      "reasoning": "All three mappings are defensible for this obligation, which is a hard prohibition on subliminal/manipulative AI techniques under Article 5(1)(a) of the EU AI Act.\n\nGOVERN-1.1 (0.85): This is a strong and well-reasoned primary mapping. The obligation is a direct legal prohibition, and GOVERN-1.1's explicit focus on understanding, managing, and documenting legal and regulatory AI requirements makes it the natural governance anchor. No concern here.\n\nMAP-1.1 (0.80): The reasoning is sound. Determining whether a system uses subliminal or manipulative techniques requires prior scoping of intended purpose, deployment context, and potential negative impacts on users — exactly what MAP-1.1 demands. The mapping sits at the threshold of the confidence band but is defensible: the predicate analysis MAP-1.1 requires is a necessary step toward compliance with the prohibition, not merely tangentially related.\n\nGOVERN-4.1 (0.76): This is the lowest-confidence mapping and the one most warranting scrutiny. The reasoning is plausible — a safety-first organisational culture that guards against manipulative design operationalises the Article 5(1)(a) prohibition at a cultural/policy level. The language is not heavily hedged ('directly operationalises' is confident phrasing). GOVERN-4.1's text does speak to minimising negative impacts through design and deployment practices, which aligns with the spirit of a prohibition on harmful manipulative techniques. There is no better-fitting specific subcategory in the catalogue for the 'organisational policy regime against manipulative design' dimension of this obligation: GOVERN-1.2 covers integration of trustworthy AI characteristics broadly, and GOVERN-4.2 covers documenting risks, but neither captures the safety-first mindset in design culture as directly as GOVERN-4.1. The mapping is a reasonable catch-all for the cultural/organisational layer of compliance. Confirming at moderate confidence.",
+      "confidence": 0.86,
+      "reviewed_mappings": [
+        "GOVERN-1.1",
+        "MAP-1.1",
+        "GOVERN-4.1"
+      ]
+    },
+    {
+      "obligation_id": "EUAIA-OBL-002",
+      "decision": "flag_for_review",
+      "reasoning": "The GOVERN-1.1 and MAP-5.1 mappings are defensible. GOVERN-1.1 correctly anchors the obligation as a legal/regulatory requirement to be understood and managed, and MAP-5.1 reasonably maps to the impact-assessment dimension of the prohibition (assessing likelihood and magnitude of harm to vulnerable groups before deployment).\n\nHowever, the MANAGE-1.1 mapping at 0.78 warrants flagging. While MANAGE-1.1 (go/no-go determination on whether deployment should proceed) has surface plausibility, the Mapper's reasoning treats it as a generic deployment gate rather than engaging with the specific harm mechanism in Article 5(1)(b) — the exploitation of vulnerabilities related to age, disability, or socio-economic situation. MANAGE-1.1 is not specifically concerned with identifying or controlling manipulative or exploitative system behaviours; it is a broader deployment-readiness determination.\n\nA stronger fit that the Mapper did not include would be MANAGE-1.3 ('Responses to AI risks deemed high priority are developed, planned, and documented; risk response options can include... avoiding'), which directly speaks to planning a risk response — including avoidance — for a high-priority, legally prohibited risk category. Additionally, MAP-1.6 ('System requirements are elicited... design decisions take socio-technical implications into account to address AI risks') could be considered as it addresses the upstream design-stage requirement to specify that the system must not exploit socio-technical vulnerabilities. The Mapper's choice of MANAGE-1.1 over these more specific controls, combined with hedged reasoning ('directly operationalises... by requiring a go/no-go decision gate'), suggests the Mapper defaulted to a familiar catch-all rather than identifying a more targeted control. A human reviewer should assess whether MANAGE-1.1 is the best available MANAGE-function control for this obligation.",
+      "confidence": 0.86,
+      "reviewed_mappings": [
+        "GOVERN-1.1",
+        "MAP-5.1",
+        "MANAGE-1.1"
+      ]
+    },
+    {
+      "obligation_id": "EUAIA-OBL-003",
+      "decision": "confirm",
+      "reasoning": "Both mappings are defensible given the nature of this obligation. GOVERN-1.1 at 0.85 is a strong and appropriate primary hook: Article 5(1)(c) is a hard legal prohibition, and GOVERN-1.1 directly addresses the need to understand, manage, and document legal and regulatory AI requirements — this is precisely the control that should anchor a prohibited-use obligation. The mapping is well-reasoned and not merely a catch-all. MANAGE-1.1 at 0.78 is the lower-confidence entry and warrants scrutiny. The Mapper's reasoning is coherent — the deployment go/no-go determination is a real operationalisation of the prohibition — and does not rely on hedging language ('in the spirit of', 'broadly applicable', etc.). The reasoning is direct and logically follows from the control text. One might argue that MANAGE-1.3 (developing, planning, and documenting responses to high-priority risks, including risk avoidance) could be an equally or more specific fit for the 'do not deploy' imperative, but MANAGE-1.1 is not a misdirected or weaker choice — it captures the threshold deployment decision the prohibition mandates. No mapping names a subcategory that is not the one actually returned. The obligation concerns a legal prohibition on a specific AI system category, and the two-mapping combination (governance/legal awareness + deployment decision gate) is a reasonable and defensible coverage strategy within the framework's available controls.",
+      "confidence": 0.87,
+      "reviewed_mappings": [
+        "GOVERN-1.1",
+        "MANAGE-1.1"
+      ]
+    },
+    {
+      "obligation_id": "EUAIA-OBL-006",
+      "decision": "confirm",
+      "reasoning": "All three mappings are defensible. GOVERN-1.1 at 0.92 is a strong and well-reasoned anchor: understanding, managing, and documenting a direct statutory prohibition is exactly what GOVERN-1.1 covers, and the reasoning is crisp with no hedging. MANAGE-1.1 at 0.82 is a legitimate inclusion — the go/no-go deployment determination is precisely where a prohibited use case must surface, and the reasoning ties the control requirement directly to the obligation rather than relying on catch-all language. MAP-1.1 at 0.78 is the lowest-confidence entry and the one most deserving scrutiny. However, MAP-1.1 explicitly calls out 'context-specific laws' as something to be understood and documented in relation to deployment settings, which maps cleanly to the obligation's requirement that providers understand the prohibition before placing a system on the market. The reasoning does not hedge excessively — it identifies the specific textual hook ('context-specific laws') rather than appealing to a vague spirit of the control. No stronger MAP-function subcategory is clearly superior: MAP-1.6 concerns system requirements elicited from AI actors (a different concern), and MAP-3.3 concerns specifying application scope (adjacent but not squarely on legal prohibition). The Mapper's three-control spread — legal compliance governance, deployment go/no-go decision, and context-specific legal scoping — provides reasonable coverage of an obligation that is primarily a market-placement prohibition with narrow exception. The 0.78 MAP-1.1 mapping is a defensible catch for the documentation/scoping dimension of the obligation.",
+      "confidence": 0.87,
+      "reviewed_mappings": [
+        "GOVERN-1.1",
+        "MANAGE-1.1",
+        "MAP-1.1"
+      ]
+    },
+    {
+      "obligation_id": "EUAIA-OBL-007",
+      "decision": "confirm",
+      "reasoning": "All three mappings are defensible given the nature of this obligation, which is a hard legal prohibition requiring organisational awareness, deployment gate-keeping, and contextual documentation.\n\nGOVERN-1.1 (0.92): Straightforwardly appropriate. A blanket legal prohibition under EU AI Act Article 5(1)(g) is precisely the kind of legal and regulatory requirement that GOVERN-1.1 is designed to address. The reasoning is direct and non-hedged.\n\nMANAGE-1.1 (0.82): Defensible. The Mapper's reasoning — that providers/deployers must make an affirmative go/no-go determination before placing a system on the market — maps coherently onto MANAGE-1.1's 'determination...whether development or deployment should proceed.' While MANAGE-1.1 is broadly scoped, it is not a stretch to apply it to a mandatory pre-deployment compliance gate. No more specific subcategory in the catalogue more precisely addresses this prohibition's deployment-decision dimension; MANAGE-2.4 (supersede/disengage) is adjacent but concerns post-deployment deactivation rather than pre-market determination.\n\nMAP-1.1 (0.78): The lowest-confidence mapping, and the reasoning leans on 'context-specific laws' and 'individual impacts' language within MAP-1.1 to justify the link. This is a legitimate but relatively broad application — MAP-1.1 concerns documenting intended purpose and deployment context, which is relevant to confirming a system does not fall within the prohibited category. The reasoning does not hedge with 'in the spirit of' language; it identifies a specific documentary function (understanding whether the system's intended purpose involves the prohibited categorisation) that MAP-1.1 directly supports. No other subcategory in the catalogue more tightly addresses this particular documentation angle for a prohibition of this type. The moderate confidence score appropriately signals the indirect fit. The mapping is a defensible catch-all inclusion.",
+      "confidence": 0.87,
+      "reviewed_mappings": [
+        "GOVERN-1.1",
+        "MANAGE-1.1",
+        "MAP-1.1"
+      ]
+    },
+    {
+      "obligation_id": "EUAIA-OBL-008",
+      "decision": "flag_for_review",
+      "reasoning": "GOVERN-1.1 at 0.85 is a solid anchor mapping — the obligation is fundamentally a legal prohibition whose operationalisation requires understanding, managing, and documenting the regulatory requirement. That call is defensible and requires no further scrutiny.\n\nMANAGE-1.1 at 0.78 is the more questionable mapping. The Mapper frames it as a 'go/no-go deployment decision,' but MANAGE-1.1 is explicitly about determining whether an AI system achieves its intended purposes and whether development or deployment 'should proceed' — a high-level system-level gate, not an exception-by-exception deployment authorisation mechanism. The obligation's core duty is a near-absolute prohibition with narrow enumerated exceptions subject to procedural safeguards (Article 5(2)–(7)): each individual deployment invocation must be authorised against those narrow grounds. A stronger fit for that authorisation/oversight dimension would be GOVERN-3.2, which addresses policies and procedures for human-AI configurations and oversight of AI systems, or MANAGE-4.1, which covers post-deployment monitoring including incident response and override/decommission mechanisms. The Mapper's reasoning for MANAGE-1.1 addresses a related-but-distinct concern (system-level deployment go/no-go vs. per-use-case legal authorisation under narrow exceptions).\n\nMAP-1.1 at 0.76 is a borderline catch-all. While documenting deployment context and legal constraints does form part of compliance, MAP-1.1 is a context-understanding and scoping control oriented toward the design/planning phase. The obligation is primarily a runtime prohibition with per-deployment authorisation conditions — MAP-1.1 addresses a related-but-upstream concern rather than the prohibition and its safeguards directly. A stronger fit might be MAP-3.3 (specifying and documenting targeted application scope) or GOVERN-1.4 (transparent policies and controls based on risk priorities), but neither is proposed. The hedging implicit in the 0.76 score and the broad framing of the reasoning ('complying with the prohibition requires deployers to document') are consistent with a catch-all inclusion rather than a precise match. Both MANAGE-1.1 and MAP-1.1 warrant human review before the report ships.",
+      "confidence": 0.87,
+      "reviewed_mappings": [
+        "GOVERN-1.1",
+        "MANAGE-1.1",
+        "MAP-1.1"
+      ]
+    },
+    {
+      "obligation_id": "EUAIA-OBL-009",
+      "decision": "confirm",
+      "reasoning": "All three mappings are defensible given the obligation's nature as a pre-use compliance verification duty for repurposed AI systems.\n\nGOVERN-1.1 (0.88) is the strongest and most natural fit: the obligation is fundamentally about understanding and documenting legal and regulatory requirements (the AI Act's applicability) before a system is deployed in a new, non-excluded context. The reasoning is direct and does not rely on hedging language.\n\nMANAGE-1.1 (0.80) captures the go/no-go deployment decision the entity must make before use. The reasoning is sound — the control explicitly concerns whether development or deployment should proceed, which maps well to the pre-use compliance gate the obligation imposes. The confidence is moderate but defensible; no more specific MANAGE subcategory addresses pre-deployment compliance gating more precisely.\n\nMAP-1.1 (0.77) is the lowest-confidence mapping and merits close reading. The reasoning is substantive rather than purely hedging: understanding the new deployment context (civilian or law enforcement) and the applicable legal norms is genuinely what MAP-1.1 addresses, and this contextual analysis is a prerequisite to the compliance determination. The phrase 'context-specific laws, norms and expectations, and prospective settings' in MAP-1.1's text aligns well with the obligation's requirement to assess applicability in a new non-excluded setting. While MAP-1.1 is broad, no more specific subcategory in the catalogue more precisely addresses the contextual legal scoping step. The bias-toward-confirm rule for moderate-confidence catch-all mappings applies here, and the reasoning does not rely on 'in the spirit of' or other hedging language that would warrant flagging.",
+      "confidence": 0.87,
+      "reviewed_mappings": [
+        "GOVERN-1.1",
+        "MANAGE-1.1",
+        "MAP-1.1"
+      ]
+    },
+    {
+      "obligation_id": "EUAIA-OBL-011",
+      "decision": "confirm",
+      "reasoning": "All three mappings are defensible for this obligation. GOVERN-1.1 is the strongest fit — the obligation is squarely a legal/regulatory compliance duty, and GOVERN-1.1's text is near-verbatim alignment. The 0.9 confidence is well-calibrated. MANAGE-1.1 at 0.82 is also defensible: a pre-market conformity requirement operationally functions as a deployment go/no-go gate, which is precisely what MANAGE-1.1 addresses. The reasoning does not rely on hedging language and the logical connection is direct. MAP-1.1 at 0.77 is the weakest of the three, and the Mapper's reasoning does lean slightly on a subset of MAP-1.1's text ('context-specific laws… understood and documented') rather than the full scope of the control, which is primarily about understanding deployment context broadly. However, the AI Act compliance obligation does inherently require understanding context-specific laws and deployment settings, so the inclusion is not unreasonable. No clearly stronger alternative subcategory was missed: MAP-1.5 (risk tolerances) and GOVERN-1.2 (integrating trustworthy AI characteristics into policies) are related but no more specific. The moderate-confidence MAP-1.1 mapping functions appropriately as a catch-all for the contextual understanding dimension of a broad legal compliance obligation. No flag is warranted.",
+      "confidence": 0.87,
+      "reviewed_mappings": [
+        "GOVERN-1.1",
+        "MANAGE-1.1",
+        "MAP-1.1"
+      ]
+    },
+    {
+      "obligation_id": "EUAIA-OBL-012",
+      "decision": "confirm",
+      "reasoning": "All three mappings are defensible. GOVERN-1.1 at 0.88 is a strong fit: the dual-use compliance obligation is fundamentally a legal and regulatory compliance duty, squarely within GOVERN-1.1's scope. MAP-1.1 at 0.82 is well-reasoned: the obligation's core demand — that providers identify and document distinct deployment contexts and applicable legal requirements across them — maps cleanly onto MAP-1.1's requirement to document context-specific laws and prospective deployment settings. The lowest-confidence mapping, MAP-3.3 at 0.76, is the one warranting closest scrutiny. However, its reasoning is concrete and does not rely on hedging language: the obligation genuinely requires providers to delineate which use-cases fall within AI Act scope versus excluded scope, and MAP-3.3's requirement to specify and document 'targeted application scope based on system categorization and established context' directly supports this scoping exercise. The Mapper did not name a subcategory in its reasoning that differs from the one returned. No stronger alternative subcategory is apparent from the catalogue: MAP-1.1 already covers the contextual/legal documentation angle, and MAP-3.3 adds a complementary scope-specification dimension that is distinct and appropriate. The combination of GOVERN-1.1, MAP-1.1, and MAP-3.3 provides reasonable coverage of the obligation's compliance, documentation, and scoping dimensions. No flag is warranted.",
+      "confidence": 0.87,
+      "reviewed_mappings": [
+        "GOVERN-1.1",
+        "MAP-1.1",
+        "MAP-3.3"
+      ]
+    },
+    {
+      "obligation_id": "EUAIA-OBL-013",
+      "decision": "confirm",
+      "reasoning": "All three mappings are defensible given the obligation's focus on ensuring compliance with AI Act requirements for dual-use systems.\n\nGOVERN-1.1 (0.88): The strongest and clearest mapping. The obligation is essentially a legal compliance obligation — providers must understand, manage, and document AI Act compliance for in-scope uses of dual-use systems. GOVERN-1.1 is precisely scoped for this purpose, and the evidence requirement (compliance documentation) directly mirrors GOVERN-1.1's documentation mandate. No concern here.\n\nMAP-1.1 (0.80): Defensible. For dual-use systems, a necessary predicate to compliance is delineating which uses fall within scope of the AI Act versus which are carved out (e.g., national security). MAP-1.1's requirement to document context-specific laws and prospective deployment settings is a genuine operational step providers must take to discharge this obligation. The reasoning does not rely on hedging language and identifies a specific functional need (scoping in-scope vs. out-of-scope uses) that MAP-1.1 addresses.\n\nMANAGE-1.1 (0.76): The lowest-confidence mapping, but still defensible as a catch-all. The obligation requires providers to ensure systems comply before placing them on the market — which has a go/no-go deployment decision character that MANAGE-1.1 covers. The reasoning is direct and does not rely on 'broadly applicable' or 'in the spirit of' hedging. No more specific subcategory in the catalogue — such as MANAGE-1.3 (risk response planning) or GOVERN-1.2 (integrating trustworthy AI characteristics into policies) — is clearly a stronger fit for the specific compliance-gate aspect of this obligation. MANAGE-1.1 is a reasonable inclusion.",
+      "confidence": 0.87,
+      "reviewed_mappings": [
+        "GOVERN-1.1",
+        "MAP-1.1",
+        "MANAGE-1.1"
+      ]
+    },
+    {
+      "obligation_id": "EUAIA-OBL-014",
+      "decision": "confirm",
+      "reasoning": "Both mappings are defensible. GOVERN-1.1 is a strong fit at 0.85: the obligation is fundamentally about understanding and managing the boundary of the R&D exclusion under the AI Act, and GOVERN-1.1's explicit focus on legal and regulatory requirements being understood, managed, and documented is a direct match. The reasoning is precise and does not rely on hedging language.\n\nMANAGE-1.1 at 0.77 is the weaker of the two but remains defensible. The Mapper frames it as a 'go/no-go compliance gate' before real-world testing commences, which is a reasonable reading: the obligation does require a deliberate determination about which regime applies before testing proceeds. The reasoning is somewhat stretched — MANAGE-1.1 is primarily oriented toward whether an AI system achieves its intended purpose and whether deployment should proceed on performance/risk grounds, not strictly on regulatory regime selection. However, no more specific NIST AI RMF subcategory clearly captures this compliance-gate function better. MAP-1.1 (understanding context-specific laws and prospective deployment settings) could arguably be a comparable or slightly stronger fit for the regime-selection aspect, but the Mapper's MANAGE-1.1 choice is not misdirected enough to flag — it addresses a related concern and the moderate confidence score appropriately signals the partial fit. Neither mapping uses language suggesting the Mapper named a subcategory other than the one returned. Overall, both mappings represent defensible calls within the framework's coverage.",
+      "confidence": 0.84,
+      "reviewed_mappings": [
+        "GOVERN-1.1",
+        "MANAGE-1.1"
+      ]
+    },
+    {
+      "obligation_id": "EUAIA-OBL-015",
+      "decision": "confirm",
+      "reasoning": "All three mappings are defensible for this obligation.\n\n**GOVERN-1.1 (0.88):** This is a strong and well-reasoned mapping. The obligation is fundamentally a legal compliance duty — deployers must understand and adhere to Article 5 AI Act prohibitions. GOVERN-1.1 directly addresses understanding, managing, and documenting legal/regulatory requirements involving AI. No issue here.\n\n**MANAGE-2.4 (0.80):** The reasoning is reasonable, though the fit is imperfect. MANAGE-2.4 is primarily about mechanisms to deactivate or disengage AI systems that perform inconsistently with intended use — it is operationally reactive. The obligation is more about ensuring prohibited use does not occur in the first place (a preventive compliance duty) and that safety guardrails are not bypassed. However, the interpretation that 'not bypassing guardrails' relates to maintaining mechanisms that keep system behaviour within sanctioned boundaries is a defensible — if stretched — reading. The Mapper's confidence of 0.80 honestly reflects this moderate fit, and no more precise control clearly covers the 'do not bypass provider guardrails' element. Acceptable as a supporting mapping.\n\n**GOVERN-1.2 (0.76):** This is the lowest-confidence mapping and the reasoning leans on a somewhat indirect link — integrating 'trustworthy AI characteristics' into policies as a proxy for prohibiting illegal use and guardrail bypassing. However, operationalising a compliance obligation through organizational policy and practice is precisely what GOVERN-1.2 describes, and the reasoning does not use egregiously hedged language. The moderate confidence score appropriately signals the indirect fit. No stronger subcategory in the catalogue clearly addresses the specific policy-embedding requirement for prohibited-use avoidance that GOVERN-1.2 does not cover at least partially. GOVERN-4.1 (safety-first mindset in policies) could arguably be a closer fit for the guardrail-preservation aspect, but it is not substantially stronger than GOVERN-1.2, and substituting it is not the Critic's role. The mapping stands as defensible.",
+      "confidence": 0.87,
+      "reviewed_mappings": [
+        "GOVERN-1.1",
+        "MANAGE-2.4",
+        "GOVERN-1.2"
+      ]
+    },
+    {
+      "obligation_id": "EUAIA-OBL-016",
+      "decision": "confirm",
+      "reasoning": "All three mappings are defensible. GOVERN-1.1 (0.88) maps cleanly to the duty to understand and document the legal prohibition under Article 5 AI Act — the subcategory text is a near-literal match to that compliance posture requirement. MANAGE-1.3 (0.85) maps well to the obligation's core operational requirement: developing, planning, and documenting responses (safeguards) to prevent and mitigate high-priority harmful behaviours before deployment — the subcategory language on risk response options including mitigation and avoidance aligns directly. MAP-5.1 (0.78) is the weakest but remains defensible: the obligation's 'reasonably foreseeable' misuse standard is substantively served by systematic pre-deployment identification and documentation of impact likelihood and magnitude. The Mapper's reasoning for MAP-5.1 does not lean on hedging language and does not name a different subcategory than the one returned. One could argue MAP-4.2 or MANAGE-4.1 might also have been considered, but MAP-5.1 is not a mismatch — it directly supports the foreseeability-of-harm analysis the obligation requires. No stronger, clearly missed subcategory is apparent that would displace MAP-5.1 as obviously superior. The set of three mappings collectively covers the obligation's legal compliance, risk response planning, and foreseeable-harm assessment dimensions in a coherent and proportionate way.",
+      "confidence": 0.87,
+      "reviewed_mappings": [
+        "GOVERN-1.1",
+        "MANAGE-1.3",
+        "MAP-5.1"
+      ]
+    },
+    {
+      "obligation_id": "EUAIA-OBL-017",
+      "decision": "confirm",
+      "reasoning": "All three mappings are defensible. GOVERN-1.1 (0.85) is a strong fit: the obligation's core thrust is understanding and documenting legally prohibited uses and reflecting them in contractual terms, which is precisely what GOVERN-1.1 addresses. GOVERN-6.1 (0.82) is also well-grounded: the provider–deployer relationship is a classic third-party relationship, and the contractual restriction of prohibited uses and disclosure duties are exactly the kind of risk controls GOVERN-6.1 contemplates. MAP-3.5 (0.78) is the lowest-confidence mapping and warrants the most scrutiny. The Mapper's reasoning is sound: the obligation explicitly requires information about 'necessary human oversight' in instructions of use, and MAP-3.5 directly covers defining, assessing, and documenting human oversight processes. The mapping is not merely 'in the spirit of' MAP-3.5 — the human oversight disclosure duty is MAP-3.5's subject matter. There is no stronger catalogue subcategory that was missed: MAP-3.3 (targeted application scope) and MAP-2.2 (knowledge limits and human oversight documentation) are adjacent, but MAP-3.5 is the most direct fit for the human oversight process documentation duty. The confidence score of 0.78 is honestly calibrated for a moderate-specificity mapping, and the obligation does not primarily concern a different concern than what MAP-3.5 addresses. The Mapper's reasoning contains no hedging language that would trigger flagging. The full set of mappings provides reasonable coverage of the obligation's three distinct duties: legal compliance documentation (GOVERN-1.1), third-party contractual risk controls (GOVERN-6.1), and human oversight disclosure (MAP-3.5).",
+      "confidence": 0.87,
+      "reviewed_mappings": [
+        "GOVERN-1.1",
+        "GOVERN-6.1",
+        "MAP-3.5"
+      ]
+    },
+    {
+      "obligation_id": "EUAIA-OBL-018",
+      "decision": "confirm",
+      "reasoning": "All three mappings are defensible, including the two below 0.80 confidence.\n\n**GOVERN-1.1 (0.82):** Solidly mapped. The obligation's core duty — understanding legal prohibitions tied to specific AI purposes, maintaining instructions of use, terms excluding prohibited practices, and monitoring records — maps directly onto GOVERN-1.1's language about legal/regulatory requirements being 'understood, managed, and documented.' No issue here.\n\n**MAP-3.5 (0.78):** The human oversight duty is explicit in the obligation text ('ensure required human oversight'). MAP-3.5 is precisely the subcategory addressing definition, assessment, and documentation of human oversight processes. The moderate confidence is understandable given MAP-3.5 is primarily a design/pre-deployment control, whereas the obligation speaks to a deployment context — but the oversight duty applies to both the provider's system design and its deployer-facing documentation, making MAP-3.5 a reasonable and defensible fit. No hedging language is present in the Mapper's reasoning; the match is substantive.\n\n**MANAGE-4.1 (0.76):** The monitoring-for-compliance duty ('monitor for compliance with that restriction') maps plausibly to MANAGE-4.1's post-deployment monitoring plans and incident response provisions. The Mapper's reasoning does not rely on hedging language and correctly identifies the post-deployment monitoring dimension. MANAGE-4.3 (incident/error communication and tracking) could arguably be a slightly stronger fit for the misuse-detection/response aspect, but MANAGE-4.1 explicitly covers monitoring plans and incident response together, making the Mapper's choice defensible rather than clearly inferior. The caveat that monitoring must not amount to 'general monitoring of deployers' activities' is a legal nuance not resolvable by any NIST subcategory, so the Mapper's selection within available controls is reasonable.\n\nOverall, the three controls collectively cover the obligation's legal-compliance documentation, human oversight, and post-deployment monitoring duties without significant gaps or misdirection.",
+      "confidence": 0.85,
+      "reviewed_mappings": [
+        "GOVERN-1.1",
+        "MAP-3.5",
+        "MANAGE-4.1"
+      ]
+    },
+    {
+      "obligation_id": "EUAIA-OBL-021",
+      "decision": "flag_for_review",
+      "reasoning": "All three mappings warrant scrutiny, with the two lower-confidence entries being the primary concern.\n\n**GOVERN-1.1 (0.80) — Defensible, confirm.** The obligation is a concrete legal and regulatory requirement; GOVERN-1.1 is the canonical catch-all for such duties and the reasoning is direct. This mapping stands.\n\n**MEASURE-2.8 (0.78) — Questionable.** MEASURE-2.8 addresses measuring and documenting *risks* associated with transparency and accountability as surfaced in the MAP function. The obligation, however, is not about risk measurement — it is a specific operational labelling/disclosure action that deployers must perform on outputs. MEASURE-2.8 is a diagnostic/evaluative activity, not a control over labelling implementation. The reasoning leans on re-framing the labelling duty as a 'transparency and accountability measurement' concern, which is a related-but-distinct use of that subcategory. A stronger fit for the transparency/disclosure dimension would be **GOVERN-4.2** (teams document and communicate about risks and impacts of AI technology more broadly) or **MAP-1.1** (context-specific laws, norms, and expectations — including disclosure norms — are understood and documented), neither of which was returned.\n\n**MANAGE-4.1 (0.76) — Questionable.** MANAGE-4.1 concerns post-deployment monitoring plans including incident response, override, and change management. The Mapper's reasoning stretches this into covering the act of attaching visible disclosure labels to outputs, which is an operational compliance action, not a monitoring or change-management mechanism. The phrase 'falls directly within post-deployment plan execution' is hedging language that conflates ongoing operational compliance (labelling content on publication) with the narrower monitoring/recovery scope of MANAGE-4.1. A more targeted subcategory for operationalising the labelling action in deployed systems would be **MANAGE-2.2** (mechanisms to sustain the value of deployed AI systems) or, more precisely, **GOVERN-1.2** (trustworthy AI characteristics, including transparency, integrated into policies, processes, and practices). Neither was proposed.\n\nIn summary: GOVERN-1.1 is solid; MEASURE-2.8 conflates risk measurement with disclosure action; MANAGE-4.1 conflates post-deployment monitoring with the affirmative duty to label outputs. A human reviewer should assess whether MEASURE-2.8 and MANAGE-4.1 genuinely address the labelling obligation or whether stronger-fit subcategories should replace them.",
+      "confidence": 0.87,
+      "reviewed_mappings": [
+        "GOVERN-1.1",
+        "MEASURE-2.8",
+        "MANAGE-4.1"
+      ]
+    },
+    {
+      "obligation_id": "EUAIA-OBL-022",
+      "decision": "flag_for_review",
+      "reasoning": "The lowest-confidence mapping, MAP-1.1 (0.77), warrants flagging. MAP-1.1 concerns documenting intended purposes, context-specific laws, user expectations, and prospective deployment settings — i.e., a planning and context-mapping activity. The obligation under Article 50(1) is a design-level disclosure duty: the AI system must affirmatively inform users they are interacting with AI. MAP-1.1 does not operationalise disclosure; it operationalises contextual understanding. The Mapper's reasoning leans on the phrase 'context-specific laws, norms and expectations' as a hook, but that is hedging language — the mapping addresses a related-but-distinct concern. A stronger fit that the Mapper did not consider is MANAGE-4.1, which covers post-deployment monitoring plans including mechanisms for capturing user interactions, or more directly MEASURE-2.9, which requires that 'AI system output is interpreted within its context … to inform responsible use and governance' — touching on how outputs (including disclosure notices) are explained and validated. Most directly, the Mapper could have considered GOVERN-1.2 ('characteristics of trustworthy AI are integrated into organizational policies, processes, and practices'), which more precisely captures the design-level integration of a transparency characteristic (disclosure) into the system. The MEASURE-2.8 mapping (0.82) is defensible — examining and documenting transparency risks is a reasonable operationalisation of the disclosure evaluation duty. The GOVERN-1.1 mapping (0.80) is also defensible as a catch-all for a mandatory legal compliance obligation. Only the MAP-1.1 mapping is questionable enough to warrant human review before the report ships.",
+      "confidence": 0.85,
+      "reviewed_mappings": [
+        "MEASURE-2.8",
+        "GOVERN-1.1",
+        "MAP-1.1"
+      ]
+    },
+    {
+      "obligation_id": "EUAIA-OBL-023",
+      "decision": "flag_for_review",
+      "reasoning": "The obligation is highly specific: it mandates that providers embed *technical measures enabling detection* of AI-generated and manipulated content, as a visible disclosure mechanism. This is primarily an engineering/implementation requirement rather than a measurement, governance, or context-mapping duty.\n\nMEASURE-2.8 (0.82): The reasoning is partially defensible — transparency and accountability risks are relevant — but MEASURE-2.8 is about *examining and documenting* transparency risks, not about implementing technical detection capabilities. The obligation calls for embedded design features and detection measures as an active product requirement, not a risk documentation exercise. The Mapper's framing conflates assessing transparency risks with implementing disclosure-enabling technical controls. A stronger fit would be MEASURE-2.9, which covers model explainability and documented interpretation of AI system outputs in context — closer to the detection-and-disclosure intent — though still imperfect. The current mapping addresses a related-but-distinct concern.\n\nGOVERN-1.1 (0.80): This is a defensible catch-all for the legal compliance dimension of Article 50(2). Confirming providers must understand and document the regulatory requirement is appropriate as a secondary mapping, and no hedging language undermines the reasoning here.\n\nMAP-1.1 (0.76): The reasoning relies on 'context-specific laws… understood and documented,' which is relevant but is being stretched to cover a technical implementation mandate. MAP-1.1 addresses contextual understanding at the scoping stage, not the obligation to embed detection mechanisms in system design. The reasoning language ('presupposes,' 'directly covers') overstates the fit. A more targeted alternative within the catalogue would be MAP-1.6, which addresses system requirements elicitation including socio-technical implications — more directly tied to embedding disclosure as a design requirement — but the Mapper did not return it.\n\nThe primary flag is on MEASURE-2.8 as the lead mapping: it addresses a related-but-distinct concern (documenting transparency risks) rather than the core obligation (implementing technical detection features). Human review should determine whether a more implementation-oriented control or a combination better captures the engineering mandate of Article 50(2).",
+      "confidence": 0.85,
+      "reviewed_mappings": [
+        "MEASURE-2.8",
+        "GOVERN-1.1",
+        "MAP-1.1"
+      ]
+    },
+    {
+      "obligation_id": "EUAIA-OBL-024",
+      "decision": "confirm",
+      "reasoning": "All three mappings are defensible. MANAGE-1.3 is a strong fit — the obligation's explicit language around 'preventive and mitigating measures' that must be 'developed, planned, and documented' mirrors MANAGE-1.3's framing almost verbatim, and the 0.85 confidence is well-earned. GOVERN-1.1 at 0.82 is a sound governance anchor: the obligation is rooted in a specific legal prohibition under the EU AI Act, and GOVERN-1.1's coverage of legal/regulatory requirements being understood, managed, and documented provides the necessary compliance backbone. The reasoning is direct and does not rely on hedging language.\n\nMAP-5.1 at 0.78 is the lowest-confidence mapping and the most arguable. The Mapper's reasoning is functional — documenting the likelihood and magnitude of harms from manipulative techniques is a genuine prerequisite to implementing preventive measures — and MAP-5.1 is a reasonable fit for the harm-identification dimension of the obligation. The reasoning does not lean on hedging language ('could support,' 'in the spirit of'), and no stronger catalogue subcategory clearly displaces it: MAP-1.1 could loosely apply (contextual risks and norms), but MAP-5.1 is more specific to impact likelihood and magnitude, which is what the obligation's 'reasonably likely to result' language targets. MANAGE-1.3 already covers the response side; MAP-5.1 covers the upstream identification side. The combination is coherent and the moderate confidence is appropriate given MAP-5.1 is not a perfect fit for an obligation primarily about implementing mitigations rather than mapping impacts.",
+      "confidence": 0.87,
+      "reviewed_mappings": [
+        "MANAGE-1.3",
+        "GOVERN-1.1",
+        "MAP-5.1"
+      ]
+    },
+    {
+      "obligation_id": "EUAIA-OBL-025",
+      "decision": "confirm",
+      "reasoning": "All three mappings are defensible given the obligation's content.\n\nMEASURE-2.8 (0.85) is the strongest fit: the obligation explicitly demands transparency disclosures and records of safeguard measures, which sit squarely within MEASURE-2.8's scope of examining and documenting risks associated with transparency and accountability. No hedging in the Mapper's reasoning; the match is direct.\n\nGOVERN-1.1 (0.82) is a sound second mapping. The obligation is rooted in a specific legal provision (Article 5(1)(a) AI Act) and requires providers/deployers to operate within 'the boundaries of lawful persuasion' — a legal and regulatory compliance framing that GOVERN-1.1 is explicitly designed to capture. The evidence requirement for documented disclosures and safeguard records reinforces this mapping.\n\nMAP-1.1 (0.78) is the borderline case. The Mapper's reasoning does quote MAP-1.1's language almost verbatim ('context-specific laws, norms and expectations'), which is an honest fit, not hedging language. The obligation does require that the deployment context — including legal norms around deception and autonomy — be understood and documented before deployment decisions are made, which is precisely what MAP-1.1 addresses. While MAP-1.1 is a broad catch-all, it is not misapplied here: no more specific subcategory in the catalogue better captures the 'understand the context of potentially manipulative use and its norms' duty. GOVERN-4.2 (documenting risks and impacts) or MAP-1.6 (system requirements reflecting socio-technical implications) could be considered adjacent, but neither is clearly stronger than MAP-1.1 for this particular obligation. The moderate confidence score is appropriate and the reasoning is not evasive. The mapping is a defensible inclusion.",
+      "confidence": 0.87,
+      "reviewed_mappings": [
+        "MEASURE-2.8",
+        "GOVERN-1.1",
+        "MAP-1.1"
+      ]
+    },
+    {
+      "obligation_id": "EUAIA-OBL-027",
+      "decision": "flag_for_review",
+      "reasoning": "All three mappings are directionally reasonable but each warrants scrutiny:\n\n1. GOVERN-1.1 (0.82): The fit is defensible — the obligation's core demand is demonstming to a regulatory authority that the AI practice is lawful and documented, which aligns well with GOVERN-1.1's focus on legal and regulatory requirements being 'understood, managed, and documented.' This mapping is the strongest of the three.\n\n2. MAP-1.1 (0.80): The obligation's data-scoping requirement ('only data related to the social context in which the score is used are processed') is a narrower, operational constraint than what MAP-1.1 addresses. MAP-1.1 covers broad purpose/context documentation; the obligation's data-minimisation-style requirement bears a closer resemblance to MAP-1.6 ('System requirements… are elicited from and understood by relevant AI actors. Design decisions take socio-technical implications into account to address AI risks') or MAP-3.3 ('Targeted application scope is specified and documented based on the system's capability, established context, and AI system categorization'). The Mapper did not consider these alternatives. MAP-1.1 is a reasonable catch-all but a human reviewer should assess whether MAP-3.3 would be a tighter fit for the data-scope constraint.\n\n3. MEASURE-2.8 (0.78): This is the primary concern. The obligation requires not merely that transparency/accountability risks are 'examined and documented' (MEASURE-2.8's focus), but affirmatively that the deployer can *demonstrate* proportionality and justification of detrimental treatment to an external authority during a live regulatory check. That evidentiary/accountability demonstration burden more strongly implicates MEASURE-2.9 ('The AI model is explained, validated, and documented, and AI system output is interpreted within its context… to inform responsible use and governance') or MANAGE-4.3 ('Incidents and errors are communicated to relevant AI actors… Processes for tracking, responding to, and recovering from incidents and errors are followed and documented'). The Mapper's reasoning uses hedging language ('operationalises the measurement of transparency and accountability risks that underpin the proportionality justification') rather than a direct textual match. The mapping is plausible but MEASURE-2.9 appears to be a potentially stronger fit that was not considered.",
+      "confidence": 0.85,
+      "reviewed_mappings": [
+        "GOVERN-1.1",
+        "MAP-1.1",
+        "MEASURE-2.8"
+      ]
+    },
+    {
+      "obligation_id": "EUAIA-OBL-031",
+      "decision": "flag_for_review",
+      "reasoning": "GOVERN-1.1 at 0.82 is a defensible catch-all for a hard legal prohibition — organisations must understand and document the rule — and I would ordinarily confirm it. However, MANAGE-1.1 at 0.77 warrants scrutiny. The Mapper frames MANAGE-1.1 as operationalising a 'go/no-go deployment decision,' but MANAGE-1.1 is about determining whether an AI system achieves its intended purposes and whether development or deployment should proceed in a general risk-management sense. The Article 5(1)(e) obligation is not a contextual risk-management determination; it is an absolute prohibition on a specific practice (untargeted scraping for facial recognition databases, including step-by-step functional equivalents). That is a categorically different concern. A stronger fit would have been GOVERN-1.4 (transparent policies and controls based on risk priorities, which would encompass embedding the prohibition into governance controls) or MANAGE-1.3 (developing and documenting responses to high-priority AI risks, which maps more naturally to the mandatory cessation/avoidance response the prohibition requires). The Mapper's reasoning for MANAGE-1.1 uses hedging language ('operationalises the go/no-go...that the prohibition mandates'), effectively stretching a general deployment-readiness control to cover an absolute legal ban — a related-but-distinct concern. This warrants human review before the report ships.",
+      "confidence": 0.85,
+      "reviewed_mappings": [
+        "GOVERN-1.1",
+        "MANAGE-1.1"
+      ]
+    },
+    {
+      "obligation_id": "EUAIA-OBL-033",
+      "decision": "confirm",
+      "reasoning": "All three mappings are defensible within the NIST AI RMF framework's coverage of this obligation.\n\nGOVERN-1.1 (0.82): This is the strongest and most natural fit. The obligation is fundamentally about satisfying a legal exception under Article 5(1)(f), requiring documented understanding of necessity, proportionality, and time/scale constraints — precisely what GOVERN-1.1 addresses. The evidence requirements (written expert opinion, proportionality documentation) align well.\n\nMAP-1.1 (0.80): Defensible. The obligation's insistence on limits tied to 'time, personal application and scale' for specific deployment contexts maps credibly to MAP-1.1's requirement to document intended purposes, context-specific laws, deployment settings, and assumptions/limitations. The reasoning is coherent and does not rely on hedging language.\n\nMANAGE-1.3 (0.77): This is the lowest-confidence mapping and warrants scrutiny. The Mapper's reasoning — that 'sufficient safeguards' operationally equates to documented high-priority risk responses — is a reasonable inference but is somewhat indirect. The obligation's safeguards (prior expert opinion, proportionality limits) are preconditions to permissible use, not post-MAP risk responses in the NIST sense. However, MANAGE-1.3's language ('responses to AI risks deemed high priority are developed, planned, and documented') can defensibly cover the pre-deployment safeguard planning required here. No clearly stronger single subcategory exists in the catalogue for this specific duty: GOVERN-1.3 (risk tolerance determination) or MAP-3.5 (human oversight processes) could be argued as alternative fits but are not clearly superior. The Mapper's reasoning does not invoke hedging language such as 'in the spirit of' and does not name a different subcategory than the one returned. The moderate confidence score appropriately signals the indirectness of the fit.",
+      "confidence": 0.85,
+      "reviewed_mappings": [
+        "GOVERN-1.1",
+        "MAP-1.1",
+        "MANAGE-1.3"
+      ]
+    },
+    {
+      "obligation_id": "EUAIA-OBL-034",
+      "decision": "flag_for_review",
+      "reasoning": "The first two mappings (GOVERN-1.1 at 0.85 and MAP-1.1 at 0.80) are defensible and well-reasoned — they address the legal documentation and purpose-scoping duties respectively. However, the third mapping (MEASURE-2.10 at 0.77) warrants flagging. MEASURE-2.10 concerns examining and documenting privacy risk 'as identified in the MAP function,' which is an internal measurement and documentation activity. The obligation's data restriction clause is primarily an operational data governance and use-limitation control duty — it requires that data collected under the medical/safety exception is actively restricted from secondary use, not merely that privacy risk is measured. The Mapper's reasoning stretches MEASURE-2.10 to cover active data use policy enforcement, which is a related-but-distinct concern. A stronger fit for the data-restriction element of this obligation would be MAP-1.6 (system requirements elicited including socio-technical implications such as data use scope constraints) or GOVERN-1.4 (transparent policies and controls established based on risk priorities, including data use restrictions). Neither of these was proposed. MEASURE-2.10 may be a supplementary consideration but it does not directly operationalise the prohibition on secondary data use that is the heart of the data restriction requirement. A human reviewer should assess whether MEASURE-2.10 is the most appropriate third mapping or whether a GOVERN or MAP subcategory better captures the active data use limitation duty.",
+      "confidence": 0.84,
+      "reviewed_mappings": [
+        "GOVERN-1.1",
+        "MAP-1.1",
+        "MEASURE-2.10"
+      ]
+    },
+    {
+      "obligation_id": "EUAIA-OBL-035",
+      "decision": "confirm",
+      "reasoning": "All three mappings are defensible given the breadth and multi-faceted nature of this obligation.\n\nGOVERN-1.1 (0.85): Squarely fits. The obligation is fundamentally a legal compliance duty — providers and deployers must understand, manage, and document adherence to Chapter III Section 2 and Article 50(3). GOVERN-1.1 is the natural governance anchor.\n\nMEASURE-2.8 (0.80): A reasonable and specific fit for the transparency dimension. Article 50(3) requires disclosure to natural persons exposed to emotion recognition systems; MEASURE-2.8 addresses examination and documentation of transparency and accountability risks. The Mapper's reasoning is direct, not hedged.\n\nMANAGE-1.1 (0.75): This is the mapping that warrants the closest scrutiny. The Mapper frames it as a 'go/no-go compliance gate,' which is a plausible interpretation — high-risk classification under Article 6(2) and Annex III(1)(c) does imply a deployment decision checkpoint. However, MANAGE-1.1 is a general purposive/objectives control, and it does not naturally speak to the substantive compliance requirements of Chapter III Section 2 (e.g., risk management systems, data governance, human oversight, conformity assessments). One could argue MANAGE-4.1 (post-deployment monitoring, incident response, and decommissioning — more operational) or GOVERN-1.3/1.4 (risk tolerance and transparent risk management processes) would have been slightly stronger fits for the compliance-gate dimension. That said, MANAGE-1.1 is a catch-all deployment-proceed determination control, and the Mapper's reasoning, while not tight, is not misleading or grounded in hedging language. The 0.75 score already signals the moderate confidence accurately. Flagging is not warranted — this is a defensible borderline inclusion.",
+      "confidence": 0.82,
+      "reviewed_mappings": [
+        "GOVERN-1.1",
+        "MEASURE-2.8",
+        "MANAGE-1.1"
+      ]
+    },
+    {
+      "obligation_id": "EUAIA-OBL-036",
+      "decision": "confirm",
+      "reasoning": "All three proposed mappings are defensible, though each carries some hedging.\n\n**GOVERN-1.1 (0.80):** The obligation is squarely a legal compliance duty — deployers must understand and operationalize specific restrictions under Article 5(1)(f). GOVERN-1.1 is a strong and appropriate anchor for this. The reasoning is direct and not over-hedged. Confirmed.\n\n**MANAGE-1.3 (0.78):** The obligation explicitly requires deployers to develop safeguards (i.e., risk responses) to avoid adverse employee screening effects. MANAGE-1.3 covers development, planning, and documentation of risk responses including mitigation and avoidance — this is a reasonable match. The moderate confidence reflects that the obligation is partly a categorical prohibition rather than a pure risk-response planning duty, but the safeguard-implementation framing makes this mapping defensible.\n\n**MANAGE-4.1 (0.76):** The ongoing responsibility to ensure employees are not adversely affected does have a post-deployment monitoring character. MANAGE-4.1's scope (monitoring plans, user input mechanisms, incident response) provides reasonable coverage for this duty. The Mapper's reasoning is solid and not merely hedging with 'could support' language — it identifies specific MANAGE-4.1 elements (monitoring, incident response) that correspond to the obligation's ongoing responsibility requirement.\n\nNo stronger NIST AI RMF subcategory is clearly missing. MEASURE-2.10 (privacy risk) or MEASURE-2.11 (fairness/bias) could be tangentially relevant to emotion inference and employee impact, but neither addresses the safeguard-implementation and deployer-responsibility framing more directly than the proposed mappings. The set as a whole provides reasonable coverage across the GOVERN and MANAGE functions for this legal compliance and operational duty.",
+      "confidence": 0.82,
+      "reviewed_mappings": [
+        "GOVERN-1.1",
+        "MANAGE-1.3",
+        "MANAGE-4.1"
+      ]
+    },
+    {
+      "obligation_id": "EUAIA-OBL-037",
+      "decision": "confirm",
+      "reasoning": "Both mappings are defensible for this obligation. GOVERN-1.1 is a strong fit: this obligation is fundamentally a hard legal prohibition, and the primary compliance duty is to understand, manage, and document that prohibition — exactly what GOVERN-1.1 addresses. The Mapper's reasoning is direct, not hedged, and no more specific subcategory in the catalogue better captures a blanket legal prohibition on deployment. MANAGE-1.1 at 0.78 is the weaker of the two, but it is defensible: the obligation does require deployers to make an explicit determination about whether deployment should proceed at all, which is precisely what MANAGE-1.1 captures. The reasoning does not lean on hedging language ('broadly applicable,' 'in the spirit of,' etc.) and correctly identifies the go/no-go deployment decision as the operative mechanism. One might note that GOVERN-1.7 (decommissioning and phasing out AI systems safely) could be relevant where systems are already deployed and must be withdrawn, but it is not clearly a stronger fit than MANAGE-1.1 for the core prohibition, and the Mapper's chosen controls together cover the legal-understanding and deployment-decision dimensions adequately. No flag is warranted.",
+      "confidence": 0.87,
+      "reviewed_mappings": [
+        "GOVERN-1.1",
+        "MANAGE-1.1"
+      ]
+    },
+    {
+      "obligation_id": "EUAIA-OBL-038",
+      "decision": "confirm",
+      "reasoning": "Both mappings are defensible. GOVERN-1.1 is a strong fit at 0.85: the obligation is fundamentally about ensuring legal authorisation and documented compliance with a specific regulatory regime (Article 5(2)-(7) AI Act), which sits squarely within 'legal and regulatory requirements involving AI are understood, managed, and documented.' The reasoning is direct and does not rely on hedging language.\n\nMAP-1.1 at 0.78 is a reasonable secondary mapping. The obligation does require that deployers understand the context-specific legal constraints and deployment conditions for real-time RBI in publicly accessible spaces, which aligns with MAP-1.1's framing of context-specific laws, deployment settings, and potential impacts being understood and documented. The reasoning is grounded in the actual text of the control rather than vague analogical language.\n\nNo stronger alternative control is clearly missed. MANAGE-1.3 (documenting responses to high-priority risks) or GOVERN-1.4 (transparent policies based on risk priorities) could have marginal relevance, but neither is a better fit than the two proposed. The moderate confidence on MAP-1.1 reflects a genuine secondary relationship — the obligation's core concern is legal authorisation and safeguard compliance, not contextual scoping per se — but it remains a defensible inclusion for a deployer-facing compliance report.",
+      "confidence": 0.87,
+      "reviewed_mappings": [
+        "GOVERN-1.1",
+        "MAP-1.1"
+      ]
+    },
+    {
+      "obligation_id": "EUAIA-OBL-039",
+      "decision": "confirm",
+      "reasoning": "All three mappings are defensible for this obligation, which concerns the requirement that non-prohibited and non-real-time RBI systems comply with the high-risk AI system regime under Article 6(2) and Annex III.\n\nGOVERN-1.1 (0.88): The strongest and most direct fit. The obligation is fundamentally about understanding, managing, and documenting compliance with a specific legal-regulatory classification regime. GOVERN-1.1's text maps precisely onto this duty without any hedging needed.\n\nMAP-1.1 (0.82): Also well-grounded. The obligation requires scoping RBI system deployment against context-specific legal rules (Article 6(2)/Annex III classification), and MAP-1.1 explicitly covers documentation of 'context-specific laws, norms and expectations' and 'prospective settings in which the AI system will be deployed.' The Mapper's reasoning is direct and does not rely on hedging language.\n\nMANAGE-1.1 (0.78): The lowest-confidence mapping, and the Mapper's reasoning is plausible — placing an RBI system on the market subject to high-risk rules does imply a go/no-go deployment determination. However, MANAGE-1.1 is more narrowly about whether the system achieves its intended purposes and whether deployment should proceed from a risk-management standpoint, rather than about regulatory classification compliance per se. That said, this is a reasonable catch-all mapping for a legal compliance duty with a deployment-gate dimension, and no more specific subcategory in the catalogue addresses the regulatory categorisation and market-entry framing of this obligation more precisely. The moderate confidence score is honest signalling rather than a mismatch. The mapping is defensible within the framework's coverage.",
+      "confidence": 0.87,
+      "reviewed_mappings": [
+        "GOVERN-1.1",
+        "MAP-1.1",
+        "MANAGE-1.1"
+      ]
+    },
+    {
+      "obligation_id": "EUAIA-OBL-040",
+      "decision": "confirm",
+      "reasoning": "All three mappings are defensible. GOVERN-1.1 at 0.82 is the strongest fit: the obligation's core demand is that deployers understand, manage, and document compliance with Article 26(10)'s additional legal safeguards — precisely what GOVERN-1.1 operationalises. The reasoning is direct and does not rely on hedging language. MANAGE-1.3 at 0.77 is a reasonable secondary mapping: Article 26(10) safeguards for an explicitly high-risk AI system do constitute planned, documented risk responses, which is exactly what MANAGE-1.3 addresses. The moderate confidence score honestly reflects that MANAGE-1.3 is primarily about internal risk treatment planning rather than regulatory compliance documentation per se, but the overlap is genuine enough to be defensible. MANAGE-4.1 at 0.75 is the weakest of the three. The Mapper's reasoning leans on a plausible inference — that retrospective RBI deployment under law enforcement conditions implies post-deployment monitoring obligations — but Article 26(10) as cited is specifically about additional safeguards for deployers of high-risk systems, not explicitly about post-deployment monitoring plans, incident response, or change management. However, 'additional safeguards' for a deployed high-risk system could reasonably encompass monitoring mechanisms, and the connection is not so tenuous as to require flagging. No stronger-fitting specific subcategory was overlooked: GOVERN-1.4 (transparent risk management policies) and MAP-1.1 (context-specific laws understood and documented) are adjacent possibilities, but neither is a clearly superior fit that the Mapper missed. Overall, the three-mapping set covers the obligation's legal compliance, risk treatment, and deployment oversight dimensions in a defensible way.",
+      "confidence": 0.85,
+      "reviewed_mappings": [
+        "GOVERN-1.1",
+        "MANAGE-1.3",
+        "MANAGE-4.1"
+      ]
+    },
+    {
+      "obligation_id": "EUAIA-OBL-041",
+      "decision": "confirm",
+      "reasoning": "Both mappings are defensible.\n\nGOVERN-1.1 (0.80): The fit is strong. The obligation is fundamentally a legal compliance obligation — deployers must understand, document, and comply with a specific set of statutory conditions (Article 5(2)-(7)) before any deployment of real-time RBI is permitted. GOVERN-1.1 ('Legal and regulatory requirements involving AI are understood, managed, and documented') maps precisely to this duty. The Mapper's reasoning is clean and does not rely on hedging language.\n\nMANAGE-1.1 (0.77): The moderate confidence is honest. MANAGE-1.1 ('A determination is made as to whether the AI system achieves its intended purposes and stated objectives and whether its development or deployment should proceed') captures the go/no-go gate embedded in the strict necessity condition, but MANAGE-1.1 is framed around purpose-fitness and objective achievement, not around legal authorisation conditions. A stronger alternative within the catalogue might have been MANAGE-1.3 (planning and documenting responses to high-priority risks, including options to avoid or accept), given the documentation requirements around defined perimeter and duration of use, or GOVERN-1.4 (transparent policies and controls based on risk priorities). However, neither is clearly a better fit than MANAGE-1.1 for the deployment-gate aspect of this obligation. The Mapper's reasoning is substantive rather than hedging, and the mapping addresses a genuine dimension of the obligation (the conditionality of deployment). This is a defensible catch-all for a legal-compliance obligation that does not have a more specific NIST AI RMF subcategory dedicated to law enforcement RBI authorisation.",
+      "confidence": 0.83,
+      "reviewed_mappings": [
+        "GOVERN-1.1",
+        "MANAGE-1.1"
+      ]
+    },
+    {
+      "obligation_id": "EUAIA-OBL-042",
+      "decision": "confirm",
+      "reasoning": "All three mappings are defensible given the nature of this obligation.\n\nGOVERN-1.1 (0.85) is the strongest fit: the obligation's core duty is to understand, manage, and document the legal classification of a biometric categorisation AI system as high-risk under the AI Act — a direct match to GOVERN-1.1's text. No hedging language is present and the reasoning is precise.\n\nGOVERN-1.6 (0.78) is a reasonable secondary mapping. Maintaining classification documentation presupposes an inventory of AI systems mapped to risk priorities. The reasoning is straightforward and does not rely on hedging language. No stronger catalogue entry exists for the inventory/classification-documentation angle — GOVERN-1.6 is the most specific subcategory that addresses it.\n\nMAP-1.1 (0.76) is the weakest of the three but still defensible. The Mapper's reasoning correctly identifies that determining whether a system processes GDPR Article 9(1) sensitive attributes — necessary to trigger high-risk classification — requires understanding and documenting intended purposes and deployment context, which is exactly what MAP-1.1 covers. MAP-3.3 ('targeted application scope is specified and documented based on the system's capability, established context, and AI system categorisation') could arguably be a slightly stronger fit for the scoping/categorisation aspect, but MAP-1.1 is not a wrong call given that the legal context and deployment setting analysis it references are genuinely required here. The reasoning does not lean on hedging language and names no mismatched subcategory. Flagging is not warranted.",
+      "confidence": 0.86,
+      "reviewed_mappings": [
+        "GOVERN-1.1",
+        "GOVERN-1.6",
+        "MAP-1.1"
+      ]
+    },
+    {
+      "obligation_id": "EUAIA-OBL-043",
+      "decision": "flag_for_review",
+      "reasoning": "The three proposed mappings are partially defensible but the set as a whole warrants human review for two reasons.\n\n1. MANAGE-1.1 (confidence 0.77) is the weakest link and the reasoning is questionable. MANAGE-1.1 addresses whether an AI system achieves its intended purposes and whether deployment should proceed — a general go/no-go determination. The obligation in Article 5(2), however, is not about a general deployment-proceed decision; it is about a per-incident, in-context proportionality assessment: each individual deployment of a real-time RBI system must be assessed against the seriousness, probability, and scale of harm, and the consequences for rights and freedoms. That is a per-use justification and monitoring requirement, not a system-level deployment-gate decision. The Mapper's reasoning stretches MANAGE-1.1 to cover something meaningfully different. A more specific fit would be MANAGE-4.1 (post-deployment monitoring plans including incident response and override mechanisms) or MANAGE-1.3 (documented risk response plans for high-priority risks tied to specific use conditions), neither of which was returned — suggesting the Mapper may have defaulted to the more familiar catch-all.\n\n2. MAP-1.1 (confidence 0.82) is the strongest mapping and is defensible on the pre-deployment context-and-impact documentation angle. GOVERN-1.1 (0.80) is also defensible as a legal-compliance anchor. However, the obligation's core operative requirement — the per-deployment proportionality and rights-impact assessment — is arguably better served by MEASURE-2.8 ('risks associated with transparency and accountability are examined and documented') or MAP-5.1 ('likelihood and magnitude of each identified impact... are identified and documented'), neither of which was proposed. The absence of a MEASURE-function mapping for an obligation that is centrally about measuring and documenting harm likelihood, scale, and rights consequences is a gap worth flagging.\n\nIn summary: MANAGE-1.1 addresses a related-but-distinct concern, and the MEASURE function — most directly relevant to the per-deployment harm and rights assessment — is entirely absent from the proposed set. A human reviewer should assess whether MANAGE-1.1 should be retained and whether a MEASURE-function control should be substituted or added.",
+      "confidence": 0.86,
+      "reviewed_mappings": [
+        "MAP-1.1",
+        "GOVERN-1.1",
+        "MANAGE-1.1"
+      ]
+    },
+    {
+      "obligation_id": "EUAIA-OBL-044",
+      "decision": "confirm",
+      "reasoning": "Both proposed mappings are defensible. GOVERN-1.1 at 0.80 is a strong primary mapping: the obligation's core duty is to understand, apply, and document the legal conditions (temporal, geographic, personal limitations) imposed by national authorising law, which maps cleanly to GOVERN-1.1's explicit text on legal and regulatory requirements being 'understood, managed, and documented.' The reasoning is direct and does not rely on hedging language. MAP-3.3 at 0.78 is a reasonable secondary mapping: the obligation requires that each deployment be bounded by defined operational scope parameters (temporal, geographic, personal), which is precisely what MAP-3.3 addresses with 'targeted application scope specified and documented based on the system's capability, established context, and AI system categorization.' The reasoning is on point and does not conflate a related-but-distinct concern. One could consider whether MANAGE-1.3 (developing and documenting responses to high-priority AI risks, including risk avoidance) or MAP-1.1 (documenting context-specific laws and prospective deployment settings) might have been stronger secondary options, but MAP-3.3 is not a weaker fit than either — the per-deployment scoping documentation duty maps well. No hedging language, no naming of a different subcategory than the one returned, and no category mismatch is present. The 0.78 confidence on MAP-3.3 reflects appropriate modesty about a partial fit, not an indefensible reach.",
+      "confidence": 0.87,
+      "reviewed_mappings": [
+        "GOVERN-1.1",
+        "MAP-3.3"
+      ]
+    },
+    {
+      "obligation_id": "EUAIA-OBL-054",
+      "decision": "flag_for_review",
+      "reasoning": "The three mappings vary in strength. GOVERN-3.2 (0.85) and MAP-3.5 (0.80) are defensible: both address the human-AI configuration and documented human oversight processes that the obligation operationally requires. However, MANAGE-2.4 (0.78) is questionable. MANAGE-2.4 concerns mechanisms to supersede, disengage, or deactivate AI systems performing inconsistently with intended use — it is fundamentally about system shutdown/override in malfunction scenarios, not about the structural prohibition on sole-reliance in legally consequential decisions. The Mapper's reasoning stretches the language of 'supersede the AI's output' to cover what is really a procedural due-process requirement, which is a related-but-distinct concern. A stronger candidate the Mapper did not select is MEASURE-2.8 ('Risks associated with transparency and accountability — as identified in the MAP function — are examined and documented'), which more directly addresses accountability risks that flow from unchecked autonomous AI output in high-stakes decisions. MANAGE-4.1 ('Post-deployment AI system monitoring plans are implemented, including mechanisms for capturing and evaluating input from users and other relevant AI actors, appeal and override…') would also have been a closer fit for the 'appeal and override' dimension of adverse legal effect decisions. The MANAGE-2.4 mapping should be reviewed by a human before the report ships.",
+      "confidence": 0.84,
+      "reviewed_mappings": [
+        "GOVERN-3.2",
+        "MAP-3.5",
+        "MANAGE-2.4"
+      ]
+    },
+    {
+      "obligation_id": "EUAIA-OBL-059",
+      "decision": "flag_for_review",
+      "reasoning": "The two higher-confidence mappings (MAP-3.5 at 0.88 and GOVERN-3.2 at 0.85) are well-reasoned and defensible. MAP-3.5 directly addresses documentation of human oversight processes, and GOVERN-3.2 squarely covers the role-definition and competence/authority requirements for the two-person verification mandate.\n\nHowever, MANAGE-4.1 (0.78) warrants flagging. The Mapper's reasoning leans on hedging language — the obligation's two-person verification duty is characterised as mapping to 'appeal and override' and 'human-in-the-loop mechanisms,' but MANAGE-4.1 is primarily a post-deployment monitoring and incident-response control. The two-person verification requirement in Article 14(5) is a mandatory pre-decision gate (no action may be taken without separate confirmation by two qualified persons), which is structurally distinct from post-deployment monitoring, appeals, or override mechanisms. The Mapper is reaching for the 'override' language in MANAGE-4.1 to justify the mapping, but the core obligation is about a real-time, synchronous human authorisation checkpoint before any decision is acted upon — not a post-hoc correction or monitoring mechanism.\n\nA stronger candidate the Mapper did not return is GOVERN-3.2 (already captured) or, notably, MAP-3.5's sibling MAP-3.4, which addresses 'processes for operator and practitioner proficiency with AI system performance and trustworthiness,' directly relevant to the competence and training requirements for the two verifying persons. Neither substitutes for flagging MANAGE-4.1 as a questionable fit that a human reviewer should assess before the report ships.",
+      "confidence": 0.87,
+      "reviewed_mappings": [
+        "MAP-3.5",
+        "GOVERN-3.2",
+        "MANAGE-4.1"
+      ]
+    }
+  ]
+}
