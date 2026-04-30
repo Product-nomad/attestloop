@@ -1,5 +1,4 @@
 ---
-section: 7
 title: Costs and latency
 status: draft
 updated: 2026-04-30
