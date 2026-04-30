@@ -13,12 +13,19 @@ minor version — they are called out under **Changed** and **Removed**.
 - `CONTEXT.md` — single source of truth for domain language.
 - `THREAT_MODEL.md` — what Attestloop defends against, what it doesn't,
   and where the soft spots are.
-- `DECISIONS.md` — chronological record of v1 architectural choices and
-  the rationale for each.
 - `CHANGELOG.md` — this file.
+- `docs/adr/` — 15 numbered Architectural Decision Records, plus an
+  index at `docs/adr/README.md`. Captures v1 architectural choices and
+  the rationale for each.
 
 ### Changed
-- `README.md` Status table: Threat model row flipped to ✅.
+- Migrated `DECISIONS.md` (flat chronological log) to numbered ADRs at
+  `docs/adr/ADR-NNNN-<title>.md` once the project crossed ~10 entries,
+  per `~/WAYS_OF_WORKING.md` §9. `DECISIONS.md` remains as a redirect
+  pointer.
+- `README.md` Status table: Threat model row flipped to ✅; `docs/adr/`
+  row added at ✅; new "Project documentation" table added at the top
+  of the docs section to surface every project-level document.
 
 ## [0.1.0-first-real-run] — 2026-04-30
 

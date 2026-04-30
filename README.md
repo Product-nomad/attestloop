@@ -95,6 +95,19 @@ Cost is dominated by mapper calls (≈86 %) — the mapper makes one LLM call
 per obligation and ships the full 72-control list with each. Batching with
 prompt caching is a known follow-up.
 
+## Project documentation
+
+| File                                            | What's in it                                                                  |
+|-------------------------------------------------|-------------------------------------------------------------------------------|
+| [`README.md`](README.md)                        | This file — overview, how to run, current status.                             |
+| [`CONTEXT.md`](CONTEXT.md)                      | Single source of truth for domain language (Publication, Obligation, etc.).   |
+| [`THREAT_MODEL.md`](THREAT_MODEL.md)            | What Attestloop defends against, what it doesn't, where the soft spots are.   |
+| [`docs/adr/`](docs/adr/)                        | Numbered Architectural Decision Records — one file per decision.              |
+| [`DECISIONS.md`](DECISIONS.md)                  | Redirect to `docs/adr/` (kept so `grep DECISIONS` still works).               |
+| [`CHANGELOG.md`](CHANGELOG.md)                  | Keep-a-Changelog history with `[Unreleased]` and tagged releases.             |
+| [`docs/example_run/`](docs/example_run/)        | Snapshot of the first real end-to-end run, preserved as canonical example.    |
+| [`LICENSE`](LICENSE)                            | MIT.                                                                          |
+
 ## Status
 
 | Component                                  | Status                              |
@@ -107,11 +120,12 @@ prompt caching is a known follow-up.
 | `llm.py` (tool-use, retry, cost log)       | ✅ done                             |
 | Three agents + pipeline CLI                | ✅ done                             |
 | First real-publication end-to-end run      | ✅ done (see `docs/example_run/`)   |
+| Threat model (`THREAT_MODEL.md`)           | ✅ done                             |
+| Architectural decisions (`docs/adr/`)      | ✅ done (15 ADRs)                   |
 | Frozen golden set                          | 🚧 next                             |
 | Drift monitoring (weekly run vs golden)    | 🚧 next                             |
 | Chunked extractor (lift 50 K truncation)   | 🚧 backlog                          |
 | Mapper batching + prompt caching           | 🚧 backlog                          |
-| Threat model (`THREAT_MODEL.md`)           | ✅ done                             |
 
 ## Honest scope
 
