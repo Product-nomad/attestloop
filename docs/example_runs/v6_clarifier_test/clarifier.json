@@ -1,0 +1,16 @@
+{
+  "initial_classification": {
+    "in_scope": false,
+    "category": "press_release",
+    "confidence": 0.92,
+    "reasoning": "This is an informational brief or update document that summarizes and points to the AI Act and official Commission guidelines, but does not itself create or establish binding obligations. The text explicitly states \"This brief is for information only,\" and it references compliance obligations from the regulation itself and external guidelines rather than asserting direct binding force. The document's structure (background, table of contents, linked PDF) and language pattern (\"available in\", \"further detail\") are consistent with press releases or informational communications about regulations rather than binding regulatory text. While it mentions obligations under Article 5, it derives these from the underlying regulation, not from this document itself."
+  },
+  "additional_context": "1. Background\n2. Article 5 prohibitions\n3. High-risk system requirements (Annex III)\n4. Provider obligations\n5. Deployer obligations\n6. Governance and penalties\n7. Implementation timeline\n\n(Detailed sections in the linked PDF.)",
+  "context_source": "table_of_contents",
+  "reclassification": {
+    "in_scope": false,
+    "category": "press_release",
+    "confidence": 0.95,
+    "reasoning": "This document is an informational summary or update about the EU AI Act, not a binding obligation source. The text explicitly states \"This brief is for information only\" and directs readers to \"the official Commission guidelines and the consolidated text\" for actual requirements. While it references specific obligations (Article 5, high-risk requirements, provider/deployer duties), it does not itself assert binding force or create new obligations—it merely summarizes and signposts existing requirements in the regulation and related guidance. This is characteristic of a press release, update notice, or explanatory communication, not a regulatory instrument or binding guideline."
+  }
+}

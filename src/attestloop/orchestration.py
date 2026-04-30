@@ -12,6 +12,7 @@ from typing import TypedDict
 
 from langgraph.graph import END, StateGraph
 
+from attestloop.agents.clarifier import clarify_and_reclassify
 from attestloop.agents.classifier import classify
 from attestloop.agents.critic import review_mappings
 from attestloop.agents.extractor import extract
@@ -22,8 +23,10 @@ from attestloop.report import (
     aggregate_usage,
     build_in_scope_report,
     build_out_of_scope_report,
+    build_review_queue_report,
 )
 from attestloop.schemas import (
+    ClarifierOutput,
     ClassifierInput,
     ClassifierOutput,
     ControlMapping,
@@ -36,6 +39,10 @@ from attestloop.schemas import (
     Publication,
     RunMetadata,
 )
+
+# Below this confidence on an out_of_scope verdict, the pipeline routes
+# to the Clarifier rather than committing to the out-of-scope report.
+LOW_CONFIDENCE_THRESHOLD = 0.7
 
 
 class PipelineState(TypedDict, total=False):
@@ -56,6 +63,7 @@ class PipelineState(TypedDict, total=False):
     # Per-agent outputs
     publication: Publication
     classification: ClassifierOutput
+    clarifier_output: ClarifierOutput
     obligations: list[Obligation]
     mappings: list[ControlMapping]
     critic_decisions: list[CriticDecision]
@@ -145,6 +153,7 @@ def report_node(state: PipelineState) -> dict:
     report = build_in_scope_report(
         publication=state["publication"],
         classifier_output=state["classification"],
+        clarifier_output=state.get("clarifier_output"),
         extractor_output=ExtractorOutput(obligations=state["obligations"]),
         mapper_output=MapperOutput(mappings=state["mappings"]),
         critic_decisions=state.get("critic_decisions", []),
@@ -179,6 +188,62 @@ def out_of_scope_node(state: PipelineState) -> dict:
     report = build_out_of_scope_report(
         publication=state["publication"],
         classifier_output=state["classification"],
+        clarifier_output=state.get("clarifier_output"),
+        regulation=state["regulation"],
+        framework=state["framework"],
+        run_id=state["run_id"],
+        started_at=state["started_at"],
+        cost_usd=cost,
+        input_tokens=in_tok,
+        output_tokens=out_tok,
+    )
+    report_path = state["run_dir"] / "report.md"
+    report_path.write_text(report)
+
+    metadata = RunMetadata(
+        run_id=state["run_id"],
+        started_at=state["started_at"],
+        regulation_id=state["regulation"].id,
+        framework_id=state["framework"].id,
+        total_cost_usd=cost,
+        total_input_tokens=in_tok,
+        total_output_tokens=out_tok,
+    )
+    (state["run_dir"] / "run_metadata.json").write_text(
+        metadata.model_dump_json(indent=2)
+    )
+    return {"report_path": report_path}
+
+
+def clarify_node(state: PipelineState) -> dict:
+    """Re-attempt classification with additional context fetched from
+    the publication. Supersedes state['classification'] with the
+    re-classification while preserving the original on the
+    ClarifierOutput.initial_classification field for the audit trail."""
+    output = clarify_and_reclassify(
+        state["publication"],
+        state["classification"],
+        state["regulation"],
+        state["run_dir"],
+    )
+    (state["run_dir"] / "clarifier.json").write_text(
+        output.model_dump_json(indent=2)
+    )
+    return {
+        "clarifier_output": output,
+        "classification": output.reclassification,
+    }
+
+
+def review_queue_node(state: PipelineState) -> dict:
+    """Both classification passes returned ambiguous out_of_scope. The
+    pipeline cannot reach a confident verdict from this URL alone;
+    write a review-queue report and let a human take it from here."""
+    cost, in_tok, out_tok = aggregate_usage(state["run_dir"])
+    report = build_review_queue_report(
+        publication=state["publication"],
+        classifier_output=state["classification"],
+        clarifier_output=state["clarifier_output"],
         regulation=state["regulation"],
         framework=state["framework"],
         run_id=state["run_id"],
@@ -208,9 +273,31 @@ def out_of_scope_node(state: PipelineState) -> dict:
 # ─────────────────────────── edges ───────────────────────────
 
 def route_after_classify(state: PipelineState) -> str:
-    """Conditional edge after the Classifier. v1 only branches on
-    in_scope; v6 task 3 will add a low-confidence Clarifier branch."""
-    return "extract" if state["classification"].in_scope else "out_of_scope"
+    """Conditional edge after the Classifier. Three outcomes:
+      - in_scope (any confidence) → extract
+      - out_of_scope at confidence ≥ 0.7 → commit, write out_of_scope report
+      - out_of_scope at confidence < 0.7 → clarify (re-attempt with extra context)
+    """
+    classification = state["classification"]
+    if classification.in_scope:
+        return "extract"
+    if classification.confidence < LOW_CONFIDENCE_THRESHOLD:
+        return "clarify"
+    return "out_of_scope"
+
+
+def route_after_clarify(state: PipelineState) -> str:
+    """Conditional edge after the Clarifier's re-classification.
+    Single-pass loop bound: there is no second Clarifier attempt. If
+    the re-classification is still ambiguous, the pipeline writes a
+    review-queue report and exits — this is the upper bound on cost
+    and on the depth of automated reasoning the system commits to."""
+    classification = state["classification"]  # superseded by clarify_node
+    if classification.in_scope:
+        return "extract"
+    if classification.confidence < LOW_CONFIDENCE_THRESHOLD:
+        return "review_queue"
+    return "out_of_scope"
 
 
 # ───────────────────────── graph builder ─────────────────────────
@@ -222,23 +309,39 @@ def build_pipeline_graph():
 
     graph.add_node("fetch", fetch_node)
     graph.add_node("classify", classify_node)
+    graph.add_node("clarify", clarify_node)
     graph.add_node("extract", extract_node)
     graph.add_node("map", map_node)
     graph.add_node("critic", critic_node)
     graph.add_node("report", report_node)
     graph.add_node("out_of_scope", out_of_scope_node)
+    graph.add_node("review_queue", review_queue_node)
 
     graph.set_entry_point("fetch")
     graph.add_edge("fetch", "classify")
     graph.add_conditional_edges(
         "classify",
         route_after_classify,
-        {"extract": "extract", "out_of_scope": "out_of_scope"},
+        {
+            "extract": "extract",
+            "clarify": "clarify",
+            "out_of_scope": "out_of_scope",
+        },
+    )
+    graph.add_conditional_edges(
+        "clarify",
+        route_after_clarify,
+        {
+            "extract": "extract",
+            "review_queue": "review_queue",
+            "out_of_scope": "out_of_scope",
+        },
     )
     graph.add_edge("extract", "map")
     graph.add_edge("map", "critic")
     graph.add_edge("critic", "report")
     graph.add_edge("report", END)
     graph.add_edge("out_of_scope", END)
+    graph.add_edge("review_queue", END)
 
     return graph.compile()

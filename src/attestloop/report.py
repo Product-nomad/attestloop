@@ -7,6 +7,7 @@ from pathlib import Path
 
 from attestloop.registry import Framework, Regulation
 from attestloop.schemas import (
+    ClarifierOutput,
     ClassifierOutput,
     CriticDecision,
     ExtractorOutput,
@@ -187,10 +188,33 @@ def _unmapped_table(unmapped: list[Obligation]) -> str:
     return header + "\n".join(rows) + "\n"
 
 
+def _clarifier_provenance_lines(clarifier_output: ClarifierOutput | None) -> list[str]:
+    """Return the provenance footer lines documenting a Clarifier
+    re-classification, or an empty list if the Clarifier didn't run."""
+    if clarifier_output is None:
+        return []
+    initial = clarifier_output.initial_classification
+    re = clarifier_output.reclassification
+    return [
+        (
+            f"- Initial classification: "
+            f"{'in_scope' if initial.in_scope else 'out_of_scope'} at "
+            f"{initial.confidence:.2f} confidence\n"
+        ),
+        f"- Clarifier context source: `{clarifier_output.context_source}`\n",
+        (
+            f"- Clarifier re-classification: "
+            f"{'in_scope' if re.in_scope else 'out_of_scope'} at "
+            f"{re.confidence:.2f} confidence\n"
+        ),
+    ]
+
+
 def build_in_scope_report(
     *,
     publication: Publication,
     classifier_output: ClassifierOutput,
+    clarifier_output: ClarifierOutput | None,
     extractor_output: ExtractorOutput,
     mapper_output: MapperOutput,
     critic_decisions: list[CriticDecision],
@@ -269,6 +293,7 @@ def build_in_scope_report(
         f"- Mapper prompt SHA-256: `{sha256_of_path(framework.mapper_prompt_path)}`\n",
         f"- Critic prompt SHA-256: `{sha256_of_path(framework.critic_prompt_path)}`\n",
         f"- Critic decisions: {len(critic_decisions)} reviewed ({len(flagged)} flagged)\n",
+        *_clarifier_provenance_lines(clarifier_output),
         f"- Started at: {started_at.isoformat()}\n",
         f"- Total cost: ${cost_usd:.4f}\n",
         f"- Total tokens: {input_tokens:,} input / {output_tokens:,} output\n",
@@ -280,6 +305,7 @@ def build_out_of_scope_report(
     *,
     publication: Publication,
     classifier_output: ClassifierOutput,
+    clarifier_output: ClarifierOutput | None,
     regulation: Regulation,
     framework: Framework,
     run_id: str,
@@ -289,23 +315,84 @@ def build_out_of_scope_report(
     output_tokens: int,
 ) -> str:
     pub_title = publication.title or "(untitled)"
+    parts = [
+        f"# Attestation report — {regulation.name} (out of scope)\n\n",
+        f"**Source:** [{pub_title}]({publication.url})\n\n",
+        f"**Run:** `{run_id}`\n\n",
+        "## Result\n\n",
+        f"The classifier judged this publication **out of scope** for "
+        f"{regulation.name}.\n\n",
+        f"- Category: `{classifier_output.category}`\n",
+        f"- Confidence: {classifier_output.confidence:.2f}\n\n",
+        f"**Reasoning:** {classifier_output.reasoning}\n\n",
+        "Extraction and mapping were skipped.\n\n",
+        "## Provenance\n\n",
+        f"- Regulation: {regulation.name} (`{regulation.id}`, {regulation.jurisdiction})\n",
+        f"- Framework (not used): {framework.name} (`{framework.id}`)\n",
+        f"- Classifier model: `{CLASSIFIER_MODEL}`\n",
+        f"- Classifier prompt SHA-256: `{sha256_of_path(regulation.classifier_prompt_path)}`\n",
+        *_clarifier_provenance_lines(clarifier_output),
+        f"- Started at: {started_at.isoformat()}\n",
+        f"- Total cost: ${cost_usd:.4f}\n",
+        f"- Total tokens: {input_tokens:,} input / {output_tokens:,} output\n",
+    ]
+    return "".join(parts)
+
+
+def build_review_queue_report(
+    *,
+    publication: Publication,
+    classifier_output: ClassifierOutput,
+    clarifier_output: ClarifierOutput,
+    regulation: Regulation,
+    framework: Framework,
+    run_id: str,
+    started_at: datetime,
+    cost_usd: float,
+    input_tokens: int,
+    output_tokens: int,
+) -> str:
+    """Both classification passes returned ambiguous out_of_scope. Emit a
+    short report that names the failure mode honestly and points the
+    reviewer at concrete next steps."""
+    pub_title = publication.title or "(untitled)"
+    initial = clarifier_output.initial_classification
+    reclass = clarifier_output.reclassification
+
     return (
-        f"# Attestation report — {regulation.name} (out of scope)\n\n"
+        f"# Attestation report — {regulation.name} (review queue)\n\n"
         f"**Source:** [{pub_title}]({publication.url})\n\n"
         f"**Run:** `{run_id}`\n\n"
         "## Result\n\n"
-        f"The classifier judged this publication **out of scope** for "
-        f"{regulation.name}.\n\n"
-        f"- Category: `{classifier_output.category}`\n"
-        f"- Confidence: {classifier_output.confidence:.2f}\n\n"
-        "**Reasoning:** "
-        f"{classifier_output.reasoning}\n\n"
-        "Extraction and mapping were skipped.\n\n"
+        "Both classification passes returned ambiguous `out_of_scope` "
+        "verdicts (below 0.7 confidence). The pipeline cannot make a "
+        "confident scope determination from this URL alone. **Human "
+        "review required.**\n\n"
+        "## Classification trail\n\n"
+        "### Initial classification\n\n"
+        f"- Verdict: `{'in_scope' if initial.in_scope else 'out_of_scope'}`\n"
+        f"- Category: `{initial.category}`\n"
+        f"- Confidence: {initial.confidence:.2f}\n"
+        f"- Reasoning: {initial.reasoning}\n\n"
+        "### Clarifier re-classification\n\n"
+        f"- Additional context source: `{clarifier_output.context_source}` "
+        f"({len(clarifier_output.additional_context):,} chars)\n"
+        f"- Verdict: `{'in_scope' if reclass.in_scope else 'out_of_scope'}`\n"
+        f"- Category: `{reclass.category}`\n"
+        f"- Confidence: {reclass.confidence:.2f}\n"
+        f"- Reasoning: {reclass.reasoning}\n\n"
+        "## Recommended next steps\n\n"
+        "- Re-run the pipeline against the document's canonical URL "
+        "(Official Journal, regulator-hosted PDF) rather than a press "
+        "release, summary page, or third-party reference\n"
+        "- Or review the publication manually to determine scope\n\n"
+        "Extraction, mapping, and Critic review were all skipped.\n\n"
         "## Provenance\n\n"
         f"- Regulation: {regulation.name} (`{regulation.id}`, {regulation.jurisdiction})\n"
         f"- Framework (not used): {framework.name} (`{framework.id}`)\n"
-        f"- Classifier model: `{CLASSIFIER_MODEL}`\n"
+        f"- Classifier model: `{CLASSIFIER_MODEL}` (invoked twice)\n"
         f"- Classifier prompt SHA-256: `{sha256_of_path(regulation.classifier_prompt_path)}`\n"
+        f"- Clarifier context source: `{clarifier_output.context_source}`\n"
         f"- Started at: {started_at.isoformat()}\n"
         f"- Total cost: ${cost_usd:.4f}\n"
         f"- Total tokens: {input_tokens:,} input / {output_tokens:,} output\n"

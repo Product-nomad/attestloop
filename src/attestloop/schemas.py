@@ -72,6 +72,25 @@ class ControlMapping(BaseModel):
     reasoning: str
 
 
+class ClarifierOutput(BaseModel):
+    """Output of the Clarifier agent: additional context fetched from the
+    publication plus the Classifier's re-classification on the augmented
+    input. The initial_classification field is preserved here so the
+    audit trail in clarifier.json is self-describing without having to
+    cross-reference the Classifier's per-call log."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    initial_classification: "ClassifierOutput"
+    additional_context: str
+    context_source: Literal[
+        "table_of_contents",
+        "first_5_pages",
+        "section_headings",
+    ]
+    reclassification: "ClassifierOutput"
+
+
 class CriticDecision(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
