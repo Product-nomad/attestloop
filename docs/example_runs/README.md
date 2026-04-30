@@ -18,6 +18,7 @@ served via redirect; detected by magic-byte sniff and parsed via
 | **v1** truncated extractor, mapper unconstrained | [`../example_run/`](../example_run/) | 18 | 54 | 0 | n/a (mapper not yet logging confidence summary) | n/a | 16/54 = 29.6 % | $0.62 | 5 min 17 s |
 | **v2** chunked extractor (12 chunks), mapper unconstrained | (not snapshotted; data from `runs/20260430-094628/` on disk) | 68 | 203 | 0 | 0.788 | 0.550 | 52/203 = 25.6 % | $2.61 | 21 min 22 s |
 | **v3** chunked extractor + Mapper confidence floor 0.75, no slot-filling | [`v3_confidence_floor/`](v3_confidence_floor/) | 72 | 164 | 12 | 0.817 | 0.750 | 34/164 = 20.7 % | $2.78 | 41 min 35 s |
+| **v4** + Anthropic prompt caching on Mapper controls list | [`v4_prompt_caching/`](v4_prompt_caching/) | 69 | 124 | 24 | 0.812 | 0.760 | 19/124 = 15.3 % | **$1.19** | **14 min 51 s** |
 
 ## What changed between v2 and v3
 
@@ -64,7 +65,67 @@ was rewritten with three new hard constraints:
   ADR-0014). Mapper cost itself fell on a per-mapping basis from
   $2.03/203 = $0.0100 in v2 to $2.19/164 = $0.0133 in v3.
 
-### Side note: the run that didn't happen
+## What changed between v3 and v4
+
+The Mapper agent's system block (prompt instructions + the full
+72-subcategory NIST AI RMF controls catalogue, ~7 700 tokens of
+identical static content per call) is now sent inside a single
+`cache_control: {"type": "ephemeral"}` block. `LLMCallLog` gained
+`cache_creation_input_tokens` and `cache_read_input_tokens` for per-call
+observability; `MODEL_PRICING` gained `cache_write` (1.25× input) and
+`cache_read` (0.10× input) entries; `_cost_usd` factors all four token
+categories.
+
+### Cache verification on v4
+
+| Measurement | Value |
+|---|---:|
+| Mapper call 1 (cold): `cache_creation_input_tokens` | **7 731** |
+| Mapper call 1 (cold): `cache_read_input_tokens` | 0 |
+| Mapper calls 2–69: `cache_read_input_tokens` (every single call) | **7 731** |
+| Mapper calls 2–69: `cache_creation_input_tokens` non-zero on | 2 calls (#34, #50, see below) |
+| Run-wide regular input tokens | 173 865 |
+| Run-wide cache-write tokens | 8 952 (one 7 731 cold write + two minor 572 / 649 re-writes) |
+| Run-wide cache-read tokens | **525 708** |
+
+The 5-minute ephemeral cache TTL fired twice during the run, once
+between calls 33→34 (~2.5 min idle while waiting on the rate-limit
+backoff for an earlier 5xx) and once between calls 49→50. Each
+re-cache cost ~600 tokens at write price; the rest of the run reads
+the cache cleanly.
+
+### Speed effect
+
+Cold-cache mapper call (#1): **9 886 ms**. Warm mean across calls
+2–69: 8 792 ms when including the three rate-limit-retried outliers
+(63 168 ms, 68 076 ms, 69 314 ms) → 1.12× speedup. Excluding those
+three outliers, warm mean is **6 113 ms** → **1.62× speedup** on the
+LLM call itself, which lines up with cached-prefix behaviour.
+
+Wall-clock dropped 41 min 35 s → 14 min 51 s (**−64 %**). Mapper sum-
+latency 1 315 s → 608 s. Most of the wall-clock saving is rate-limit
+pressure being relieved: cached tokens don't count against the
+30 K-input-tokens-per-minute Sonnet quota, so the 30 s backoff fires
+far less often.
+
+### Cost effect
+
+Total cost **$2.78 → $1.19** (−57 %). Mapper-only cost
+**$2.19 → $0.61** (−72 %), the biggest single line-item reduction
+in the project to date.
+
+### Audit-trail effect
+
+Same source document, but v4 returned 24 obligations as unmapped vs
+v3's 12. This is genuine variance, not a regression — the extractor
+output is also slightly different (69 obligations vs 72), the
+underlying LLM is non-deterministic, and the confidence floor is
+strict. The unmapped IDs in v4 cover the same procedural authorisation
+duties as v3 plus several more from the latter half of the document.
+GOVERN-1.1 share continued to fall (20.7 % → 15.3 %), suggesting the
+cache reset between calls didn't reintroduce the slot-filling behaviour.
+
+## Side note: the run that didn't happen
 
 A first attempt at v3 (`runs/20260430-102938/`, since deleted)
 crashed at the extractor with a 429 rate-limit error from Anthropic.
