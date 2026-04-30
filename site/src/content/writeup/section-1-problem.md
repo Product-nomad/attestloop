@@ -4,7 +4,7 @@ status: draft
 updated: 2026-04-30
 ---
 
-A compliance officer at a UK fintech with 800 employees reads roughly 40 regulator publications a week. The list comes from EUR-Lex's AI Act feed, the FCA Handbook updates, EBA guidelines, ICO opinions, ESMA technical standards, and a half-dozen sector-specific bulletins that arrive on subscription. Of those forty publications, maybe three to five contain substantive obligations affecting the firm. The rest are press releases, speeches, scoping consultations, or commentary about regulations that already exist.
+A compliance officer at a company with 800 employees reads roughly 40 regulator publications a week. The list comes from EUR-Lex's AI Act feed, the FCA Handbook updates, EBA guidelines, ICO opinions, ESMA technical standards, and a half-dozen sector-specific bulletins that arrive on subscription. Of those forty publications, maybe three to five contain substantive obligations affecting the firm. The rest are press releases, speeches, scoping consultations, or commentary about regulations that already exist.
 
 The substantive ones are the work. For each, the officer reads the document — sometimes a hundred pages of dense legal text — extracts the binding obligations, maps each obligation to the firm's existing controls library (typically two to four hundred entries in a SharePoint document or an OneTrust deployment), identifies the gaps where existing controls don't fully cover the new requirement, drafts proposed remediation, and routes the work to the affected teams in product, engineering, legal, and risk. Each substantive publication eats four to eight hours of senior compliance time.
 
