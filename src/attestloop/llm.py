@@ -15,16 +15,19 @@ MODEL_PRICING: dict[str, dict[str, float]] = {
     "claude-sonnet-4-6": {"input": 3.00, "output": 15.00},
 }
 
-# Assumption: 60 s timeout is per HTTP call to Anthropic; one retry on transient
-# errors (timeout, rate limit, 5xx) covers the common flake without masking real
-# failures. Non-transient errors (400, auth, schema) raise immediately.
+# Assumption: 60 s timeout is per HTTP call to Anthropic. Non-rate-limit
+# transient errors (timeout, connection, 5xx) get one immediate retry — the
+# usual flake recovery. Rate-limit errors (429) are different: the API is
+# enforcing a per-minute quota, so an immediate retry would just trip the
+# same limit. We back off 30 s and retry up to three times before giving up.
 _TIMEOUT_SECONDS = 60.0
-_TRANSIENT_EXCEPTIONS = (
+_FAST_RETRY_EXCEPTIONS = (
     anthropic.APITimeoutError,
     anthropic.APIConnectionError,
-    anthropic.RateLimitError,
     anthropic.InternalServerError,
 )
+_RATE_LIMIT_BACKOFF_SECONDS = 30.0
+_RATE_LIMIT_MAX_ATTEMPTS = 4
 
 
 def _cost_usd(model: str, input_tokens: int, output_tokens: int) -> float:
@@ -81,7 +84,9 @@ def call_with_logging(
 
     last_err: Exception | None = None
     response = None
-    for attempt in range(2):
+    fast_retry_used = False
+    rate_limit_attempts = 0
+    while True:
         try:
             response = client.messages.create(
                 model=model,
@@ -92,11 +97,19 @@ def call_with_logging(
                 tool_choice={"type": "tool", "name": tool_name},
             )
             break
-        except _TRANSIENT_EXCEPTIONS as e:
+        except anthropic.RateLimitError as e:
             last_err = e
-            if attempt == 0:
-                continue
-            raise
+            rate_limit_attempts += 1
+            if rate_limit_attempts >= _RATE_LIMIT_MAX_ATTEMPTS:
+                raise
+            time.sleep(_RATE_LIMIT_BACKOFF_SECONDS)
+            continue
+        except _FAST_RETRY_EXCEPTIONS as e:
+            last_err = e
+            if fast_retry_used:
+                raise
+            fast_retry_used = True
+            continue
     if response is None:
         # Defensive: loop above either sets response or re-raises. This branch
         # only runs if the exception types change underneath us.
