@@ -1,4 +1,315 @@
 ---
+import classifierLogs from "../content/runs/v5_classifier.json";
+import extractorLogs from "../content/runs/v5_extractor.json";
+import mapperLogs from "../content/runs/v5_mapper.json";
+import obligationsFile from "../content/runs/v5_obligations.json";
+import mappingsFile from "../content/runs/v5_mappings.json";
+import classifierPrompt from "../content/prompts/classifier.md?raw";
+import extractorPrompt from "../content/prompts/extractor.md?raw";
+import mapperPrompt from "../content/prompts/mapper.md?raw";
+import reportText from "../content/runs/v5_report.md?raw";
+
+// Shape of a single LLMCallLog entry, matching the Pydantic model.
+interface LogEntry {
+  agent: string;
+  model: string;
+  prompt_version: string;
+  input_tokens: number;
+  output_tokens: number;
+  cost_usd: number;
+  latency_ms: number;
+  started_at: string;
+  prompt: string;
+  response: string;
+  cache_creation_input_tokens?: number | null;
+  cache_read_input_tokens?: number | null;
+}
+
+const classifier = classifierLogs as LogEntry[];
+const extractor = extractorLogs as LogEntry[];
+const mapper = mapperLogs as LogEntry[];
+
+// ───────────── publication snippet (Classifier input) ─────────────
+// We don't ship publication.json (5 MB raw_html); pull the first 500 chars
+// of cleaned text out of the classifier's stored prompt instead — the
+// prompt embeds the same passage that was sent to the model.
+function extractPublicationSnippet(promptText: string): {
+  title: string;
+  snippet: string;
+} {
+  const titleMatch = promptText.match(/Publication title:\s*(.+)/);
+  const beginIdx = promptText.indexOf("--- BEGIN PUBLICATION TEXT ---");
+  let snippet = "";
+  if (beginIdx >= 0) {
+    const after = promptText.slice(beginIdx + 31).trimStart();
+    snippet = after.slice(0, 500);
+  }
+  return {
+    title: titleMatch ? titleMatch[1].trim() : "(no title)",
+    snippet,
+  };
+}
+const publicationSnippet = extractPublicationSnippet(classifier[0].prompt);
+
+// ───────────── extractor sample chunk header + first 500 chars ─────────────
+function extractChunkSample(promptText: string): string {
+  const beginIdx = promptText.indexOf("--- BEGIN PUBLICATION TEXT");
+  if (beginIdx < 0) return "";
+  const after = promptText.slice(beginIdx);
+  // Take the BEGIN line + 500 chars after the newline that follows it
+  const newline = after.indexOf("\n");
+  if (newline < 0) return "";
+  return after.slice(0, newline + 1) + after.slice(newline + 1, newline + 501);
+}
+const chunk1Sample = extractChunkSample(extractor[0].prompt);
+
+// ───────────── metrics aggregation ─────────────
+function median(nums: number[]): number {
+  if (nums.length === 0) return 0;
+  const sorted = [...nums].sort((a, b) => a - b);
+  const mid = Math.floor(sorted.length / 2);
+  return sorted.length % 2
+    ? sorted[mid]
+    : Math.round((sorted[mid - 1] + sorted[mid]) / 2);
+}
+
+function aggregate(logs: LogEntry[]) {
+  return {
+    model: logs[0]?.model ?? "—",
+    calls: logs.length,
+    inputTokens: logs.reduce((s, e) => s + e.input_tokens, 0),
+    outputTokens: logs.reduce((s, e) => s + e.output_tokens, 0),
+    costUsd: logs.reduce((s, e) => s + e.cost_usd, 0),
+    p50LatencyMs: median(logs.map((e) => e.latency_ms)),
+  };
+}
+
+// Sonnet 4.6 input price $3 / MTok; cache_read price $0.30 / MTok.
+// Savings = cache_read_tokens × ($3 − $0.30) / 1 000 000 = cache_read × $2.70/M.
+function cacheStats(logs: LogEntry[]) {
+  const reads = logs.map((e) => e.cache_read_input_tokens ?? 0);
+  const hits = reads.filter((n) => n > 0).length;
+  const totalRead = reads.reduce((s, n) => s + n, 0);
+  const savingsUsd = (totalRead * 2.7) / 1_000_000;
+  const cold = logs[0]?.latency_ms ?? 0;
+  const warm = logs.slice(1);
+  const warmMean = warm.length
+    ? Math.round(warm.reduce((s, e) => s + e.latency_ms, 0) / warm.length)
+    : 0;
+  return {
+    hitRate: logs.length ? hits / logs.length : 0,
+    savingsUsd,
+    coldLatencyMs: cold,
+    warmMeanLatencyMs: warmMean,
+  };
+}
+
+const classifierMetrics = aggregate(classifier);
+const extractorMetrics = aggregate(extractor);
+const mapperMetrics = aggregate(mapper);
+const mapperCache = cacheStats(mapper);
+
+// ───────────── output samples ─────────────
+const classifierOutput = JSON.parse(classifier[0].response);
+const extractorChunk1Sample = JSON.parse(extractor[0].response).obligations[0];
+const obligationSample = obligationsFile.obligations[0];
+const mapperOBL001Sample =
+  mappingsFile.mappings.find((m) => m.obligation_id === "EUAIA-OBL-001") ??
+  mappingsFile.mappings[0];
+
+// Extract a chunk of report.md for the Drafter / Report builder panels:
+// the executive summary and the unmapped section, respectively.
+function extractSection(text: string, startMarker: string): string {
+  const startIdx = text.indexOf(startMarker);
+  if (startIdx < 0) return "";
+  const tail = text.slice(startIdx);
+  const next = tail.search(/\n## /m);
+  // Allow the start marker line itself to remain
+  return next === -1 ? tail.trim() : tail.slice(0, next).trim();
+}
+const executiveSummary = extractSection(reportText, "## Executive summary");
+const unmappedSection = extractSection(
+  reportText,
+  "## Obligations with no high-confidence framework mapping",
+);
+
+// ───────────── word count helper ─────────────
+function wordCount(text: string): number {
+  return text.trim().split(/\s+/).filter(Boolean).length;
+}
+
+// ───────────── agent specs ─────────────
+type Status = "active" | "passive" | "architected";
+const STATUS_LABELS: Record<Status, string> = {
+  active: "Active in v1",
+  passive: "Passive in v1",
+  architected: "Architected, not yet shipping",
+};
+
+interface AgentSpec {
+  id: string;
+  name: string;
+  blurb: string;
+  status: Status;
+  role: string;
+  prompt:
+    | { kind: "file"; path: string; content: string }
+    | { kind: "code"; codePath: string };
+  input:
+    | { mode: "code"; body: string }
+    | { mode: "json"; intro?: string; body: unknown }
+    | { mode: "text"; intro?: string; body: string };
+  output:
+    | { mode: "code"; body: string }
+    | { mode: "json"; intro?: string; body: unknown }
+    | { mode: "text"; intro?: string; body: string };
+  metrics?: ReturnType<typeof aggregate> & {
+    cache?: ReturnType<typeof cacheStats>;
+  };
+}
+
+const agents: AgentSpec[] = [
+  {
+    id: "watcher",
+    name: "Watcher",
+    blurb: "Polls regulator sources",
+    status: "architected",
+    role: "Polls regulator sources (EUR-Lex, FCA Handbook, EBA, ICO) on a schedule, deduplicates against history, and emits structured Publication objects when something new appears. Not invoked in v1's on-demand path — the user supplies a single URL directly to the pipeline. The watcher is the first piece of v2 work.",
+    prompt: { kind: "code", codePath: "(architected, not yet shipping)" },
+    input: {
+      mode: "text",
+      body: "(no LLM input — non-LLM scheduled poller)",
+    },
+    output: {
+      mode: "text",
+      body: "(architected output: structured Publication objects from polled sources, deduplicated against history)",
+    },
+  },
+  {
+    id: "classifier",
+    name: "Classifier",
+    blurb: "Haiku 4.5 · in scope?",
+    status: "active",
+    role: "Decides whether a fetched publication is in scope for the named regulation, and what category of document it is. Runs once per pipeline invocation. If the verdict is out-of-scope, the pipeline short-circuits before any extractor or mapper call — protecting cost on press releases and commentary.",
+    prompt: {
+      kind: "file",
+      path: "src/attestloop/regulations/eu_ai_act/classifier.md",
+      content: classifierPrompt,
+    },
+    input: {
+      mode: "text",
+      intro: `Publication title: ${publicationSnippet.title}`,
+      body: publicationSnippet.snippet,
+    },
+    output: {
+      mode: "json",
+      body: classifierOutput,
+    },
+    metrics: classifierMetrics,
+  },
+  {
+    id: "extractor",
+    name: "Extractor",
+    blurb: "Sonnet 4.6 · 12 chunks",
+    status: "active",
+    role: "Pulls discrete, citeable obligations from the publication body. Runs once per chunk; the v5 source PDF is split into 12 ~40 000-character chunks with a 2 000-character overlap. After all chunks complete, a fuzzy deduplicator merges paraphrased duplicates that span chunk boundaries.",
+    prompt: {
+      kind: "file",
+      path: "src/attestloop/regulations/eu_ai_act/extractor.md",
+      content: extractorPrompt,
+    },
+    input: {
+      mode: "text",
+      intro:
+        "12 chunks of ~40 000 chars each, total 428 902 chars. Sample (chunk 1):",
+      body: chunk1Sample,
+    },
+    output: {
+      mode: "json",
+      intro:
+        "71 obligations extracted across 12 chunks (12 paraphrased duplicates merged via rapidfuzz). Sample output (first obligation from chunk 1):",
+      body: extractorChunk1Sample,
+    },
+    metrics: extractorMetrics,
+  },
+  {
+    id: "mapper",
+    name: "Mapper",
+    blurb: "Sonnet 4.6 · 71 obligations",
+    status: "active",
+    role: "Maps each obligation to between zero and three controls in the chosen framework, with a confidence score and reasoning. Runs once per obligation in v1. The 0.75 confidence floor is what produces the unmapped list — empty mappings for procedural duties NIST AI RMF doesn't cover are surfaced honestly rather than slot-filled.",
+    prompt: {
+      kind: "file",
+      path: "src/attestloop/frameworks/nist_ai_rmf/mapper.md",
+      content: mapperPrompt,
+    },
+    input: {
+      mode: "json",
+      intro: "71 obligations, processed sequentially. Sample input below:",
+      body: obligationSample,
+    },
+    output: {
+      mode: "json",
+      intro:
+        "154 high-confidence mappings, 13 obligations unmapped. Sample mapping for EUAIA-OBL-001:",
+      body: mapperOBL001Sample,
+    },
+    metrics: { ...mapperMetrics, cache: mapperCache },
+  },
+  {
+    id: "gap",
+    name: "Gap analyser",
+    blurb: "Folded into Mapper",
+    status: "passive",
+    role: "Surfaces the obligations the framework does not cover. In v1 this is implicit: any obligation for which the Mapper's high-confidence mappings list comes back empty is emitted into a separate \"unmapped\" section of the report. The 0.75 confidence floor is the gap-analysis policy. A dedicated agent is on the v2 roadmap once we add multi-framework comparison.",
+    prompt: { kind: "code", codePath: "src/attestloop/agents/mapper.py + pipeline.py" },
+    input: { mode: "text", body: "(no LLM input — implemented as the empty-mappings code path inside Mapper and the unmapped-obligations section of the report generator)" },
+    output: {
+      mode: "text",
+      intro: "Unmapped section from v5's report.md:",
+      body: unmappedSection,
+    },
+  },
+  {
+    id: "drafter",
+    name: "Drafter",
+    blurb: "Report generator",
+    status: "passive",
+    role: "Composes the final attestation report — executive summary, obligations table, control mappings table, unmapped section, and provenance footer. In v1 this is a Python report-generator function that consumes the typed Pydantic outputs of the three active agents. A dedicated LLM-driven drafter is plausible in v2 for natural-language summaries.",
+    prompt: { kind: "code", codePath: "src/attestloop/pipeline.py (_build_in_scope_report)" },
+    input: {
+      mode: "text",
+      body: "(no LLM input — typed Pydantic objects: ClassifierOutput, ExtractorOutput.obligations, MapperOutput.mappings, RunMetadata)",
+    },
+    output: {
+      mode: "text",
+      intro: "Executive summary from v5's report.md:",
+      body: executiveSummary,
+    },
+  },
+  {
+    id: "report",
+    name: "Reviewer queue",
+    blurb: "Report builder",
+    status: "passive",
+    role: "Persists the rendered report and run artefacts. In v1 the pipeline writes report.md, run_metadata.json, obligations.json, mappings.json, and per-agent LLM call logs to runs/<run_id>/, where a human reviewer reads them. The v2 roadmap adds a small in-process reviewer queue for routing reports to named owners and tracking sign-off.",
+    prompt: { kind: "code", codePath: "src/attestloop/pipeline.py (write to runs/<run_id>/)" },
+    input: {
+      mode: "text",
+      body: "(no LLM input — file-system writes of the rendered report and per-stage JSON artefacts)",
+    },
+    output: {
+      mode: "text",
+      body: "Persisted artefacts on disk: runs/20260430-115905/{report.md, run_metadata.json, classifier.json, extractor.json, mapper.json, obligations.json, mappings.json, fetch.log, publication.json}",
+    },
+  },
+];
+
+const formatTokens = (n: number) =>
+  n.toLocaleString("en-US", { maximumFractionDigits: 0 });
+const formatCost = (n: number) => `$${n.toFixed(2)}`;
+const formatLatency = (ms: number) => `${(ms / 1000).toFixed(2)}s`;
+const formatPercent = (frac: number) => `${(frac * 100).toFixed(0)}%`;
 ---
 
 <section
@@ -18,16 +329,562 @@
       How the pipeline works
     </h2>
 
-    <p class="text-base text-text-secondary max-w-[42rem] mb-10 leading-relaxed">
-      Five stages, plain Python, no orchestrator. Each agent is one
-      Anthropic call with a versioned, regulation-specific prompt. Inputs
-      and outputs are typed Pydantic models.
+    <p
+      class="text-base text-text-secondary leading-relaxed max-w-[42rem] mb-10"
+    >
+      Seven stages, plain Python, no orchestrator. v1 ships three of them as
+      live LLM agents; the others are implemented as code that the same
+      typed schemas pass through. Click any box for the role, prompt, exact
+      v5 input and output, and per-call metrics.
     </p>
 
-    <div
-      class="border border-border-subtle bg-bg-elevated px-5 py-4 text-sm text-text-muted font-mono"
-    >
-      Diagram lands in task C.
+    <!-- Pipeline diagram: 8 cells (1 source + 7 agents). Single grid; CSS
+         media queries handle mobile vertical stack. -->
+    <div class="pipeline-grid mb-12" role="list">
+      <div
+        class="pipeline-cell pipeline-input"
+        data-cell="source"
+        aria-hidden="true"
+      >
+        <div
+          class="border border-border-subtle bg-bg-base px-3 py-3 h-full flex flex-col justify-center"
+        >
+          <p class="text-xs font-mono text-text-secondary leading-tight">
+            Source PDF
+          </p>
+          <p
+            class="text-[0.7rem] font-mono text-text-muted mt-1 leading-tight"
+          >
+            Commission Guidelines
+          </p>
+        </div>
+      </div>
+
+      {
+        agents.map((a) => (
+          <button
+            type="button"
+            class:list={[
+              "pipeline-cell agent-box",
+              `status-${a.status}`,
+              a.id === "extractor" && "row-end",
+            ]}
+            data-agent-id={a.id}
+            aria-controls={`agent-panel-${a.id}`}
+            aria-expanded="false"
+            role="listitem"
+          >
+            <div class="cell-card">
+              <p class="text-xs font-mono text-text-primary leading-tight">
+                {a.name}
+              </p>
+              <p class="text-[0.7rem] font-mono text-text-muted mt-1 leading-tight">
+                {a.blurb}
+              </p>
+            </div>
+          </button>
+        ))
+      }
+    </div>
+
+    <!-- Agent detail panels. All seven rendered as hidden articles; JS
+         toggles visibility one at a time. -->
+    <div id="agent-panels" class="agent-panels-root">
+      {
+        agents.map((a) => {
+          const isActive = a.status === "active";
+          const promptHasContent = a.prompt.kind === "file";
+          const promptWords =
+            a.prompt.kind === "file" ? wordCount(a.prompt.content) : 0;
+
+          return (
+            <article
+              id={`agent-panel-${a.id}`}
+              class="agent-panel border border-border-default bg-bg-elevated"
+              data-agent={a.id}
+              hidden
+            >
+              <header class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 px-6 sm:px-8 py-5 sm:py-6 border-b border-border-subtle">
+                <div class="flex items-baseline gap-3 flex-wrap">
+                  <h3 class="font-serif font-normal text-text-primary text-[1.5rem] leading-tight">
+                    {a.name}
+                  </h3>
+                  <span
+                    class:list={[
+                      "text-xs font-mono uppercase tracking-[0.18em]",
+                      a.status === "active" && "text-accent",
+                      a.status === "passive" && "text-text-secondary",
+                      a.status === "architected" && "text-text-muted",
+                    ]}
+                  >
+                    {STATUS_LABELS[a.status]}
+                  </span>
+                </div>
+                <button
+                  type="button"
+                  class="agent-panel-close self-start text-text-secondary hover:text-text-primary transition-colors duration-150"
+                  data-panel-close
+                  aria-label={`Close ${a.name} panel`}
+                >
+                  <svg
+                    width="18"
+                    height="18"
+                    viewBox="0 0 18 18"
+                    fill="none"
+                    aria-hidden="true"
+                  >
+                    <path
+                      d="M4 4 L14 14 M14 4 L4 14"
+                      stroke="currentColor"
+                      stroke-width="1.4"
+                      stroke-linecap="round"
+                    />
+                  </svg>
+                </button>
+              </header>
+
+              <div class="px-6 sm:px-8 py-6 sm:py-8 space-y-7">
+                <div>
+                  <p class="text-xs font-mono uppercase tracking-[0.18em] text-text-muted mb-3">
+                    Role
+                  </p>
+                  <p class="text-text-secondary leading-relaxed max-w-[42rem]">
+                    {a.role}
+                  </p>
+                </div>
+
+                <details class="panel-details">
+                  <summary class="panel-summary">
+                    <span class="text-xs font-mono uppercase tracking-[0.18em] text-text-muted">
+                      System prompt
+                    </span>
+                    {a.prompt.kind === "file" ? (
+                      <code class="text-xs font-mono text-text-secondary truncate-path">
+                        {a.prompt.path}
+                      </code>
+                    ) : (
+                      <code class="text-xs font-mono text-text-muted">
+                        {a.prompt.codePath}
+                      </code>
+                    )}
+                    <span class="panel-toggle text-xs font-mono text-text-secondary">
+                      {promptHasContent
+                        ? `Show full prompt (${promptWords} words)`
+                        : "(no LLM prompt)"}
+                    </span>
+                  </summary>
+                  {a.prompt.kind === "file" ? (
+                    <pre class="panel-codeblock"><code>{a.prompt.content}</code></pre>
+                  ) : (
+                    <p class="text-sm font-mono text-text-muted mt-4">
+                      (no prompt — implemented as code in {a.prompt.codePath})
+                    </p>
+                  )}
+                </details>
+
+                <details class="panel-details">
+                  <summary class="panel-summary">
+                    <span class="text-xs font-mono uppercase tracking-[0.18em] text-text-muted">
+                      Input (v5 run)
+                    </span>
+                    <span class="panel-toggle text-xs font-mono text-text-secondary">
+                      Show
+                    </span>
+                  </summary>
+                  <div class="mt-4 space-y-3">
+                    {a.input.mode !== "code" && "intro" in a.input && a.input.intro && (
+                      <p class="text-sm text-text-secondary">{a.input.intro}</p>
+                    )}
+                    {a.input.mode === "json" ? (
+                      <pre class="panel-codeblock"><code>{JSON.stringify(a.input.body, null, 2)}</code></pre>
+                    ) : (
+                      <pre class="panel-codeblock"><code>{a.input.body as string}</code></pre>
+                    )}
+                  </div>
+                </details>
+
+                <details class="panel-details">
+                  <summary class="panel-summary">
+                    <span class="text-xs font-mono uppercase tracking-[0.18em] text-text-muted">
+                      Output (v5 run)
+                    </span>
+                    <span class="panel-toggle text-xs font-mono text-text-secondary">
+                      Show
+                    </span>
+                  </summary>
+                  <div class="mt-4 space-y-3">
+                    {a.output.mode !== "code" &&
+                      "intro" in a.output && a.output.intro && (
+                        <p class="text-sm text-text-secondary">
+                          {a.output.intro}
+                        </p>
+                      )}
+                    {a.output.mode === "json" ? (
+                      <pre class="panel-codeblock"><code>{JSON.stringify(a.output.body, null, 2)}</code></pre>
+                    ) : (
+                      <pre class="panel-codeblock"><code>{a.output.body as string}</code></pre>
+                    )}
+                  </div>
+                </details>
+
+                {isActive && a.metrics && (
+                  <div>
+                    <p class="text-xs font-mono uppercase tracking-[0.18em] text-text-muted mb-4">
+                      Metrics
+                    </p>
+                    <div class="metrics-grid">
+                      <div class="metric-cell">
+                        <p class="metric-cap">Model</p>
+                        <p class="metric-value-mono">{a.metrics.model}</p>
+                      </div>
+                      <div class="metric-cell">
+                        <p class="metric-cap">Total calls</p>
+                        <p class="metric-value-num">{a.metrics.calls}</p>
+                      </div>
+                      <div class="metric-cell">
+                        <p class="metric-cap">Input tokens</p>
+                        <p class="metric-value-num">
+                          {formatTokens(a.metrics.inputTokens)}
+                        </p>
+                      </div>
+                      <div class="metric-cell">
+                        <p class="metric-cap">Output tokens</p>
+                        <p class="metric-value-num">
+                          {formatTokens(a.metrics.outputTokens)}
+                        </p>
+                      </div>
+                      <div class="metric-cell">
+                        <p class="metric-cap">Cost</p>
+                        <p class="metric-value-num">
+                          {formatCost(a.metrics.costUsd)}
+                        </p>
+                      </div>
+                      <div class="metric-cell">
+                        <p class="metric-cap">p50 latency</p>
+                        <p class="metric-value-num">
+                          {formatLatency(a.metrics.p50LatencyMs)}
+                        </p>
+                      </div>
+                      {a.metrics.cache && (
+                        <>
+                          <div class="metric-cell">
+                            <p class="metric-cap">Cache hit rate</p>
+                            <p class="metric-value-num">
+                              {formatPercent(a.metrics.cache.hitRate)}
+                            </p>
+                          </div>
+                          <div class="metric-cell">
+                            <p class="metric-cap">Cache savings</p>
+                            <p class="metric-value-num">
+                              {formatCost(a.metrics.cache.savingsUsd)}
+                            </p>
+                          </div>
+                          <div class="metric-cell">
+                            <p class="metric-cap">Cold call</p>
+                            <p class="metric-value-num">
+                              {formatLatency(a.metrics.cache.coldLatencyMs)}
+                            </p>
+                          </div>
+                          <div class="metric-cell">
+                            <p class="metric-cap">Warm mean</p>
+                            <p class="metric-value-num">
+                              {formatLatency(
+                                a.metrics.cache.warmMeanLatencyMs,
+                              )}
+                            </p>
+                          </div>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </article>
+          );
+        })
+      }
     </div>
   </div>
 </section>
+
+<style>
+  /* ─────────────── Diagram grid ─────────────── */
+  .pipeline-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-rows: auto auto;
+    column-gap: 32px;
+    row-gap: 56px;
+    position: relative;
+  }
+  .pipeline-cell {
+    height: 64px;
+    border-radius: 0;
+    text-align: left;
+    background: transparent;
+    padding: 0;
+    border: 0;
+    position: relative;
+    cursor: pointer;
+  }
+  .pipeline-cell:focus-visible {
+    outline: 1px solid var(--color-accent);
+    outline-offset: 2px;
+  }
+  .pipeline-input {
+    cursor: default;
+  }
+  .cell-card {
+    border: 1px solid var(--color-border-default);
+    background: var(--color-bg-elevated);
+    height: 100%;
+    padding: 0.6rem 0.85rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    transition:
+      border-color 150ms ease,
+      background-color 150ms ease;
+  }
+  .agent-box:hover .cell-card,
+  .agent-box[aria-expanded="true"] .cell-card {
+    border-color: var(--color-accent);
+    background: var(--color-bg-overlay);
+  }
+  .status-passive .cell-card {
+    opacity: 0.78;
+  }
+  .status-architected .cell-card {
+    opacity: 0.55;
+    border-style: dashed;
+  }
+
+  /* Connecting arrow indicators using CSS pseudo-elements. Within-row
+     "→" between adjacent cells; between rows "↓" below the rightmost
+     top-row cell. Hidden on mobile (replaced by per-cell ↓ between
+     vertically-stacked items). */
+  @media (min-width: 641px) {
+    .pipeline-grid > .pipeline-cell:not(.row-end)::after {
+      content: "→";
+      position: absolute;
+      top: 50%;
+      right: -22px;
+      transform: translateY(-50%);
+      color: var(--color-accent);
+      font-family: var(--font-mono);
+      font-size: 1rem;
+      line-height: 1;
+      pointer-events: none;
+    }
+    .pipeline-grid > .pipeline-cell.row-end::after {
+      content: "↓";
+      position: absolute;
+      bottom: -42px;
+      right: 50%;
+      transform: translateX(50%);
+      color: var(--color-accent);
+      font-family: var(--font-mono);
+      font-size: 1rem;
+      line-height: 1;
+      pointer-events: none;
+    }
+  }
+
+  /* Mobile vertical stack with downward arrows between cells. */
+  @media (max-width: 640px) {
+    .pipeline-grid {
+      grid-template-columns: 1fr;
+      grid-template-rows: repeat(8, auto);
+      column-gap: 0;
+      row-gap: 28px;
+    }
+    .pipeline-grid > .pipeline-cell {
+      grid-column: 1;
+    }
+    .pipeline-grid > .pipeline-cell:not(:last-child)::after {
+      content: "↓";
+      position: absolute;
+      bottom: -22px;
+      left: 50%;
+      transform: translateX(-50%);
+      color: var(--color-accent);
+      font-family: var(--font-mono);
+      font-size: 1rem;
+      line-height: 1;
+      pointer-events: none;
+    }
+  }
+
+  /* ─────────────── Panel ─────────────── */
+  .agent-panels-root {
+    margin-top: 0.5rem;
+  }
+  .agent-panel {
+    margin-top: 1.5rem;
+  }
+  .agent-panel[hidden] {
+    display: none;
+  }
+
+  .panel-details > summary {
+    list-style: none;
+    cursor: pointer;
+    padding: 0.6rem 0;
+    border-top: 1px solid var(--color-border-subtle);
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.85rem;
+    transition: color 150ms ease;
+  }
+  .panel-details > summary::-webkit-details-marker {
+    display: none;
+  }
+  .panel-details > summary:hover {
+    color: var(--color-text-primary);
+  }
+  .panel-details[open] > summary .panel-toggle::before {
+    content: "Hide ";
+  }
+  .panel-details[open] > summary .panel-toggle {
+    color: var(--color-text-primary);
+  }
+  .panel-toggle {
+    margin-left: auto;
+  }
+  .truncate-path {
+    overflow-wrap: anywhere;
+  }
+  .panel-codeblock {
+    background: var(--color-bg-base);
+    border: 1px solid var(--color-border-subtle);
+    padding: 1rem;
+    margin-top: 1rem;
+    overflow-x: auto;
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    color: var(--color-text-secondary);
+    line-height: 1.6;
+    white-space: pre-wrap;
+    word-break: break-word;
+    max-height: 28rem;
+  }
+
+  .metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1px;
+    background: var(--color-border-subtle);
+    border: 1px solid var(--color-border-subtle);
+  }
+  @media (min-width: 641px) {
+    .metrics-grid {
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+    }
+  }
+  .metric-cell {
+    background: var(--color-bg-elevated);
+    padding: 0.85rem 1rem;
+  }
+  .metric-cap {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--color-text-muted);
+    margin-bottom: 0.35rem;
+  }
+  .metric-value-num {
+    font-family: var(--font-serif);
+    font-weight: 400;
+    font-size: 1.35rem;
+    color: var(--color-text-primary);
+    line-height: 1.1;
+  }
+  .metric-value-mono {
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    color: var(--color-text-primary);
+    line-height: 1.3;
+    word-break: break-word;
+  }
+</style>
+
+<script>
+  // Vanilla JS panel interactivity. Single panel open at a time. Click
+  // an agent box to toggle its panel; clicking the same box closes it;
+  // X button closes; arrow keys cycle through agents while a panel is
+  // open; Escape closes.
+  type State = { active: string | null };
+
+  const state: State = { active: null };
+
+  const boxes = Array.from(
+    document.querySelectorAll<HTMLButtonElement>("button[data-agent-id]"),
+  );
+  const panels = Array.from(
+    document.querySelectorAll<HTMLElement>("article[data-agent]"),
+  );
+  const order = boxes.map((b) => b.dataset.agentId ?? "");
+
+  function show(id: string) {
+    state.active = id;
+    for (const p of panels) {
+      const match = p.dataset.agent === id;
+      if (match) p.removeAttribute("hidden");
+      else p.setAttribute("hidden", "");
+    }
+    for (const b of boxes) {
+      const match = b.dataset.agentId === id;
+      b.setAttribute("aria-expanded", match ? "true" : "false");
+    }
+    const target = document.getElementById(`agent-panel-${id}`);
+    if (target) {
+      target.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }
+  }
+
+  function close() {
+    state.active = null;
+    for (const p of panels) p.setAttribute("hidden", "");
+    for (const b of boxes) b.setAttribute("aria-expanded", "false");
+  }
+
+  for (const b of boxes) {
+    b.addEventListener("click", () => {
+      const id = b.dataset.agentId ?? "";
+      if (!id) return;
+      if (state.active === id) close();
+      else show(id);
+    });
+  }
+
+  for (const closer of document.querySelectorAll<HTMLButtonElement>(
+    "button[data-panel-close]",
+  )) {
+    closer.addEventListener("click", close);
+  }
+
+  document.addEventListener("keydown", (e) => {
+    if (state.active === null) return;
+    if (e.key === "Escape") {
+      close();
+      e.preventDefault();
+      return;
+    }
+    if (e.key === "ArrowRight" || e.key === "ArrowDown") {
+      const i = order.indexOf(state.active);
+      if (i >= 0 && i < order.length - 1) {
+        show(order[i + 1]);
+        e.preventDefault();
+      }
+    } else if (e.key === "ArrowLeft" || e.key === "ArrowUp") {
+      const i = order.indexOf(state.active);
+      if (i > 0) {
+        show(order[i - 1]);
+        e.preventDefault();
+      }
+    }
+  });
+
+</script>
