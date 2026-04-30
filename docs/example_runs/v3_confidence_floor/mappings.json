@@ -1,0 +1,988 @@
+{
+  "mappings": [
+    {
+      "obligation_id": "EUAIA-OBL-001",
+      "control_id": "GOVERN-1.2",
+      "confidence": 0.82,
+      "reasoning": "GOVERN-1.2 requires that 'the characteristics of trustworthy AI are integrated into organizational policies, processes, procedures, and practices.' The prohibition on subliminal and deceptive techniques is a direct expression of AI trustworthiness (specifically non-manipulation and honesty), and operationalising this prohibition requires embedding these characteristics into organisational policies and development practices — exactly what GOVERN-1.2 mandates."
+    },
+    {
+      "obligation_id": "EUAIA-OBL-001",
+      "control_id": "MAP-5.1",
+      "confidence": 0.79,
+      "reasoning": "MAP-5.1 requires identifying and documenting 'likelihood and magnitude of each identified impact (both potentially beneficial and harmful) based on expected use.' The obligation's test — 'causing or reasonably likely to cause significant harm' through manipulative or deceptive techniques — directly requires this impact likelihood and magnitude assessment to be performed and documented as part of pre-deployment context analysis."
+    },
+    {
+      "obligation_id": "EUAIA-OBL-001",
+      "control_id": "MANAGE-1.1",
+      "confidence": 0.77,
+      "reasoning": "MANAGE-1.1 requires 'a determination as to whether the AI system achieves its intended purposes and stated objectives and whether its development or deployment should proceed.' The obligation imposes a categorical prohibition that requires providers and deployers to make exactly this go/no-go determination — confirming that a system does not employ subliminal or manipulative techniques — before placing it on the market or putting it into service."
+    },
+    {
+      "obligation_id": "EUAIA-OBL-002",
+      "control_id": "MAP-5.1",
+      "confidence": 0.85,
+      "reasoning": "MAP-5.1 requires identification and documentation of 'likelihood and magnitude of each identified impact (both potentially beneficial and harmful)' based on expected use and affected populations. The obligation prohibits AI systems that exploit vulnerabilities of persons due to age, disability, or social/economic situation causing significant harm — directly requiring the kind of harm-impact assessment across vulnerable user groups that MAP-5.1 operationalises."
+    },
+    {
+      "obligation_id": "EUAIA-OBL-002",
+      "control_id": "MAP-1.1",
+      "confidence": 0.8,
+      "reasoning": "MAP-1.1 requires that 'potential positive and negative impacts of system uses to individuals, communities, organizations, society' be understood and documented, including 'the specific set or types of users along with their expectations.' The obligation's prohibition on exploiting vulnerabilities of persons based on age, disability, or socio-economic situation is directly addressed by documenting prospective deployment settings and the potential negative impacts on specific vulnerable user types as required by MAP-1.1."
+    },
+    {
+      "obligation_id": "EUAIA-OBL-002",
+      "control_id": "MANAGE-1.3",
+      "confidence": 0.77,
+      "reasoning": "MANAGE-1.3 requires that 'responses to AI risks deemed high priority are developed, planned, and documented' with options including 'avoiding' the risk. The obligation establishes a prohibition — effectively a risk-avoidance mandate — for AI systems that exploit vulnerable persons to cause significant harm, which MANAGE-1.3 directly operationalises by requiring the organisation to plan and document the avoidance of such high-priority risks."
+    },
+    {
+      "obligation_id": "EUAIA-OBL-003",
+      "control_id": "GOVERN-1.1",
+      "confidence": 0.85,
+      "reasoning": "The obligation is a direct legal prohibition under Article 5(1)(c) EU AI Act. GOVERN-1.1 requires that 'legal and regulatory requirements involving AI are understood, managed, and documented,' which is the primary operational hook for ensuring providers and deployers identify this prohibition as applicable to their systems and document their compliance posture."
+    },
+    {
+      "obligation_id": "EUAIA-OBL-003",
+      "control_id": "MANAGE-1.1",
+      "confidence": 0.8,
+      "reasoning": "MANAGE-1.1 requires 'a determination is made as to whether the AI system achieves its intended purposes and stated objectives and whether its development or deployment should proceed.' This directly operationalises the prohibition: providers and deployers must determine whether their system constitutes prohibited social scoring before placing it on the market or putting it into service."
+    },
+    {
+      "obligation_id": "EUAIA-OBL-003",
+      "control_id": "MEASURE-2.11",
+      "confidence": 0.76,
+      "reasoning": "MEASURE-2.11 requires that 'fairness and bias — as identified in the MAP function — are evaluated and results are documented.' Evaluating whether AI outputs lead to detrimental, unjustified, or disproportionate treatment of persons based on social behaviour or personality characteristics is a fairness and bias assessment directly named in this subcategory."
+    },
+    {
+      "obligation_id": "EUAIA-OBL-004",
+      "control_id": "GOVERN-1.1",
+      "confidence": 0.85,
+      "reasoning": "The obligation imposes a specific legal prohibition on placing on the market or using AI systems that predict criminal risk solely from profiling or personality traits. GOVERN-1.1 requires that 'legal and regulatory requirements involving AI are understood, managed, and documented,' which directly operationalises the duty to recognise this prohibition, document its applicability, and ensure compliance is managed across the organisation's AI portfolio."
+    },
+    {
+      "obligation_id": "EUAIA-OBL-004",
+      "control_id": "MAP-5.1",
+      "confidence": 0.78,
+      "reasoning": "MAP-5.1 requires identification and documentation of 'likelihood and magnitude of each identified impact (both potentially beneficial and harmful) based on expected use' — directly applicable to assessing whether an AI system's outputs constitute the prohibited criminal-risk predictions based on profiling, and to documenting those harmful impacts to support a determination that the system must not be deployed."
+    },
+    {
+      "obligation_id": "EUAIA-OBL-004",
+      "control_id": "MANAGE-1.1",
+      "confidence": 0.76,
+      "reasoning": "MANAGE-1.1 requires 'a determination as to whether the AI system achieves its intended purposes and stated objectives and whether its development or deployment should proceed,' which maps directly to the compliance gate imposed by this prohibition: providers and deployers must affirmatively determine that a system does not fall within the banned category before placing it on the market or putting it into service."
+    },
+    {
+      "obligation_id": "EUAIA-OBL-005",
+      "control_id": "GOVERN-1.1",
+      "confidence": 0.82,
+      "reasoning": "The obligation is a direct legal prohibition under EU AI Act Article 5(1)(e) that providers and deployers must understand, manage, and document as a regulatory requirement involving AI. GOVERN-1.1 specifically requires that 'legal and regulatory requirements involving AI are understood, managed, and documented,' making it the primary governance anchor for operationalising this prohibition — organisations must document the ban on untargeted facial image scraping and ensure it is reflected in their AI development and procurement policies."
+    },
+    {
+      "obligation_id": "EUAIA-OBL-005",
+      "control_id": "MAP-1.1",
+      "confidence": 0.78,
+      "reasoning": "MAP-1.1 requires that 'context-specific laws, norms and expectations' and 'potential negative impacts of system uses to individuals, communities' are understood and documented before deployment. The prohibition on building facial recognition databases via untargeted scraping is precisely the type of context-specific legal constraint and severe individual/societal harm (mass biometric surveillance) that must be surfaced and documented during pre-deployment context mapping."
+    },
+    {
+      "obligation_id": "EUAIA-OBL-005",
+      "control_id": "MANAGE-1.1",
+      "confidence": 0.76,
+      "reasoning": "MANAGE-1.1 requires a determination of 'whether the AI system achieves its intended purposes and stated objectives and whether its development or deployment should proceed.' For an AI system whose functionality includes or could include untargeted facial image scraping for database creation, this subcategory directly operationalises the decision gate that must result in a 'do not deploy' determination, as required by the Article 5(1)(e) prohibition."
+    },
+    {
+      "obligation_id": "EUAIA-OBL-006",
+      "control_id": "GOVERN-1.1",
+      "confidence": 0.88,
+      "reasoning": "The obligation imposes a specific legal prohibition under Article 5(1)(f) of the EU AI Act on using emotion inference AI in workplace and educational settings. GOVERN-1.1 directly requires that 'legal and regulatory requirements involving AI are understood, managed, and documented' — operationalising this ban requires the organisation to identify, document, and manage compliance with this exact statutory prohibition."
+    },
+    {
+      "obligation_id": "EUAIA-OBL-006",
+      "control_id": "MAP-1.1",
+      "confidence": 0.82,
+      "reasoning": "MAP-1.1 requires that 'context-specific laws, norms and expectations, and prospective settings in which the AI system will be deployed are understood and documented,' including 'potential negative impacts of system uses to individuals.' The prohibition on emotion inference AI in workplace and educational contexts maps directly to the duty to document deployment-setting-specific legal constraints and negative impacts before placing a system on the market or into service."
+    },
+    {
+      "obligation_id": "EUAIA-OBL-006",
+      "control_id": "MANAGE-1.1",
+      "confidence": 0.76,
+      "reasoning": "MANAGE-1.1 requires 'a determination as to whether the AI system achieves its intended purposes and stated objectives and whether its development or deployment should proceed.' The obligation mandates that providers and deployers must not proceed with placing emotion-inference AI into service in prohibited contexts, making this go/no-go deployment determination control the direct operational mechanism for enforcing the prohibition."
+    },
+    {
+      "obligation_id": "EUAIA-OBL-007",
+      "control_id": "GOVERN-1.1",
+      "confidence": 0.85,
+      "reasoning": "The obligation imposes a direct legal prohibition on placing biometric categorisation AI systems on the market or into service for inferring protected characteristics. GOVERN-1.1 requires that 'legal and regulatory requirements involving AI are understood, managed, and documented,' which is the primary organisational control needed to recognise, track, and enforce compliance with this specific statutory prohibition across providers and deployers."
+    },
+    {
+      "obligation_id": "EUAIA-OBL-007",
+      "control_id": "MAP-1.1",
+      "confidence": 0.8,
+      "reasoning": "MAP-1.1 requires that 'context-specific laws, norms and expectations' and 'potential positive and negative impacts of system uses to individuals, communities' are understood and documented, including the 'specific set or types of users.' Discharging this obligation requires mapping whether a biometric categorisation system's intended purpose falls within or outside the prohibited scope of Article 5(1)(g), making MAP-1.1 the operational pre-deployment assessment hook."
+    },
+    {
+      "obligation_id": "EUAIA-OBL-007",
+      "control_id": "MANAGE-2.4",
+      "confidence": 0.75,
+      "reasoning": "MANAGE-2.4 requires that 'mechanisms are in place and applied, and responsibilities are assigned and understood, to supersede, disengage, or deactivate AI systems that demonstrate performance or outcomes inconsistent with intended use.' Where a biometric categorisation system is found to be operating in a prohibited manner (e.g., inferring race or sexual orientation beyond the lawful exception), this control provides the operational mechanism to disengage or deactivate it, directly supporting enforcement of the prohibition."
+    },
+    {
+      "obligation_id": "EUAIA-OBL-008",
+      "control_id": "GOVERN-1.1",
+      "confidence": 0.85,
+      "reasoning": "GOVERN-1.1 requires that 'legal and regulatory requirements involving AI are understood, managed, and documented.' The obligation in Article 5(1)(h) imposes a near-absolute legal prohibition on real-time remote biometric identification in public spaces, with narrowly defined exceptions and procedural authorisation requirements — law enforcement deployers must understand, manage, and document this specific legal constraint as the precondition for any lawful deployment."
+    },
+    {
+      "obligation_id": "EUAIA-OBL-008",
+      "control_id": "MAP-1.1",
+      "confidence": 0.8,
+      "reasoning": "MAP-1.1 requires that 'context-specific laws, norms and expectations' and 'potential negative impacts of system uses to individuals, communities' are understood and documented for the prospective deployment setting. The obligation directly constrains the deployment context (publicly accessible spaces, law enforcement use) and mandates that only specific intended purposes (targeted search, imminent threat prevention, suspect localisation) are lawful — precisely the contextual scoping and impact analysis MAP-1.1 operationalises."
+    },
+    {
+      "obligation_id": "EUAIA-OBL-008",
+      "control_id": "MANAGE-1.3",
+      "confidence": 0.76,
+      "reasoning": "MANAGE-1.3 requires that 'responses to AI risks deemed high priority are developed, planned, and documented' with options including 'avoiding' the risk. The obligation's default prohibition — deployers must not use these systems except under strict exceptions — is operationally an 'avoid' risk response that must be planned and documented for any deployment falling outside the permitted exceptions."
+    },
+    {
+      "obligation_id": "EUAIA-OBL-009",
+      "control_id": "GOVERN-1.1",
+      "confidence": 0.85,
+      "reasoning": "GOVERN-1.1 requires that 'legal and regulatory requirements involving AI are understood, managed, and documented.' The obligation directly mandates that providers ensure their AI systems meet all relevant requirements before market placement, making management and documentation of those legal/regulatory requirements the primary operational mechanism for compliance."
+    },
+    {
+      "obligation_id": "EUAIA-OBL-009",
+      "control_id": "MANAGE-1.1",
+      "confidence": 0.82,
+      "reasoning": "MANAGE-1.1 states 'a determination is made as to whether the AI system achieves its intended purposes and stated objectives and whether its development or deployment should proceed.' This directly operationalises the pre-market/pre-service gate-check the obligation imposes: providers must affirmatively determine that requirements are met before deployment proceeds."
+    },
+    {
+      "obligation_id": "EUAIA-OBL-009",
+      "control_id": "MEASURE-2.5",
+      "confidence": 0.78,
+      "reasoning": "MEASURE-2.5 requires that 'the AI system to be deployed is demonstrated to be valid and reliable' with limitations documented prior to deployment. Demonstrating validity and reliability before deployment is a concrete evidentiary step that providers must complete to satisfy the obligation that systems meet all relevant requirements before being placed on the market or put into service."
+    },
+    {
+      "obligation_id": "EUAIA-OBL-010",
+      "control_id": "GOVERN-1.5",
+      "confidence": 0.9,
+      "reasoning": "The obligation requires 'ongoing monitoring' and 'updates to AI systems' across 'all phases of the AI lifecycle' to ensure continuous compliance — this maps directly to GOVERN-1.5's requirement that 'ongoing monitoring and periodic review of the risk management process and its outcomes are planned, with organizational roles and responsibilities clearly defined, including determining the frequency of periodic review.' Both the obligation and the subcategory specify the same duty: institutionalised, planned, ongoing monitoring with defined responsibilities."
+    },
+    {
+      "obligation_id": "EUAIA-OBL-010",
+      "control_id": "MANAGE-4.1",
+      "confidence": 0.88,
+      "reasoning": "The obligation mandates ongoing monitoring of and updates to deployed AI systems to ensure continued compliance — MANAGE-4.1 explicitly covers 'post-deployment AI system monitoring plans are implemented, including mechanisms for capturing and evaluating input from users and other relevant AI actors, appeal and override, decommissioning, incident response, recovery, and change management.' This subcategory operationalises the post-market surveillance and update duty central to the obligation."
+    },
+    {
+      "obligation_id": "EUAIA-OBL-010",
+      "control_id": "GOVERN-1.1",
+      "confidence": 0.82,
+      "reasoning": "The obligation requires providers and deployers to ensure 'continuous compliance with the AI Act during all phases of the AI lifecycle,' directly invoking legal and regulatory requirements — GOVERN-1.1 states that 'legal and regulatory requirements involving AI are understood, managed, and documented.' Because the obligation is specifically framed as a compliance duty tied to a named regulation (the AI Act), this subcategory is a precise operational hook for the legal-compliance dimension of the obligation, not merely a generic catch-all."
+    },
+    {
+      "obligation_id": "EUAIA-OBL-011",
+      "control_id": "GOVERN-1.1",
+      "confidence": 0.88,
+      "reasoning": "GOVERN-1.1 directly requires that 'legal and regulatory requirements involving AI are understood, managed, and documented.' The obligation imposes a specific legal compliance duty on dual-use AI providers to ensure their systems meet AI Act requirements when placed on the market for both excluded and non-excluded purposes — a regulatory requirement that must be understood, managed, and documented at the governance level."
+    },
+    {
+      "obligation_id": "EUAIA-OBL-011",
+      "control_id": "MAP-1.1",
+      "confidence": 0.82,
+      "reasoning": "MAP-1.1 requires that 'intended purposes, potentially beneficial uses, context-specific laws, norms and expectations, and prospective settings in which the AI system will be deployed are understood and documented.' The dual-use obligation requires the provider to assess and document that the system is used across both excluded (military/defence) and non-excluded (civilian/law enforcement) deployment settings, directly invoking the need to map context-specific laws and prospective deployment settings."
+    },
+    {
+      "obligation_id": "EUAIA-OBL-011",
+      "control_id": "MAP-3.3",
+      "confidence": 0.76,
+      "reasoning": "MAP-3.3 requires that 'targeted application scope is specified and documented based on the system's capability, established context, and AI system categorization.' The dual-use obligation requires the provider to categorise and bound the scope of non-excluded uses within a system that also serves excluded purposes, making scope specification and categorisation directly applicable."
+    },
+    {
+      "obligation_id": "EUAIA-OBL-012",
+      "control_id": "GOVERN-1.1",
+      "confidence": 0.85,
+      "reasoning": "The obligation requires the entity to verify and ensure compliance with the AI Act before using a military/defence AI system for civilian or other non-excluded purposes — a direct legal and regulatory compliance determination. GOVERN-1.1 states that 'legal and regulatory requirements involving AI are understood, managed, and documented,' which is the precise governance activity the obligation mandates: understanding which regulatory requirements apply to the new use context and documenting the verification of compliance before deployment."
+    },
+    {
+      "obligation_id": "EUAIA-OBL-012",
+      "control_id": "MAP-1.1",
+      "confidence": 0.82,
+      "reasoning": "The obligation requires the entity to assess whether the AI system — originally designed for military/defence purposes — complies with requirements governing its new deployment context (civilian, humanitarian, law enforcement, or public security). MAP-1.1 directly operationalises this by requiring that 'intended purposes, potentially beneficial uses, context-specific laws, norms and expectations, and prospective settings in which the AI system will be deployed are understood and documented,' including 'assumptions and related limitations about AI system purpose, uses, and risks across the development or product AI lifecycle.'"
+    },
+    {
+      "obligation_id": "EUAIA-OBL-012",
+      "control_id": "MANAGE-1.1",
+      "confidence": 0.78,
+      "reasoning": "The obligation requires a pre-use determination that the AI system complies before it is deployed for non-excluded purposes — specifically a go/no-go decision gated on compliance verification. MANAGE-1.1 states that 'a determination is made as to whether the AI system achieves its intended purposes and stated objectives and whether its development or deployment should proceed,' which directly operationalises the mandatory compliance verification and deployment-authorization step the obligation imposes."
+    },
+    {
+      "obligation_id": "EUAIA-OBL-013",
+      "control_id": "GOVERN-1.1",
+      "confidence": 0.88,
+      "reasoning": "GOVERN-1.1 states that 'Legal and regulatory requirements involving AI are understood, managed, and documented.' The obligation directly requires providers of dual-use AI systems to ensure compliance with the requirements of the AI Act — a legal and regulatory requirement. This subcategory is the primary operational hook for establishing and maintaining documented understanding of those compliance obligations across the organization."
+    },
+    {
+      "obligation_id": "EUAIA-OBL-013",
+      "control_id": "MAP-1.1",
+      "confidence": 0.8,
+      "reasoning": "MAP-1.1 requires that 'intended purposes, potentially beneficial uses, context-specific laws, norms and expectations, and prospective settings in which the AI system will be deployed are understood and documented.' For dual-use systems spanning law enforcement/national security and other purposes, identifying and documenting the full range of intended uses and the context-specific legal requirements (AI Act applicability) is a direct component of this subcategory's mandate."
+    },
+    {
+      "obligation_id": "EUAIA-OBL-014",
+      "control_id": "GOVERN-1.1",
+      "confidence": 0.88,
+      "reasoning": "The obligation requires that AI systems placed on the market following R&D, or tested in real-world conditions outside a regulatory sandbox, must comply with the AI Act's requirements. GOVERN-1.1 directly addresses that 'legal and regulatory requirements involving AI are understood, managed, and documented' — the core duty here is to understand which legal compliance obligations are triggered when R&D activity results in market placement or real-world testing, and to manage and document that compliance status."
+    },
+    {
+      "obligation_id": "EUAIA-OBL-014",
+      "control_id": "MANAGE-1.1",
+      "confidence": 0.78,
+      "reasoning": "MANAGE-1.1 requires 'a determination is made as to whether the AI system achieves its intended purposes and stated objectives and whether its development or deployment should proceed.' The obligation imposes a compliance gate on proceeding from R&D to market placement or real-world testing, which maps directly onto the deployment-proceed determination, including assessing whether the system meets applicable legal requirements before launch."
+    },
+    {
+      "obligation_id": "EUAIA-OBL-015",
+      "control_id": "GOVERN-1.1",
+      "confidence": 0.88,
+      "reasoning": "The obligation requires deployers to understand and comply with Article 5 AI Act prohibitions — a direct legal and regulatory requirement involving AI. GOVERN-1.1 specifies that 'legal and regulatory requirements involving AI are understood, managed, and documented,' which directly operationalises the duty to know and abide by the prohibited-use rules, including not bypassing safety guardrails."
+    },
+    {
+      "obligation_id": "EUAIA-OBL-015",
+      "control_id": "GOVERN-4.1",
+      "confidence": 0.8,
+      "reasoning": "The obligation's prohibition on bypassing safety guardrails implemented by providers maps directly to GOVERN-4.1's requirement for 'a safety-first mindset in the deployment and uses of AI systems to minimize potential negative impacts.' Circumventing provider-implemented guardrails is precisely the kind of unsafe deployment practice this subcategory addresses through organizational policy."
+    },
+    {
+      "obligation_id": "EUAIA-OBL-015",
+      "control_id": "MANAGE-2.4",
+      "confidence": 0.76,
+      "reasoning": "MANAGE-2.4 requires that 'mechanisms are in place and applied, and responsibilities are assigned and understood, to supersede, disengage, or deactivate AI systems that demonstrate performance or outcomes inconsistent with intended use.' The obligation's bar on bypassing safety guardrails requires deployers to have operational controls that prevent use of AI systems in prohibited ways — consistent with the assignment of responsibilities to prevent outcomes inconsistent with intended, lawful use."
+    },
+    {
+      "obligation_id": "EUAIA-OBL-016",
+      "control_id": "MANAGE-1.3",
+      "confidence": 0.88,
+      "reasoning": "The obligation requires providers to 'take effective and verifiable measures to build in safeguards and prevent and mitigate such harmful behaviour and misuse.' MANAGE-1.3 directly operationalises this by requiring that 'responses to the AI risks deemed high priority are developed, planned, and documented' with explicit options including 'mitigating' and 'avoiding' — precisely the preventive and mitigating safeguard measures the obligation demands before market placement."
+    },
+    {
+      "obligation_id": "EUAIA-OBL-016",
+      "control_id": "MEASURE-2.6",
+      "confidence": 0.82,
+      "reasoning": "The obligation requires that the system not be 'reasonably likely to behave in a manner prohibited' and that harmful behaviour be mitigated to the extent 'reasonably foreseeable.' MEASURE-2.6 requires the AI system to be 'evaluated regularly for safety risks,' demonstrated to be 'safe,' with 'residual negative risk not exceeding the risk tolerance,' directly operationalising the pre-market safety verification the obligation mandates."
+    },
+    {
+      "obligation_id": "EUAIA-OBL-016",
+      "control_id": "GOVERN-4.1",
+      "confidence": 0.76,
+      "reasoning": "The obligation requires a 'safety-first' design posture — specifically that prohibited behaviours and foreseeable misuse be designed out before market placement. GOVERN-4.1 requires 'organizational policies and practices to foster a safety-first mindset in the design, development, deployment, and uses of AI systems to minimize potential negative impacts,' providing the governance foundation for the technical safeguards the obligation mandates."
+    },
+    {
+      "obligation_id": "EUAIA-OBL-017",
+      "control_id": "GOVERN-6.1",
+      "confidence": 0.85,
+      "reasoning": "The obligation requires providers to address AI risks in their contractual relationships with deployers (third-party entities), specifically by excluding prohibited practices in terms of use. GOVERN-6.1 directly calls for 'policies and procedures are in place that address AI risks associated with third-party entities,' which operationalises the duty to contractually constrain deployer use."
+    },
+    {
+      "obligation_id": "EUAIA-OBL-017",
+      "control_id": "GOVERN-3.2",
+      "confidence": 0.82,
+      "reasoning": "The obligation requires providers to supply 'appropriate information in the instructions of use for deployers' regarding human oversight. GOVERN-3.2 directly specifies that 'policies and procedures are in place to define and differentiate roles and responsibilities for human-AI configurations and oversight of AI systems,' which is the operational basis for documenting and communicating human oversight requirements to deployers."
+    },
+    {
+      "obligation_id": "EUAIA-OBL-017",
+      "control_id": "MAP-5.1",
+      "confidence": 0.75,
+      "reasoning": "The obligation requires providers to identify and exclude prohibited practices, which presupposes documenting the 'likelihood and magnitude of each identified impact' including harmful uses. MAP-5.1 requires that 'likelihood and magnitude of each identified impact (both potentially beneficial and harmful) based on expected use' are 'identified and documented,' directly supporting the identification of prohibited practices that must be excluded in terms of use."
+    },
+    {
+      "obligation_id": "EUAIA-OBL-018",
+      "control_id": "MAP-3.5",
+      "confidence": 0.88,
+      "reasoning": "The obligation requires providers to define and provide 'required human oversight' to deployers when preventive technical measures are limited. MAP-3.5 directly states that 'Processes for human oversight are defined, assessed, and documented in accordance with organizational policies,' which operationalises the duty to establish and communicate human oversight requirements to downstream actors."
+    },
+    {
+      "obligation_id": "EUAIA-OBL-018",
+      "control_id": "MANAGE-1.4",
+      "confidence": 0.82,
+      "reasoning": "The obligation requires documentation of prohibited uses and instructions to deployers regarding residual risks that cannot be technically mitigated. MANAGE-1.4 directly requires that 'Negative residual risks to both downstream acquirers of AI systems and end users are documented,' covering the duty to communicate unmitigated risk restrictions to deployers."
+    },
+    {
+      "obligation_id": "EUAIA-OBL-018",
+      "control_id": "MANAGE-4.1",
+      "confidence": 0.78,
+      "reasoning": "The obligation requires providers to monitor for compliance with prohibited-use restrictions post-deployment. MANAGE-4.1 specifies that 'Post-deployment AI system monitoring plans are implemented, including mechanisms for capturing and evaluating input from users and other relevant AI actors,' directly operationalising the targeted post-deployment monitoring duty imposed on providers."
+    },
+    {
+      "obligation_id": "EUAIA-OBL-022",
+      "control_id": "GOVERN-1.1",
+      "confidence": 0.8,
+      "reasoning": "The obligation to label deep fakes and AI-generated text on matters of public interest is a specific legal and regulatory requirement under the EU AI Act. GOVERN-1.1 requires that 'legal and regulatory requirements involving AI are understood, managed, and documented,' which directly operationalises the deployer's duty to implement and document compliant labelling practices under Article 50(4)."
+    },
+    {
+      "obligation_id": "EUAIA-OBL-022",
+      "control_id": "MEASURE-2.8",
+      "confidence": 0.77,
+      "reasoning": "Visible labelling of AI-generated content is a transparency and accountability measure. MEASURE-2.8 requires that 'risks associated with transparency and accountability — as identified in the MAP function — are examined and documented,' directly addressing the deployer's need to assess and verify that labelling requirements for deep fakes and AI-generated text are implemented and measurable."
+    },
+    {
+      "obligation_id": "EUAIA-OBL-023",
+      "control_id": "MEASURE-2.8",
+      "confidence": 0.85,
+      "reasoning": "MEASURE-2.8 requires that 'risks associated with transparency and accountability — as identified in the MAP function — are examined and documented.' The Article 50(1) obligation to disclose AI identity to users is a direct transparency requirement; evaluating and documenting whether the disclosure mechanism adequately addresses transparency risk operationalises this duty."
+    },
+    {
+      "obligation_id": "EUAIA-OBL-023",
+      "control_id": "MAP-1.6",
+      "confidence": 0.78,
+      "reasoning": "MAP-1.6 states that 'system requirements are elicited from and understood by relevant AI actors' and that 'design decisions take socio-technical implications into account to address AI risks.' The obligation requires designing the AI system to include a disclosure mechanism — a specific system requirement with socio-technical implications — making this subcategory a direct operational hook for the design-stage duty."
+    },
+    {
+      "obligation_id": "EUAIA-OBL-024",
+      "control_id": "MEASURE-2.8",
+      "confidence": 0.82,
+      "reasoning": "MEASURE-2.8 requires that 'risks associated with transparency and accountability — as identified in the MAP function — are examined and documented.' The obligation mandates visible disclosure through embedded design features and technical detection measures for AI-generated content, which is a direct transparency and accountability risk that must be examined and documented to demonstrate compliance."
+    },
+    {
+      "obligation_id": "EUAIA-OBL-024",
+      "control_id": "MAP-1.6",
+      "confidence": 0.78,
+      "reasoning": "MAP-1.6 states that 'system requirements are elicited from and understood by relevant AI actors' and that 'design decisions take socio-technical implications into account to address AI risks.' The obligation requires embedding specific design features — disclosure mechanisms and AI-content detection measures — directly into the AI system, which is precisely the kind of socio-technical design requirement this subcategory governs."
+    },
+    {
+      "obligation_id": "EUAIA-OBL-025",
+      "control_id": "MANAGE-1.3",
+      "confidence": 0.88,
+      "reasoning": "The obligation requires providers to develop 'preventive and mitigating measures' where significant harms are reasonably likely—directly matching MANAGE-1.3's requirement that 'Responses to the AI risks deemed high priority are developed, planned, and documented' with 'risk response options [that] can include mitigating.' The sub-category names the same duty verb (mitigating) and the same evidence artefact (documented response plans) required by the obligation."
+    },
+    {
+      "obligation_id": "EUAIA-OBL-025",
+      "control_id": "MAP-5.1",
+      "confidence": 0.82,
+      "reasoning": "Before preventive measures can be taken, the 'likelihood and magnitude of each identified impact (both potentially beneficial and harmful)' must be identified and documented—the exact analytical prerequisite the obligation assumes when it conditions action on harms being 'reasonably likely to occur.' MAP-5.1 operationalises this likelihood-and-magnitude determination that underpins the obligation's trigger condition."
+    },
+    {
+      "obligation_id": "EUAIA-OBL-025",
+      "control_id": "MEASURE-2.6",
+      "confidence": 0.78,
+      "reasoning": "MEASURE-2.6 requires that 'the AI system is evaluated regularly for safety risks' and that 'residual negative risk does not exceed the risk tolerance,' which directly operationalises the obligation's requirement to address situations where 'significant harms are reasonably likely'—ensuring that incidental manipulative behaviour is measured against a safety threshold and that residual harm is kept within acceptable bounds."
+    },
+    {
+      "obligation_id": "EUAIA-OBL-026",
+      "control_id": "MEASURE-2.8",
+      "confidence": 0.88,
+      "reasoning": "The obligation requires transparency disclosures and safeguard documentation demonstrating non-deceptive operation. MEASURE-2.8 directly operationalises this by requiring that 'risks associated with transparency and accountability — as identified in the MAP function — are examined and documented,' which is the precise measurement activity needed to evidence that transparency and non-deception requirements are being met."
+    },
+    {
+      "obligation_id": "EUAIA-OBL-026",
+      "control_id": "MAP-2.2",
+      "confidence": 0.82,
+      "reasoning": "The obligation requires clear disclosures about the AI system's capabilities and limitations to ensure informed decisions. MAP-2.2 directly addresses this by requiring that 'information about the AI system's knowledge limits and how system output may be utilized and overseen by humans is documented,' providing the operational framework for the capability/limitation disclosure duty."
+    },
+    {
+      "obligation_id": "EUAIA-OBL-026",
+      "control_id": "MANAGE-2.4",
+      "confidence": 0.77,
+      "reasoning": "The obligation requires user control and safeguard measures to ensure the system does not operate deceptively or beyond lawful persuasion boundaries. MANAGE-2.4 requires that 'mechanisms are in place and applied, and responsibilities are assigned and understood, to supersede, disengage, or deactivate AI systems that demonstrate performance or outcomes inconsistent with intended use,' directly operationalising the user control and override safeguard requirement."
+    },
+    {
+      "obligation_id": "EUAIA-OBL-027",
+      "control_id": "MANAGE-1.3",
+      "confidence": 0.88,
+      "reasoning": "The obligation requires providers and deployers to develop 'preventive and mitigating measures' for significant harms from manipulative or deceptive AI techniques. MANAGE-1.3 directly operationalises this by requiring that 'responses to the AI risks deemed high priority are developed, planned, and documented' and that 'risk response options can include mitigating, transferring, avoiding, or accepting' — matching the obligation's language of preventive and mitigating measures against identified high-priority harms."
+    },
+    {
+      "obligation_id": "EUAIA-OBL-027",
+      "control_id": "MAP-5.1",
+      "confidence": 0.82,
+      "reasoning": "The obligation requires documentation of risk assessment identifying 'reasonably likely' significant harms. MAP-5.1 requires that 'likelihood and magnitude of each identified impact (both potentially beneficial and harmful) based on expected use ... are identified and documented', directly covering the risk-assessment evidence required by the obligation for harms likely to result from subliminal or deceptive techniques."
+    },
+    {
+      "obligation_id": "EUAIA-OBL-027",
+      "control_id": "MEASURE-2.6",
+      "confidence": 0.77,
+      "reasoning": "The obligation requires measures to ensure significant harms from manipulative AI techniques do not materialise, which requires evaluating residual risk against tolerance. MEASURE-2.6 requires that 'the AI system is evaluated regularly for safety risks' and that 'residual negative risk does not exceed the risk tolerance', providing the measurement basis for demonstrating that preventive measures are effective against the identified harms."
+    },
+    {
+      "obligation_id": "EUAIA-OBL-028",
+      "control_id": "MAP-5.1",
+      "confidence": 0.85,
+      "reasoning": "MAP-5.1 requires identifying and documenting the 'likelihood and magnitude of each identified impact (both potentially beneficial and harmful) based on expected use,' which directly operationalises the obligation's requirement to assess whether manipulative or deceptive techniques materially distort behaviour — the evidence obligation calls explicitly for 'assessment records demonstrating absence of material distortion effects.' Documenting harmful impacts including those on individual autonomy maps precisely to this subcategory's scope."
+    },
+    {
+      "obligation_id": "EUAIA-OBL-028",
+      "control_id": "GOVERN-4.2",
+      "confidence": 0.8,
+      "reasoning": "GOVERN-4.2 requires that 'organizational teams document the risks and potential impacts of the AI technology they design, develop, deploy, evaluate, and use,' which directly covers the duty to identify and record risks arising from manipulative or deceptive system techniques. The obligation's required evidence — assessment records demonstrating absence or prevention of material distortion effects — is the artefact this subcategory mandates teams to produce."
+    },
+    {
+      "obligation_id": "EUAIA-OBL-028",
+      "control_id": "MANAGE-1.3",
+      "confidence": 0.77,
+      "reasoning": "MANAGE-1.3 requires that 'responses to the AI risks deemed high priority are developed, planned, and documented' with options including 'mitigating, transferring, avoiding, or accepting.' The obligation mandates that providers take measures to prevent material distortion effects, and MANAGE-1.3's documented risk-response planning is the operational mechanism for implementing those preventive measures — including avoidance of prohibited manipulative techniques."
+    },
+    {
+      "obligation_id": "EUAIA-OBL-029",
+      "control_id": "MAP-5.1",
+      "confidence": 0.85,
+      "reasoning": "MAP-5.1 requires identifying and documenting the 'likelihood and magnitude of each identified impact (both potentially beneficial and harmful)' including 'harmful' impacts on individuals and communities. This directly operationalises the obligation's requirement to assess whether an AI system's behaviour causes or is 'reasonably likely to cause significant harm' to persons exploited due to age, disability, or social/economic vulnerability — the harm likelihood and magnitude assessment is the core analytical duty."
+    },
+    {
+      "obligation_id": "EUAIA-OBL-029",
+      "control_id": "MANAGE-1.3",
+      "confidence": 0.8,
+      "reasoning": "MANAGE-1.3 requires that 'responses to the AI risks deemed high priority are developed, planned, and documented' with options including 'avoiding' the risk. The prohibition in Article 5(1)(b) is operationally a mandatory risk-avoidance decision for systems that exploit vulnerabilities to distort behaviour and cause harm; MANAGE-1.3's explicit 'avoiding' response option and high-priority framing directly supports implementing this prohibition."
+    },
+    {
+      "obligation_id": "EUAIA-OBL-029",
+      "control_id": "MEASURE-2.11",
+      "confidence": 0.76,
+      "reasoning": "MEASURE-2.11 requires that 'fairness and bias — as identified in the MAP function — are evaluated and results are documented.' Exploitation of vulnerabilities based on age, disability, or socio-economic situation is a form of discriminatory bias targeting specific groups; evaluating and documenting fairness and bias is the measurement mechanism most directly suited to detecting whether a system is differentially distorting the behaviour of protected or vulnerable groups."
+    },
+    {
+      "obligation_id": "EUAIA-OBL-030",
+      "control_id": "GOVERN-1.1",
+      "confidence": 0.88,
+      "reasoning": "GOVERN-1.1 requires that 'legal and regulatory requirements involving AI are understood, managed, and documented.' Article 5(1)(c) is an absolute legal prohibition on social-scoring AI systems; an organisation's governance framework must explicitly document this prohibition, assess whether any AI system in its portfolio falls within its scope, and manage the resulting legal constraint — directly operationalising this subcategory's duty."
+    },
+    {
+      "obligation_id": "EUAIA-OBL-030",
+      "control_id": "MANAGE-1.1",
+      "confidence": 0.82,
+      "reasoning": "MANAGE-1.1 requires a determination of 'whether the AI system achieves its intended purposes and stated objectives and whether its development or deployment should proceed.' For a prohibited social-scoring use case, this subcategory directly operationalises the go/no-go decision: the organisation must determine that deployment must not proceed, making this the primary MANAGE-function control for a hard prohibition."
+    },
+    {
+      "obligation_id": "EUAIA-OBL-030",
+      "control_id": "MAP-1.1",
+      "confidence": 0.78,
+      "reasoning": "MAP-1.1 requires that 'context-specific laws, norms and expectations' and 'potential positive and negative impacts of system uses to individuals, communities' are understood and documented for the prospective deployment setting. Identifying that a system evaluates or classifies persons based on social behaviour over time — and that its outputs lead to detrimental treatment in unrelated contexts — is precisely the contextual impact analysis this subcategory mandates before deployment decisions are made."
+    },
+    {
+      "obligation_id": "EUAIA-OBL-031",
+      "control_id": "MEASURE-2.9",
+      "confidence": 0.88,
+      "reasoning": "The obligation requires providers and deployers to provide 'transparency of the functioning of the AI system' and demonstrate the system is 'performing as intended.' MEASURE-2.9 directly addresses this by requiring that 'the AI model is explained, validated, and documented, and AI system output is interpreted within its context... to inform responsible use and governance' — covering both the transparency of functioning and the validation that the system performs as intended."
+    },
+    {
+      "obligation_id": "EUAIA-OBL-031",
+      "control_id": "MAP-2.3",
+      "confidence": 0.82,
+      "reasoning": "The obligation mandates that 'only data related to the social context in which the score is used are processed' and requires 'information about the types of data and data sources.' MAP-2.3 directly covers 'data collection and selection (e.g., availability, representativeness, suitability)' as part of scientific integrity and TEVV considerations that must be identified and documented, operationalising the data scope and suitability constraint."
+    },
+    {
+      "obligation_id": "EUAIA-OBL-031",
+      "control_id": "MEASURE-2.11",
+      "confidence": 0.79,
+      "reasoning": "The obligation requires that 'any resulting detrimental or unfavourable treatment is justified and proportionate to the social behaviour,' which is a fairness and bias duty. MEASURE-2.11 requires that 'fairness and bias — as identified in the MAP function — are evaluated and results are documented,' providing the operational measurement basis for demonstrating proportionality and absence of unjustified discriminatory treatment to surveillance authorities."
+    },
+    {
+      "obligation_id": "EUAIA-OBL-032",
+      "control_id": "GOVERN-1.1",
+      "confidence": 0.9,
+      "reasoning": "The obligation requires providers and deployers to assess whether Union and national legislation applies to their AI scoring system and document that legal assessment. GOVERN-1.1 directly states that 'legal and regulatory requirements involving AI are understood, managed, and documented,' which maps precisely to the duty to understand and document the applicable legislative landscape for the specific AI system in use."
+    },
+    {
+      "obligation_id": "EUAIA-OBL-032",
+      "control_id": "MAP-1.1",
+      "confidence": 0.82,
+      "reasoning": "The obligation requires assessing 'context-specific laws, norms and expectations' and the types of data permissible for the AI scoring system's evaluation purposes. MAP-1.1 explicitly requires that 'context-specific laws, norms and expectations' and 'prospective settings in which the AI system will be deployed are understood and documented,' directly operationalising the duty to identify and record applicable legal constraints on data use and evaluation procedures."
+    },
+    {
+      "obligation_id": "EUAIA-OBL-033",
+      "control_id": "GOVERN-1.1",
+      "confidence": 0.88,
+      "reasoning": "GOVERN-1.1 requires that 'legal and regulatory requirements involving AI are understood, managed, and documented.' This obligation is an absolute legal prohibition under Article 5(1)(d) of the EU AI Act; operationalising it begins with the organisation formally documenting and managing this specific prohibition so that covered AI systems are never placed on the market or put into service for the prohibited purpose."
+    },
+    {
+      "obligation_id": "EUAIA-OBL-033",
+      "control_id": "MANAGE-1.3",
+      "confidence": 0.8,
+      "reasoning": "MANAGE-1.3 requires that 'responses to the AI risks deemed high priority are developed, planned, and documented' and explicitly lists 'avoiding' as a risk response option. A blanket prohibition mandates the 'avoidance' response option for AI systems that assess criminal-offence risk solely from profiling or personality traits, making this subcategory the direct operational mechanism for implementing the prohibition."
+    },
+    {
+      "obligation_id": "EUAIA-OBL-033",
+      "control_id": "MAP-1.1",
+      "confidence": 0.77,
+      "reasoning": "MAP-1.1 requires that 'intended purposes, context-specific laws, norms and expectations, and prospective settings in which the AI system will be deployed are understood and documented,' including 'potential negative impacts' and 'related limitations about AI system purpose.' Applying this subcategory compels providers and deployers to identify at the scoping stage whether a system's intended purpose falls within the prohibited category of criminal-risk profiling solely based on personality traits."
+    },
+    {
+      "obligation_id": "EUAIA-OBL-034",
+      "control_id": "GOVERN-1.1",
+      "confidence": 0.88,
+      "reasoning": "The obligation requires providers and deployers to comply with 'all relevant requirements and obligations under the AI Act as high-risk AI systems,' which directly maps to GOVERN-1.1's requirement that 'legal and regulatory requirements involving AI are understood, managed, and documented.' The evidence required (documentation demonstrating compliance) aligns precisely with the 'documented' component of this subcategory."
+    },
+    {
+      "obligation_id": "EUAIA-OBL-034",
+      "control_id": "MAP-1.1",
+      "confidence": 0.82,
+      "reasoning": "The obligation specifies a law enforcement use case — assessing risk of offending or re-offending — that requires understanding and documenting intended purposes, context-specific laws, and prospective deployment settings. MAP-1.1 directly requires that 'intended purposes, potentially beneficial uses, context-specific laws, norms and expectations, and prospective settings in which the AI system will be deployed are understood and documented,' which operationalises the contextual scoping duty embedded in the high-risk classification."
+    },
+    {
+      "obligation_id": "EUAIA-OBL-034",
+      "control_id": "MEASURE-2.11",
+      "confidence": 0.78,
+      "reasoning": "A recidivism-risk AI system used by law enforcement carries acute fairness and bias risks tied to protected characteristics and past criminal behaviour. MEASURE-2.11 requires that 'fairness and bias — as identified in the MAP function — are evaluated and results are documented,' which directly operationalises the substantive due-process and non-discrimination requirements embedded in compliance with high-risk AI Act obligations for this category."
+    },
+    {
+      "obligation_id": "EUAIA-OBL-035",
+      "control_id": "GOVERN-1.1",
+      "confidence": 0.85,
+      "reasoning": "The obligation imposes a categorical legal prohibition on placing certain AI systems on the market or putting them into service. GOVERN-1.1 directly requires that 'legal and regulatory requirements involving AI are understood, managed, and documented,' which is the primary organisational mechanism for ensuring this prohibition is recognised, operationalised, and enforced across the provider/deployer's governance structure."
+    },
+    {
+      "obligation_id": "EUAIA-OBL-035",
+      "control_id": "MANAGE-1.1",
+      "confidence": 0.82,
+      "reasoning": "MANAGE-1.1 requires 'a determination is made as to whether the AI system achieves its intended purposes and stated objectives and whether its development or deployment should proceed.' For this obligation, the required determination is specifically whether the system falls within the prohibited category of profiling-based criminal-risk prediction, making the go/no-go deployment decision the direct operational hook for discharging the prohibition."
+    },
+    {
+      "obligation_id": "EUAIA-OBL-035",
+      "control_id": "MAP-1.1",
+      "confidence": 0.78,
+      "reasoning": "MAP-1.1 requires that 'context-specific laws, norms and expectations' and 'potential positive and negative impacts of system uses to individuals' are understood and documented, including 'assumptions and related limitations about AI system purpose, uses, and risks.' Documenting that an AI system's intended purpose involves profiling to predict criminal offences — and cross-referencing the applicable legal prohibition — is precisely the contextual scoping work MAP-1.1 operationalises."
+    },
+    {
+      "obligation_id": "EUAIA-OBL-036",
+      "control_id": "GOVERN-3.2",
+      "confidence": 0.92,
+      "reasoning": "GOVERN-3.2 directly requires 'policies and procedures are in place to define and differentiate roles and responsibilities for human-AI configurations and oversight of AI systems,' which maps precisely to the obligation's requirement that human oversight be assigned to persons with defined competence, training, and authority. The subcategory text names both 'human-AI configurations' and 'oversight of AI systems' as its explicit objects, matching the obligation's core duty."
+    },
+    {
+      "obligation_id": "EUAIA-OBL-036",
+      "control_id": "GOVERN-2.2",
+      "confidence": 0.88,
+      "reasoning": "GOVERN-2.2 states that 'the organization's personnel and partners receive AI risk management training to enable them to perform their duties and responsibilities consistent with related policies, procedures, and agreements,' directly operationalising the obligation's requirement that oversight persons possess 'necessary competence' and 'training' to understand system capabilities and limitations and correctly interpret its output. Training records as specified in the evidence_required field are the direct artefact of this subcategory."
+    },
+    {
+      "obligation_id": "EUAIA-OBL-036",
+      "control_id": "MAP-3.5",
+      "confidence": 0.87,
+      "reasoning": "MAP-3.5 requires that 'processes for human oversight are defined, assessed, and documented in accordance with organizational policies from the GOVERN function,' directly operationalising the obligation's requirement that human oversight procedures be documented and that oversight persons are able to properly understand capabilities and limitations and address automation bias — all elements of a defined, assessed oversight process."
+    },
+    {
+      "obligation_id": "EUAIA-OBL-037",
+      "control_id": "GOVERN-3.2",
+      "confidence": 0.92,
+      "reasoning": "GOVERN-3.2 directly requires that 'policies and procedures are in place to define and differentiate roles and responsibilities for human-AI configurations and oversight of AI systems.' The obligation mandates clear procedures, defined authority, and assigned roles for persons conducting human oversight of high-risk AI crime-risk-assessment systems — a near-verbatim match to this subcategory's duty to define human-AI oversight roles and responsibilities."
+    },
+    {
+      "obligation_id": "EUAIA-OBL-037",
+      "control_id": "GOVERN-2.2",
+      "confidence": 0.9,
+      "reasoning": "GOVERN-2.2 requires that 'personnel and partners receive AI risk management training to enable them to perform their duties and responsibilities consistent with related policies, procedures, and agreements.' The obligation explicitly requires that oversight persons have 'training and the necessary competence' to meaningfully assess AI outputs — this is a direct operationalisation of the training requirement in GOVERN-2.2."
+    },
+    {
+      "obligation_id": "EUAIA-OBL-037",
+      "control_id": "MANAGE-2.4",
+      "confidence": 0.88,
+      "reasoning": "MANAGE-2.4 states that 'mechanisms are in place and applied, and responsibilities are assigned and understood, to supersede, disengage, or deactivate AI systems that demonstrate performance or outcomes inconsistent with intended use.' The obligation requires oversight persons to have the authority and ability to 'intervene to avoid negative consequences or risks, or stop the use of the AI system if it does not perform as intended' — directly matching the supersede/disengage/deactivate mechanism described in MANAGE-2.4."
+    },
+    {
+      "obligation_id": "EUAIA-OBL-038",
+      "control_id": "GOVERN-1.1",
+      "confidence": 0.8,
+      "reasoning": "GOVERN-1.1 requires that 'legal and regulatory requirements involving AI are understood, managed, and documented.' The prohibition on untargeted facial-image scraping to build or expand recognition databases is a hard legal prohibition; an organisation must document and operationalise this specific legal requirement to ensure it is not placed on the market or put into service, making this the primary governance hook."
+    },
+    {
+      "obligation_id": "EUAIA-OBL-038",
+      "control_id": "MANAGE-1.3",
+      "confidence": 0.77,
+      "reasoning": "MANAGE-1.3 requires that 'responses to the AI risks deemed high priority are developed, planned, and documented' and explicitly lists 'avoiding' as a risk response option. The prohibition mandates avoidance of this class of AI system entirely; MANAGE-1.3's 'avoiding' response option is the operational mechanism by which an organisation documents and enforces the decision not to develop or deploy such a system."
+    },
+    {
+      "obligation_id": "EUAIA-OBL-039",
+      "control_id": "GOVERN-1.1",
+      "confidence": 0.8,
+      "reasoning": "The obligation is a direct legal prohibition under Article 5(1)(e) of the EU AI Act requiring that untargeted scraping components in facial recognition database systems be prohibited. GOVERN-1.1 requires that 'legal and regulatory requirements involving AI are understood, managed, and documented,' which is the primary operational hook for an organisation to identify, document, and enforce compliance with this specific statutory prohibition."
+    },
+    {
+      "obligation_id": "EUAIA-OBL-039",
+      "control_id": "MANAGE-1.3",
+      "confidence": 0.77,
+      "reasoning": "The obligation requires actively avoiding a prohibited AI capability (untargeted scraping), which maps to MANAGE-1.3's directive that 'responses to the AI risks deemed high priority are developed, planned, and documented' with 'risk response options' including 'avoiding.' Eliminating the untargeted scraping component is precisely an avoidance response to a high-priority prohibited risk."
+    },
+    {
+      "obligation_id": "EUAIA-OBL-040",
+      "control_id": "GOVERN-1.1",
+      "confidence": 0.82,
+      "reasoning": "The obligation requires entities holding existing facial recognition databases to comply with applicable Union data protection rules — a specific legal and regulatory requirement involving AI that must be 'understood, managed, and documented' per GOVERN-1.1. The evidence required (documentation of compliance with data protection rules for existing facial databases) maps directly to the 'documented' element of this subcategory."
+    },
+    {
+      "obligation_id": "EUAIA-OBL-040",
+      "control_id": "MEASURE-2.10",
+      "confidence": 0.78,
+      "reasoning": "The obligation centres on data protection compliance for facial recognition databases, which is a privacy risk. MEASURE-2.10 requires that 'privacy risk of the AI system — as identified in the MAP function — is examined and documented,' directly operationalising the duty to assess and evidence compliance with data protection rules applicable to the facial database."
+    },
+    {
+      "obligation_id": "EUAIA-OBL-041",
+      "control_id": "GOVERN-1.1",
+      "confidence": 0.88,
+      "reasoning": "The obligation establishes a specific legal prohibition on placing AI emotion-inference systems on the market in workplace and education contexts, with a narrow medical/safety exception. GOVERN-1.1 directly requires that 'legal and regulatory requirements involving AI are understood, managed, and documented' — operationalising this prohibition demands exactly that the organisation identify, document, and manage this hard legal constraint against deploying such systems."
+    },
+    {
+      "obligation_id": "EUAIA-OBL-041",
+      "control_id": "MAP-1.1",
+      "confidence": 0.82,
+      "reasoning": "MAP-1.1 requires that 'context-specific laws, norms and expectations, and prospective settings in which the AI system will be deployed are understood and documented,' including 'potential negative impacts of system uses to individuals.' The obligation demands that providers and deployers assess whether their emotion-inference AI is scoped to prohibited settings (workplace, education) versus permitted ones (medical/safety), which is precisely the context-specific legal scoping and deployment-setting analysis MAP-1.1 operationalises."
+    },
+    {
+      "obligation_id": "EUAIA-OBL-041",
+      "control_id": "MANAGE-1.3",
+      "confidence": 0.76,
+      "reasoning": "MANAGE-1.3 states that 'responses to the AI risks deemed high priority are developed, planned, and documented' and that 'risk response options can include mitigating, transferring, avoiding, or accepting.' Compliance with this prohibition requires the organisation to formally adopt a risk-avoidance response — ceasing or not initiating deployment of emotion-inference systems in prohibited contexts — which is directly the 'avoiding' risk response option named in MANAGE-1.3."
+    },
+    {
+      "obligation_id": "EUAIA-OBL-042",
+      "control_id": "GOVERN-1.1",
+      "confidence": 0.85,
+      "reasoning": "The obligation imposes a direct legal prohibition on placing emotion-inference AI systems in workplace/education contexts on the market or into service. GOVERN-1.1 requires that 'legal and regulatory requirements involving AI are understood, managed, and documented,' which is the primary governance mechanism by which an organisation would operationalise compliance with this prohibition — ensuring the ban is captured in policy, understood by relevant staff, and reflected in product and deployment decisions."
+    },
+    {
+      "obligation_id": "EUAIA-OBL-042",
+      "control_id": "MANAGE-1.1",
+      "confidence": 0.8,
+      "reasoning": "MANAGE-1.1 requires 'a determination to be made as to whether the AI system achieves its intended purposes and stated objectives and whether its development or deployment should proceed.' This directly operationalises the prohibition: providers and deployers must make a go/no-go determination on deployment, and where an emotion-inference system targets workplace or educational settings, the determination must result in non-deployment — making this the key decision-gate control for discharging the obligation."
+    },
+    {
+      "obligation_id": "EUAIA-OBL-042",
+      "control_id": "GOVERN-1.7",
+      "confidence": 0.76,
+      "reasoning": "GOVERN-1.7 requires 'processes and procedures are in place for decommissioning and phasing out of AI systems safely and in a manner that does not increase risks.' For deployers already operating emotion-inference AI in workplace or education contexts, compliance with the prohibition requires retiring those systems; this subcategory names the specific organisational mechanism — decommissioning and phase-out — needed to execute that duty."
+    },
+    {
+      "obligation_id": "EUAIA-OBL-043",
+      "control_id": "MAP-3.3",
+      "confidence": 0.85,
+      "reasoning": "MAP-3.3 requires that 'targeted application scope is specified and documented based on the system's capability, established context, and AI system categorization.' The obligation mandates that use of emotion recognition systems for medical and safety reasons be 'limited to what is strictly necessary and proportionate, including limits in time, personal application and scale' — directly operationalised by specifying and documenting a targeted, bounded application scope."
+    },
+    {
+      "obligation_id": "EUAIA-OBL-043",
+      "control_id": "MEASURE-1.3",
+      "confidence": 0.8,
+      "reasoning": "MEASURE-1.3 requires that 'internal experts who did not serve as front-line developers for the system and/or independent assessors are involved in regular assessments' and that 'domain experts … are consulted in support of assessments as necessary.' This directly operationalises the obligation's requirement for a 'prior written and motivated expert opinion relating to the specific use case' as a safeguard before deployment."
+    },
+    {
+      "obligation_id": "EUAIA-OBL-043",
+      "control_id": "GOVERN-1.4",
+      "confidence": 0.76,
+      "reasoning": "GOVERN-1.4 establishes that 'the risk management process and its outcomes are established through transparent policies, procedures, and other controls based on organizational risk priorities.' The obligation's requirement for documented necessity and proportionality assessments with accompanying safeguards maps directly onto the requirement to establish transparent controls governing when and how the AI system may be used."
+    },
+    {
+      "obligation_id": "EUAIA-OBL-044",
+      "control_id": "MAP-1.1",
+      "confidence": 0.85,
+      "reasoning": "MAP-1.1 requires that 'intended purposes, potentially beneficial uses, context-specific laws, norms and expectations, and prospective settings in which the AI system will be deployed are understood and documented,' which directly operationalises the obligation's requirement to document the explicit need for deploying emotion recognition systems and to restrict use to the stated medical or safety purpose. The subcategory's explicit reference to documenting intended purposes and context-specific laws aligns with the evidence requirements of documenting explicit need and restricting data use."
+    },
+    {
+      "obligation_id": "EUAIA-OBL-044",
+      "control_id": "MEASURE-2.10",
+      "confidence": 0.8,
+      "reasoning": "MEASURE-2.10 requires that 'privacy risk of the AI system — as identified in the MAP function — is examined and documented,' which directly addresses the obligation's prohibition on using collected data for any purpose other than the stated medical or safety reason. Examining and documenting privacy risk is the operational mechanism for ensuring data collected from emotion recognition systems is not repurposed beyond the declared scope."
+    },
+    {
+      "obligation_id": "EUAIA-OBL-044",
+      "control_id": "GOVERN-1.1",
+      "confidence": 0.76,
+      "reasoning": "GOVERN-1.1 requires that 'legal and regulatory requirements involving AI are understood, managed, and documented,' which corresponds to the deployer's duty to understand and comply with the Article 5(1)(f) restriction—deploying only for explicit medical or safety needs and maintaining documentation of that explicit need. No more specific GOVERN subcategory names data-purpose limitation or contextual deployment restrictions for emotion recognition."
+    },
+    {
+      "obligation_id": "EUAIA-OBL-045",
+      "control_id": "GOVERN-1.1",
+      "confidence": 0.88,
+      "reasoning": "The obligation requires providers and deployers of high-risk emotion recognition AI systems to comply with Chapter III Section 2 requirements and Article 50(3) transparency obligations — duties that must be 'understood, managed, and documented' as legal and regulatory requirements involving AI, which is exactly what GOVERN-1.1 operationalises. The subcategory text directly names 'legal and regulatory requirements involving AI' as the artefact to be understood, managed, and documented, matching the compliance documentation evidence requirement stated in the obligation."
+    },
+    {
+      "obligation_id": "EUAIA-OBL-045",
+      "control_id": "MEASURE-2.8",
+      "confidence": 0.82,
+      "reasoning": "Article 50(3) imposes a transparency obligation for high-risk emotion recognition systems; MEASURE-2.8 requires that 'risks associated with transparency and accountability — as identified in the MAP function — are examined and documented.' The subcategory text directly names transparency as the risk dimension to be evaluated and documented, operationalising the transparency disclosure duty in the obligation's evidence requirement."
+    },
+    {
+      "obligation_id": "EUAIA-OBL-045",
+      "control_id": "MANAGE-1.3",
+      "confidence": 0.77,
+      "reasoning": "The obligation mandates compliance with the full suite of high-risk requirements in Chapter III Section 2, which include risk management, data governance, and corrective actions — duties that require developing, planning, and documenting responses to high-priority AI risks. MANAGE-1.3 specifies that 'responses to the AI risks deemed high priority — as identified by the MAP function — are developed, planned, and documented,' directly supporting the risk-response and compliance documentation obligations imposed on providers of high-risk systems."
+    },
+    {
+      "obligation_id": "EUAIA-OBL-046",
+      "control_id": "MANAGE-1.3",
+      "confidence": 0.85,
+      "reasoning": "The obligation requires deployers to develop documented safeguards to avoid incidental employee emotion screening — a high-priority risk requiring an explicit response plan. MANAGE-1.3 directly operationalises this by requiring that 'responses to the AI risks deemed high priority are developed, planned, and documented,' with response options including mitigating or avoiding the risk, which maps precisely to the duty to employ safeguards preventing adverse employee impact."
+    },
+    {
+      "obligation_id": "EUAIA-OBL-046",
+      "control_id": "MEASURE-2.10",
+      "confidence": 0.8,
+      "reasoning": "The obligation concerns incidental inference of employee emotions — a direct privacy risk arising from AI system operation. MEASURE-2.10 requires that 'privacy risk of the AI system — as identified in the MAP function — is examined and documented,' which provides the operational measurement basis for identifying and recording whether the system is screening employees' emotional states."
+    },
+    {
+      "obligation_id": "EUAIA-OBL-046",
+      "control_id": "MANAGE-4.1",
+      "confidence": 0.78,
+      "reasoning": "The obligation requires deployers to remain responsible for ensuring employees are not adversely affected during ongoing use, which requires post-deployment monitoring and incident response mechanisms. MANAGE-4.1 specifies that 'post-deployment AI system monitoring plans are implemented, including mechanisms for capturing and evaluating input from users and other relevant AI actors, appeal and override, decommissioning, [and] incident response,' directly supporting the ongoing accountability duty."
+    },
+    {
+      "obligation_id": "EUAIA-OBL-047",
+      "control_id": "GOVERN-1.1",
+      "confidence": 0.85,
+      "reasoning": "The obligation imposes a direct legal prohibition on placing biometric categorisation systems on the market for inferring sensitive attributes (race, political opinions, sexual orientation, etc.). GOVERN-1.1 explicitly requires that 'legal and regulatory requirements involving AI are understood, managed, and documented,' making it the primary governance control through which an organisation would operationalise compliance with this prohibition — by identifying, recording, and enforcing the applicable EU AI Act restriction."
+    },
+    {
+      "obligation_id": "EUAIA-OBL-047",
+      "control_id": "MANAGE-1.1",
+      "confidence": 0.8,
+      "reasoning": "MANAGE-1.1 requires 'a determination as to whether the AI system achieves its intended purposes and stated objectives and whether its development or deployment should proceed.' For a biometric categorisation system whose intended purpose falls within a prohibited category, this control is the direct operational mechanism for halting development or deployment — i.e., deciding that deployment must not proceed."
+    },
+    {
+      "obligation_id": "EUAIA-OBL-047",
+      "control_id": "MANAGE-2.4",
+      "confidence": 0.75,
+      "reasoning": "MANAGE-2.4 requires that 'mechanisms are in place and applied, and responsibilities are assigned and understood, to supersede, disengage, or deactivate AI systems that demonstrate performance or outcomes inconsistent with intended use.' Where a deployed system is found to perform prohibited biometric categorisation (e.g., inferring race or sexual orientation), this control provides the operational basis for disengaging or deactivating it to ensure compliance with the prohibition."
+    },
+    {
+      "obligation_id": "EUAIA-OBL-048",
+      "control_id": "GOVERN-1.1",
+      "confidence": 0.85,
+      "reasoning": "GOVERN-1.1 requires that 'legal and regulatory requirements involving AI are understood, managed, and documented.' This obligation is a direct legal prohibition under EU AI Act Article 5(1)(g) that both providers and deployers must understand and comply with — i.e., not place on the market, put into service, or use prohibited biometric categorisation systems — making GOVERN-1.1 the primary operational control for documenting and managing this hard regulatory constraint."
+    },
+    {
+      "obligation_id": "EUAIA-OBL-048",
+      "control_id": "MANAGE-1.3",
+      "confidence": 0.78,
+      "reasoning": "MANAGE-1.3 requires that 'responses to the AI risks deemed high priority are developed, planned, and documented' and explicitly lists 'avoiding' as a risk response option. The prohibition requires providers and deployers to avoid placing on the market or using prohibited biometric categorisation systems, which maps directly to the 'avoiding' risk response action called out in this subcategory."
+    },
+    {
+      "obligation_id": "EUAIA-OBL-049",
+      "control_id": "GOVERN-1.1",
+      "confidence": 0.85,
+      "reasoning": "The obligation requires deployers to understand, manage, and document that their use of real-time remote biometric identification systems falls within exhaustively listed legal objectives and that authorising national legislation exists and complies with Articles 5(2)-(7). GOVERN-1.1 directly addresses that 'legal and regulatory requirements involving AI are understood, managed, and documented,' which is precisely the operational duty imposed: establishing that the specific legal conditions permitting use are documented and actively managed."
+    },
+    {
+      "obligation_id": "EUAIA-OBL-049",
+      "control_id": "MAP-1.1",
+      "confidence": 0.8,
+      "reasoning": "MAP-1.1 requires that 'context-specific laws, norms and expectations, and prospective settings in which the AI system will be deployed are understood and documented,' including 'potential positive and negative impacts of system uses to individuals, communities.' The obligation demands documentation that each deployment falls within one of three strictly defined legal objectives in publicly accessible spaces — directly requiring the context-specific legal and deployment-setting analysis MAP-1.1 operationalises."
+    },
+    {
+      "obligation_id": "EUAIA-OBL-049",
+      "control_id": "MANAGE-1.1",
+      "confidence": 0.75,
+      "reasoning": "MANAGE-1.1 requires 'a determination as to whether the AI system achieves its intended purposes and stated objectives and whether its development or deployment should proceed.' The prohibition with narrow exceptions requires deployers to make an affirmative, documented determination that each deployment serves one of the three listed objectives before proceeding — the deployment-proceed decision MANAGE-1.1 directly governs."
+    },
+    {
+      "obligation_id": "EUAIA-OBL-051",
+      "control_id": "MAP-3.3",
+      "confidence": 0.85,
+      "reasoning": "The obligation requires 'defining a perimeter of deployment and duration of use' for real-time RBI systems, which directly corresponds to MAP-3.3's requirement that 'targeted application scope is specified and documented based on the system's capability, established context, and AI system categorization.' The specification of geographic perimeter and temporal duration are precisely the kind of targeted application scope constraints this subcategory mandates."
+    },
+    {
+      "obligation_id": "EUAIA-OBL-051",
+      "control_id": "MANAGE-1.1",
+      "confidence": 0.8,
+      "reasoning": "The obligation's requirement for a 'strict necessity assessment' — determining whether deployment should proceed at all — maps directly to MANAGE-1.1's determination of 'whether the AI system achieves its intended purposes and stated objectives and whether its development or deployment should proceed.' Both require a gatekeeping decision on deployment authorization before the system is activated."
+    },
+    {
+      "obligation_id": "EUAIA-OBL-051",
+      "control_id": "GOVERN-1.1",
+      "confidence": 0.78,
+      "reasoning": "The obligation imposes specific legal conditions under Article 5(2)-(7) AI Act and requires documentation of compliance with those conditions. GOVERN-1.1 requires that 'legal and regulatory requirements involving AI are understood, managed, and documented,' directly covering the documentation of strict necessity assessment and safeguards required by this provision."
+    },
+    {
+      "obligation_id": "EUAIA-OBL-052",
+      "control_id": "MAP-5.1",
+      "confidence": 0.85,
+      "reasoning": "The obligation requires assessing 'the nature of the situation (seriousness, probability and scale of harm)' and 'consequences of the use for the rights and freedoms of all persons concerned' before each RBI deployment. MAP-5.1 directly operationalises this by requiring that 'likelihood and magnitude of each identified impact (both potentially beneficial and harmful)' are 'identified and documented', which maps precisely to the seriousness/probability/scale-of-harm and rights-consequences assessment the obligation mandates."
+    },
+    {
+      "obligation_id": "EUAIA-OBL-052",
+      "control_id": "MAP-3.3",
+      "confidence": 0.8,
+      "reasoning": "The obligation restricts deployment to 'confirm the identity of a specifically targeted individual', imposing a strict scoping constraint on the system's operational use. MAP-3.3 requires that 'targeted application scope is specified and documented based on the system's capability, established context, and AI system categorization', directly operationalising the duty to document and enforce the narrow targeting constraint as a condition of lawful deployment."
+    },
+    {
+      "obligation_id": "EUAIA-OBL-052",
+      "control_id": "MANAGE-4.1",
+      "confidence": 0.77,
+      "reasoning": "The evidence requirements — records demonstrating that each deployment was limited to a specifically targeted individual and that harm/rights assessments were conducted — require post-deployment monitoring and documentation mechanisms. MANAGE-4.1 specifies that 'post-deployment AI system monitoring plans are implemented, including mechanisms for capturing and evaluating input from users and other relevant AI actors, appeal and override, decommissioning, incident response, recovery, and change management', providing the operational framework under which per-deployment records and oversight can be maintained."
+    },
+    {
+      "obligation_id": "EUAIA-OBL-053",
+      "control_id": "GOVERN-1.1",
+      "confidence": 0.85,
+      "reasoning": "The obligation requires compliance with national law authorising the use of real-time RBI systems and documentation of compliance with those legal requirements. GOVERN-1.1 directly addresses that 'legal and regulatory requirements involving AI are understood, managed, and documented,' which operationalises the duty to document adherence to the national legal authorisation and its associated conditions."
+    },
+    {
+      "obligation_id": "EUAIA-OBL-053",
+      "control_id": "MAP-3.3",
+      "confidence": 0.82,
+      "reasoning": "The obligation mandates that temporal, geographic, and personal limitations be specified and documented for each deployment. MAP-3.3 requires that 'targeted application scope is specified and documented based on the system's capability, established context, and AI system categorization,' directly operationalising the duty to define and record the bounded scope of each real-time RBI deployment."
+    },
+    {
+      "obligation_id": "EUAIA-OBL-053",
+      "control_id": "MANAGE-4.1",
+      "confidence": 0.76,
+      "reasoning": "The evidence requirement calls for records of defined limitations applied to each deployment and ongoing compliance monitoring. MANAGE-4.1 requires that 'post-deployment AI system monitoring plans are implemented, including mechanisms for capturing and evaluating input from users and other relevant AI actors, appeal and override, decommissioning, incident response, recovery, and change management,' providing the post-deployment monitoring and recordkeeping framework needed to demonstrate continued adherence to the authorised scope and conditions."
+    },
+    {
+      "obligation_id": "EUAIA-OBL-055",
+      "control_id": "MAP-1.1",
+      "confidence": 0.9,
+      "reasoning": "MAP-1.1 directly requires that 'intended purposes, potentially beneficial uses, context-specific laws, norms and expectations, and prospective settings in which the AI system will be deployed are understood and documented,' including 'potential positive and negative impacts of system uses to individuals, communities, organizations, society.' The FRIA obligation maps precisely onto this: it mandates documenting the RBI use, intended purpose, categories of affected persons, and specific risks of harm — all of which are core components of MAP-1.1's documentation requirement."
+    },
+    {
+      "obligation_id": "EUAIA-OBL-055",
+      "control_id": "MAP-3.5",
+      "confidence": 0.85,
+      "reasoning": "MAP-3.5 requires that 'processes for human oversight are defined, assessed, and documented in accordance with organizational policies.' The FRIA obligation explicitly mandates that human oversight measures be described as a required element of the assessment, making MAP-3.5 the direct operational hook for that specific FRIA component."
+    },
+    {
+      "obligation_id": "EUAIA-OBL-055",
+      "control_id": "MAP-5.1",
+      "confidence": 0.85,
+      "reasoning": "MAP-5.1 requires that 'likelihood and magnitude of each identified impact (both potentially beneficial and harmful) based on expected use … are identified and documented.' The FRIA obligation specifically requires assessing 'specific risks of harm to affected persons including severity and scale,' which is a direct match to MAP-5.1's requirement to document likelihood and magnitude of harmful impacts."
+    },
+    {
+      "obligation_id": "EUAIA-OBL-056",
+      "control_id": "MAP-5.1",
+      "confidence": 0.82,
+      "reasoning": "The FRIA (Fundamental Rights Impact Assessment) requires identifying and documenting the likelihood and magnitude of impacts — both harmful and beneficial — on individuals and communities before deployment. MAP-5.1 directly operationalises this by requiring that 'likelihood and magnitude of each identified impact (both potentially beneficial and harmful) based on expected use... are identified and documented,' which is the core analytical content of a FRIA."
+    },
+    {
+      "obligation_id": "EUAIA-OBL-056",
+      "control_id": "GOVERN-2.1",
+      "confidence": 0.78,
+      "reasoning": "The obligation explicitly assigns the FRIA duty to the deployer and requires that 'other actors acting on behalf of the deployer' contribute with all relevant information. GOVERN-2.1 requires that 'roles and responsibilities and lines of communication related to mapping, measuring, and managing AI risks are documented and are clear to individuals and teams throughout the organization,' directly supporting the attribution and contribution structure the obligation mandates."
+    },
+    {
+      "obligation_id": "EUAIA-OBL-057",
+      "control_id": "GOVERN-1.6",
+      "confidence": 0.8,
+      "reasoning": "GOVERN-1.6 requires that 'mechanisms are in place to inventory AI systems and are resourced according to organizational risk priorities.' The obligation mandates registration of a real-time RBI system in the EU database before (or without undue delay after) deployment, which is precisely an inventory/registration mechanism for a deployed AI system. The EU database registration directly operationalises the duty to maintain an inventory of AI systems in deployment."
+    },
+    {
+      "obligation_id": "EUAIA-OBL-059",
+      "control_id": "MANAGE-2.4",
+      "confidence": 0.82,
+      "reasoning": "MANAGE-2.4 requires mechanisms to be in place and applied to 'supersede, disengage, or deactivate AI systems that demonstrate performance or outcomes inconsistent with intended use,' with responsibilities assigned and understood. The obligation mandates immediate cessation of a real-time RBI system upon rejection of authorisation, which is precisely a deactivation/disengagement action triggered by an external determination that continued use is impermissible — directly operationalised by the deactivation mechanisms this subcategory requires."
+    },
+    {
+      "obligation_id": "EUAIA-OBL-059",
+      "control_id": "GOVERN-1.7",
+      "confidence": 0.78,
+      "reasoning": "GOVERN-1.7 requires that 'processes and procedures are in place for decommissioning and phasing out of AI systems safely and in a manner that does not increase risks.' The obligation requires immediate stoppage and deletion of all data and outputs upon rejection of authorisation, which is a forced decommissioning scenario; having documented procedures for safe phase-out — including data deletion — directly operationalises this duty."
+    },
+    {
+      "obligation_id": "EUAIA-OBL-062",
+      "control_id": "MANAGE-2.4",
+      "confidence": 0.85,
+      "reasoning": "MANAGE-2.4 requires that 'mechanisms are in place and applied, and responsibilities are assigned and understood, to supersede, disengage, or deactivate AI systems that demonstrate performance or outcomes inconsistent with intended use.' The obligation mandates immediate cessation ('stopped with immediate effect') of the real-time RBI system upon rejection of the urgency authorisation — precisely the deactivation/disengagement duty this subcategory operationalises."
+    },
+    {
+      "obligation_id": "EUAIA-OBL-062",
+      "control_id": "GOVERN-1.7",
+      "confidence": 0.8,
+      "reasoning": "GOVERN-1.7 states that 'processes and procedures are in place for decommissioning and phasing out of AI systems safely and in a manner that does not increase risks or decrease the organization's trustworthiness.' The obligation requires documented procedures for immediate shutdown and deletion of all data and outputs upon authorisation rejection, which is a specific instance of safe decommissioning processes this subcategory directly addresses."
+    },
+    {
+      "obligation_id": "EUAIA-OBL-062",
+      "control_id": "MANAGE-4.1",
+      "confidence": 0.75,
+      "reasoning": "MANAGE-4.1 covers 'post-deployment AI system monitoring plans … including … decommissioning, incident response, recovery' — the obligation requires that upon rejection of an urgency authorisation, use is stopped and all data discarded immediately, which falls within the decommissioning and incident-response components this subcategory names as required plan elements."
+    },
+    {
+      "obligation_id": "EUAIA-OBL-063",
+      "control_id": "MAP-3.5",
+      "confidence": 0.85,
+      "reasoning": "MAP-3.5 requires that 'processes for human oversight are defined, assessed, and documented in accordance with organizational policies.' The obligation mandates that no adverse legal decision may rest solely on system output, which is precisely a human oversight requirement — human review and verification must supplement the biometric identification system's output before any consequential decision is taken."
+    },
+    {
+      "obligation_id": "EUAIA-OBL-063",
+      "control_id": "GOVERN-3.2",
+      "confidence": 0.8,
+      "reasoning": "GOVERN-3.2 requires 'policies and procedures are in place to define and differentiate roles and responsibilities for human-AI configurations and oversight of AI systems.' The obligation directly demands a human-AI configuration in which human decision-makers must contribute additional evidence beyond the AI output, necessitating defined roles and procedures to operationalise that split of authority."
+    },
+    {
+      "obligation_id": "EUAIA-OBL-063",
+      "control_id": "MAP-2.2",
+      "confidence": 0.77,
+      "reasoning": "MAP-2.2 requires that 'information about the AI system's knowledge limits and how system output may be utilized and overseen by humans is documented' and that 'documentation provides sufficient information to assist relevant AI actors when making decisions.' The obligation's prohibition on sole reliance on system output demands that deployers document the system's output limits and the required human corroboration process when making adverse legal decisions."
+    },
+    {
+      "obligation_id": "EUAIA-OBL-064",
+      "control_id": "GOVERN-3.2",
+      "confidence": 0.88,
+      "reasoning": "The obligation mandates that no action be taken on AI-generated identifications unless verified by at least two qualified natural persons with defined competence, training, and authority — a direct human oversight configuration requirement. GOVERN-3.2 specifies that 'policies and procedures are in place to define and differentiate roles and responsibilities for human-AI configurations and oversight of AI systems,' which directly operationalises the duty to establish structured human-in-the-loop verification roles with specific authority over AI outputs."
+    },
+    {
+      "obligation_id": "EUAIA-OBL-064",
+      "control_id": "GOVERN-2.2",
+      "confidence": 0.82,
+      "reasoning": "The obligation explicitly requires that the two verifying persons possess 'necessary competence, training and authority.' GOVERN-2.2 states that 'the organization's personnel and partners receive AI risk management training to enable them to perform their duties and responsibilities consistent with related policies, procedures, and agreements,' directly addressing the training and competence requirements for the human verifiers mandated by this obligation."
+    },
+    {
+      "obligation_id": "EUAIA-OBL-064",
+      "control_id": "MAP-3.5",
+      "confidence": 0.78,
+      "reasoning": "The obligation requires a defined process for human oversight of real-time RBI system outputs before any action is taken. MAP-3.5 states that 'processes for human oversight are defined, assessed, and documented in accordance with organizational policies from the GOVERN function,' which directly covers the requirement to establish and document the two-person verification process as an operational human oversight control."
+    },
+    {
+      "obligation_id": "EUAIA-OBL-065",
+      "control_id": "GOVERN-2.2",
+      "confidence": 0.92,
+      "reasoning": "GOVERN-2.2 states that 'the organization's personnel and partners receive AI risk management training to enable them to perform their duties and responsibilities consistent with related policies, procedures, and agreements.' This directly operationalises the EU AI Act Article 4 duty to ensure a 'sufficient level of AI literacy' for 'staff and other persons dealing with the operation and use of AI systems,' with both controls targeting the same population (personnel involved in AI operation) and the same mechanism (structured training/literacy programmes)."
+    },
+    {
+      "obligation_id": "EUAIA-OBL-065",
+      "control_id": "MAP-3.4",
+      "confidence": 0.8,
+      "reasoning": "MAP-3.4 requires that 'processes for operator and practitioner proficiency with AI system performance and trustworthiness — and relevant technical standards and certifications — are defined, assessed, and documented.' This directly addresses the need to assess and document the competency level of those operating AI systems, which is the operational mechanism for demonstrating the 'sufficient level of AI literacy' mandated by Article 4."
+    },
+    {
+      "obligation_id": "EUAIA-OBL-070",
+      "control_id": "GOVERN-1.1",
+      "confidence": 0.85,
+      "reasoning": "The obligation requires deployers to understand, manage, and document compliance with the additional legal conditions and safeguards prescribed in Article 26(10) for retrospective remote biometric identification systems used in law enforcement. GOVERN-1.1 directly addresses that 'legal and regulatory requirements involving AI are understood, managed, and documented,' which is precisely the operational duty imposed by this obligation."
+    },
+    {
+      "obligation_id": "EUAIA-OBL-070",
+      "control_id": "MANAGE-4.1",
+      "confidence": 0.78,
+      "reasoning": "The obligation mandates documented evidence of compliance with specific operational conditions and safeguards governing retrospective use of RBI systems in law enforcement deployments. MANAGE-4.1 requires post-deployment monitoring plans including 'appeal and override, decommissioning, incident response, recovery, and change management,' which operationalises the ongoing safeguard and oversight conditions that Article 26(10) imposes on deployers of such high-risk systems."
+    },
+    {
+      "obligation_id": "EUAIA-OBL-071",
+      "control_id": "GOVERN-1.1",
+      "confidence": 0.85,
+      "reasoning": "GOVERN-1.1 requires that 'legal and regulatory requirements involving AI are understood, managed, and documented.' This obligation mandates compliance with the Article 5 prohibition deadline of 2 February 2025 for all in-scope AI systems, making the understanding and management of this specific legal requirement the direct operational duty. GOVERN-1.1 is the precise subcategory that operationalises tracking and documenting such a binding regulatory cutoff date."
+    },
+    {
+      "obligation_id": "EUAIA-OBL-071",
+      "control_id": "GOVERN-1.6",
+      "confidence": 0.8,
+      "reasoning": "GOVERN-1.6 requires that 'mechanisms are in place to inventory AI systems and are resourced according to organizational risk priorities.' Complying with the Article 5 prohibition requires organisations to identify and inventory all AI systems — including legacy systems placed on the market before 2 February 2025 — to determine which fall within the prohibited practices, directly operationalising this obligation."
+    },
+    {
+      "obligation_id": "EUAIA-OBL-071",
+      "control_id": "GOVERN-1.7",
+      "confidence": 0.78,
+      "reasoning": "GOVERN-1.7 states that 'processes and procedures are in place for decommissioning and phasing out of AI systems safely and in a manner that does not increase risks or decrease the organization's trustworthiness.' Because the obligation requires prohibited AI systems to cease operation by 2 February 2025 regardless of when they were deployed, organisations must use decommissioning and phase-out procedures to discharge this requirement for any non-compliant legacy systems."
+    },
+    {
+      "obligation_id": "EUAIA-OBL-072",
+      "control_id": "GOVERN-1.1",
+      "confidence": 0.88,
+      "reasoning": "GOVERN-1.1 requires that 'legal and regulatory requirements involving AI are understood, managed, and documented.' The obligation directly mandates that providers and deployers understand and comply with Article 5 AI Act prohibitions, including producing documentation demonstrating that no prohibited practices are deployed — which is precisely the operational duty GOVERN-1.1 addresses."
+    },
+    {
+      "obligation_id": "EUAIA-OBL-072",
+      "control_id": "MANAGE-1.1",
+      "confidence": 0.82,
+      "reasoning": "MANAGE-1.1 requires 'a determination is made as to whether the AI system achieves its intended purposes and stated objectives and whether its development or deployment should proceed.' The obligation requires providers and deployers to take necessary measures to ensure AI systems do not constitute prohibited practices before placing them on the market or putting them into service — a deployment-gate decision that MANAGE-1.1 directly operationalises."
+    },
+    {
+      "obligation_id": "EUAIA-OBL-072",
+      "control_id": "MANAGE-1.3",
+      "confidence": 0.77,
+      "reasoning": "MANAGE-1.3 requires that 'responses to the AI risks deemed high priority are developed, planned, and documented' with risk response options including 'avoiding.' Prohibited practices under Article 5 represent the highest-priority risk category, and the obligation to ensure such systems are not placed on the market maps directly to the 'avoiding' risk response that MANAGE-1.3 requires to be planned and documented."
+    }
+  ]
+}
