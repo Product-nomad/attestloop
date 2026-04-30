@@ -12,7 +12,7 @@ from rich.console import Console
 from attestloop.agents.classifier import classify
 from attestloop.agents.extractor import extract
 from attestloop.agents.mapper import map_to_controls
-from attestloop.fetch import fetch_publication
+from attestloop.fetch import EmptyPublicationError, fetch_publication
 from attestloop.registry import Framework, Regulation, get_framework, get_regulation
 from attestloop.schemas import (
     ClassifierInput,
@@ -261,8 +261,18 @@ def main(argv: list[str] | None = None) -> int:
 
     _console.print(f"[bold]Run {run_id}[/bold] -> {run_dir}")
 
-    with _console.status("Fetching..."):
-        publication = fetch_publication(args.url)
+    try:
+        with _console.status("Fetching..."):
+            publication = fetch_publication(args.url)
+    except EmptyPublicationError as e:
+        print(
+            "error: Fetched page returned no usable content. The page may be "
+            "JavaScript-rendered or behind a redirect. Try the document's "
+            "canonical PDF URL or the publishing body's hosted version.\n\n"
+            f"{e}",
+            file=sys.stderr,
+        )
+        return 3
     (run_dir / "publication.json").write_text(publication.model_dump_json(indent=2))
 
     with _console.status("Classifying..."):
