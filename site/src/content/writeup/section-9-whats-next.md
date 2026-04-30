@@ -1,5 +1,4 @@
 ---
-section: 9
 title: What's next
 status: draft
 updated: 2026-04-30
