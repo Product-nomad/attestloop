@@ -19,6 +19,7 @@ served via redirect; detected by magic-byte sniff and parsed via
 | **v2** chunked extractor (12 chunks), mapper unconstrained | (not snapshotted; data from `runs/20260430-094628/` on disk) | 68 | 203 | 0 | 0.788 | 0.550 | 52/203 = 25.6 % | $2.61 | 21 min 22 s |
 | **v3** chunked extractor + Mapper confidence floor 0.75, no slot-filling | [`v3_confidence_floor/`](v3_confidence_floor/) | 72 | 164 | 12 | 0.817 | 0.750 | 34/164 = 20.7 % | $2.78 | 41 min 35 s |
 | **v4** + Anthropic prompt caching on Mapper controls list | [`v4_prompt_caching/`](v4_prompt_caching/) | 69 | 124 | 24 | 0.812 | 0.760 | 19/124 = 15.3 % | **$1.19** | **14 min 51 s** |
+| **v5** + fuzzy dedup, title fallback, null rendering, mapper nudge — **canonical writeup run** | [`v5_clean/`](v5_clean/) | 71 (from 83 raw) | 154 | 13 | 0.815 | 0.750 | 49/154 = 31.8 % | $1.30 | 17 min 17 s |
 
 ## What changed between v2 and v3
 
@@ -124,6 +125,92 @@ strict. The unmapped IDs in v4 cover the same procedural authorisation
 duties as v3 plus several more from the latter half of the document.
 GOVERN-1.1 share continued to fall (20.7 % → 15.3 %), suggesting the
 cache reset between calls didn't reintroduce the slot-filling behaviour.
+
+## What changed between v4 and v5 — and why this is the canonical writeup run
+
+Four narrowly-scoped fixes, each addressing a specific defect surfaced
+in v4. The cumulative effect is the cleanest report the pipeline has
+produced.
+
+### 1. Fuzzy deduplication (extractor)
+
+Replaced the v2-era case-insensitive substring dedup (which fired
+**zero times** on the v3 and v4 runs) with `rapidfuzz.fuzz.token_set_ratio`
+at a similarity floor of **80**. Threshold chosen at 80 rather than 85
+because the duplicate pairs in v4 — same Article 5(1)(c) prohibition
+extracted from chunks 1 and 11 with different paragraph references —
+score in the 80-85 band. When a duplicate is found, the obligation
+with the **longer `source_paragraph`** wins (better citation
+specificity); ties go to the earlier-extracted obligation. Optional
+fields (`deadline`, `evidence_required`) are merged from the dropped
+entry into the kept one if the kept one has them empty.
+
+Effect on v5: **83 raw obligations → 71 after dedup (12 merged)**,
+across 12 logged merges with similarity scores ranging 81–98.
+
+### 2. Title fallback (fetcher)
+
+When PDF `/Title` metadata is empty or numeric-only (the
+`ec.europa.eu/newsroom/...` redirect served the file with no title and
+a numeric filename `112367`), the fetcher now scans the first 1 000
+chars of cleaned body text for the first line that is 30–200 chars
+long, not all-uppercase, and contains at least one space — exactly
+the shape of a substantive document title in a Commission PDF.
+URL-filename fallback is preserved as a last resort.
+
+Effect on v5: **title resolved to "Commission Guidelines on prohibited
+artificial intelligence practices established by"** (truncated by
+the 200-char window from the full "...by Regulation (EU) 2024/1689
+(AI Act)" but a vast improvement over `'112367'`).
+
+### 3. Null-literal rendering (report generator)
+
+A minority of LLM-emitted obligations had the literal string `"null"`
+(or `"None"`) where an optional field should have been empty.
+`_md_nullable_cell` now treats `None`, `"null"`, and `"None"`
+(case-insensitive) and empty/whitespace strings uniformly as missing
+data, rendering them as em-dash. Applied to every cell in the
+obligations, mappings, and unmapped tables.
+
+Effect on v5: **zero literal `null` / `None` / `NULL` cells** in the
+rendered report.
+
+### 4. Mapper prompt nudge (NIST AI RMF mapper)
+
+Added a single bullet to the "Empty mappings are correct outcomes"
+section instructing the model that **substantive provider/deployer
+obligations whose substance is legal compliance** (e.g. the
+open-source carve-out for AI systems that constitute prohibited
+practices) almost always have a defensible `GOVERN-1.1` mapping at
+≥ 0.75, and to reconsider before returning `[]` for those. The empty
+list remains correct for procedural duties on public authorities
+(judicial pre-authorisation etc.) — the nudge is targeted.
+
+Effect on v5: the open-source-exclusion obligation
+(`EUAIA-OBL-014` here) now maps to `GOVERN-1.1 @ 0.88` and
+`MANAGE-1.1 @ 0.80` instead of being dropped. **GOVERN-1.1 share
+rose from 15.3 % (v4) → 31.8 % (v5)** — a deliberate restoration of
+the legitimate compliance mappings the v3 confidence floor had been
+filtering away too aggressively for this class of duty.
+
+### Headline numbers
+
+| Metric | v4 | v5 |
+|---|---:|---:|
+| Pre-dedup obligations | n/a (substring dedup never fired) | 83 |
+| Post-dedup obligations | 69 | 71 |
+| Merge log entries | 0 | 12 |
+| Mappings (kept) | 124 | 154 |
+| Unmapped obligations | 24 | 13 |
+| Title | `112367` | `Commission Guidelines on prohibited artificial intelligence practices established by` |
+| Literal `null` cells in report | several | **0** |
+| GOVERN-1.1 share | 15.3 % | 31.8 % |
+| Mean confidence | 0.812 | 0.815 |
+| Total cost | $1.19 | $1.30 |
+| Wall-clock | 14 min 51 s | 17 min 17 s |
+
+**v5 is the canonical writeup run.** Subsequent versions should be
+benchmarked against it, not against earlier snapshots.
 
 ## Side note: the run that didn't happen
 
