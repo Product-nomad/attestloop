@@ -70,8 +70,15 @@ def map_to_controls(
             output_schema=MapperOutput,
             run_dir=run_dir,
             prompt_version=prompt_version,
+            metadata_factory=(
+                lambda r, oid=obligation.id: {
+                    "obligation_id": oid,
+                    "returned_mapping_count": len(r.mappings),
+                }
+            ),
         )
 
+        kept_for_obligation: list[ControlMapping] = []
         for mapping in result.mappings:
             if mapping.control_id not in valid_ids:
                 _console.print(
@@ -85,6 +92,13 @@ def map_to_controls(
                 # obligation_id; rebind to the obligation we actually asked
                 # about so downstream tables are coherent.
                 mapping = mapping.model_copy(update={"obligation_id": obligation.id})
-            aggregated.append(mapping)
+            kept_for_obligation.append(mapping)
+
+        if not kept_for_obligation:
+            _console.print(
+                f"[yellow]mapper: no high-confidence mapping for obligation "
+                f"'{obligation.id}'; recorded as unmapped in the report.[/yellow]"
+            )
+        aggregated.extend(kept_for_obligation)
 
     return MapperOutput(mappings=aggregated)

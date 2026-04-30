@@ -117,6 +117,26 @@ def _mappings_table(mappings, controls_by_id: dict) -> str:
     return header + "\n".join(rows) + "\n"
 
 
+def _unmapped_table(unmapped: list[Obligation]) -> str:
+    if not unmapped:
+        return "_All obligations received at least one high-confidence mapping._\n"
+    header = (
+        "| ID | Source | Requirement | Scope |\n"
+        "|---|---|---|---|\n"
+    )
+    rows = []
+    for o in unmapped:
+        rows.append(
+            "| {id} | {src} | {req} | {scope} |".format(
+                id=_md_escape_cell(o.id),
+                src=_md_escape_cell(o.source_paragraph),
+                req=_md_escape_cell(o.requirement_text),
+                scope=_md_escape_cell(o.scope),
+            )
+        )
+    return header + "\n".join(rows) + "\n"
+
+
 def _build_in_scope_report(
     *,
     publication: Publication,
@@ -156,6 +176,7 @@ def _build_in_scope_report(
     ]
 
     controls_by_id = {c.id: c for c in framework.controls}
+    unmapped_obligations = [o for o in obligations if o.id not in mapped_obligation_ids]
 
     parts = [
         f"# Attestation report — {regulation.name}\n",
@@ -167,6 +188,17 @@ def _build_in_scope_report(
         _obligations_table(obligations),
         "\n## Control mappings\n",
         _mappings_table(mapper_output.mappings, controls_by_id),
+        f"\n## Obligations with no high-confidence framework mapping ({n_unmapped})\n",
+        (
+            "These obligations were extracted from the source but no "
+            f"{framework.name} subcategory cleared the mapper's 0.75 "
+            "confidence floor. This is a deliberate audit-trail outcome — "
+            "weak mappings are dropped rather than surfaced. Common causes "
+            "are procedural duties on public authorities (registration, "
+            "judicial pre-authorisation, notification) which the framework "
+            "does not directly cover.\n\n"
+        ),
+        _unmapped_table(unmapped_obligations),
         "\n## Provenance\n",
         f"- Regulation: {regulation.name} (`{regulation.id}`, {regulation.jurisdiction})\n",
         f"- Framework: {framework.name} (`{framework.id}`, {len(framework.controls)} controls)\n",
