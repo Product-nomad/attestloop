@@ -1,5 +1,4 @@
 ---
-section: 4
 title: Orchestration
 status: draft
 updated: 2026-04-30
