@@ -112,3 +112,5 @@ class LLMCallLog(BaseModel):
     prompt: str
     response: str
     metadata: dict[str, int | float | str] | None = None
+    cache_creation_input_tokens: int | None = None
+    cache_read_input_tokens: int | None = None

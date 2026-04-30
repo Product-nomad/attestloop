@@ -10,9 +10,21 @@ from pydantic import BaseModel
 from attestloop.schemas import LLMCallLog
 
 # USD per million tokens. Public list prices for the named model identifiers.
+# `cache_write` is the price for tokens stored as a 5-minute ephemeral cache
+# (1.25× input). `cache_read` is the price for cache hits (0.10× input).
 MODEL_PRICING: dict[str, dict[str, float]] = {
-    "claude-haiku-4-5-20251001": {"input": 1.00, "output": 5.00},
-    "claude-sonnet-4-6": {"input": 3.00, "output": 15.00},
+    "claude-haiku-4-5-20251001": {
+        "input": 1.00,
+        "output": 5.00,
+        "cache_write": 1.25,
+        "cache_read": 0.10,
+    },
+    "claude-sonnet-4-6": {
+        "input": 3.00,
+        "output": 15.00,
+        "cache_write": 3.75,
+        "cache_read": 0.30,
+    },
 }
 
 # Assumption: 60 s timeout is per HTTP call to Anthropic. Non-rate-limit
@@ -30,7 +42,13 @@ _RATE_LIMIT_BACKOFF_SECONDS = 30.0
 _RATE_LIMIT_MAX_ATTEMPTS = 4
 
 
-def _cost_usd(model: str, input_tokens: int, output_tokens: int) -> float:
+def _cost_usd(
+    model: str,
+    input_tokens: int,
+    output_tokens: int,
+    cache_creation_tokens: int = 0,
+    cache_read_tokens: int = 0,
+) -> float:
     pricing = MODEL_PRICING.get(model)
     if pricing is None:
         # Assumption: unknown model means we still log the call but charge $0
@@ -39,6 +57,20 @@ def _cost_usd(model: str, input_tokens: int, output_tokens: int) -> float:
     return (
         input_tokens * pricing["input"] / 1_000_000.0
         + output_tokens * pricing["output"] / 1_000_000.0
+        + cache_creation_tokens * pricing.get("cache_write", pricing["input"]) / 1_000_000.0
+        + cache_read_tokens * pricing.get("cache_read", pricing["input"]) / 1_000_000.0
+    )
+
+
+def _flatten_text(value: str | list[dict]) -> str:
+    """Render either a plain prompt string or a list of content blocks
+    back to a single text snapshot for the run-log entry."""
+    if isinstance(value, str):
+        return value
+    return "\n\n".join(
+        block.get("text", "")
+        for block in value
+        if block.get("type") == "text"
     )
 
 
@@ -56,8 +88,8 @@ def call_with_logging(
     *,
     agent: str,
     model: str,
-    system_prompt: str,
-    user_message: str,
+    system_prompt: str | list[dict],
+    user_message: str | list[dict],
     output_schema: type[BaseModel],
     run_dir: Path,
     prompt_version: str,
@@ -134,6 +166,9 @@ def call_with_logging(
             # Observability is best-effort; don't fail the call over a metadata bug.
             metadata = None
 
+    cache_creation = getattr(response.usage, "cache_creation_input_tokens", None) or 0
+    cache_read = getattr(response.usage, "cache_read_input_tokens", None) or 0
+
     log_entry = LLMCallLog(
         agent=agent,
         model=model,
@@ -141,13 +176,22 @@ def call_with_logging(
         input_tokens=response.usage.input_tokens,
         output_tokens=response.usage.output_tokens,
         cost_usd=_cost_usd(
-            model, response.usage.input_tokens, response.usage.output_tokens
+            model,
+            response.usage.input_tokens,
+            response.usage.output_tokens,
+            cache_creation,
+            cache_read,
         ),
         latency_ms=latency_ms,
         started_at=started_at,
-        prompt=f"SYSTEM:\n{system_prompt}\n\nUSER:\n{user_message}",
+        prompt=(
+            f"SYSTEM:\n{_flatten_text(system_prompt)}\n\n"
+            f"USER:\n{_flatten_text(user_message)}"
+        ),
         response=json.dumps(tool_block.input, ensure_ascii=False),
         metadata=metadata,
+        cache_creation_input_tokens=cache_creation,
+        cache_read_input_tokens=cache_read,
     )
     _append_log(run_dir, agent, log_entry)
 
