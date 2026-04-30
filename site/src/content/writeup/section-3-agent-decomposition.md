@@ -1,5 +1,4 @@
 ---
-section: 3
 title: Agent decomposition
 status: draft
 updated: 2026-04-30
