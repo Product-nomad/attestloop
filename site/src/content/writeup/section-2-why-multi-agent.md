@@ -1,5 +1,4 @@
 ---
-section: 2
 title: Why multi-agent
 status: draft
 updated: 2026-04-30
