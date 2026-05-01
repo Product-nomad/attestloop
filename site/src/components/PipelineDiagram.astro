@@ -361,19 +361,26 @@ const formatPercent = (frac: number) => `${(frac * 100).toFixed(0)}%`;
 
     <!-- Mermaid diagram, generated from the compiled LangGraph state
          machine. Source lives at site/src/content/orchestration/
-         v6_pipeline.mmd; the script tag below renders it on mount. -->
+         v6_pipeline.mmd; the script tag below renders it on mount.
+         The source is delivered via a `data-mermaid-source` attribute
+         (not as text content) so Astro's CSS scoping doesn't trip
+         over the rendered SVG, and the host div is replaced outright
+         when the render succeeds. -->
     <div class="mermaid-frame mb-10">
       <p class="mermaid-caption text-xs font-mono uppercase tracking-[0.18em] text-text-muted">
         Compiled LangGraph state machine · v2.0.0
       </p>
-      <div class="mermaid-host" role="img" aria-label="Pipeline state-machine diagram">
-        <pre class="mermaid" data-pipeline-source>{mermaidSource}</pre>
-        <noscript>
-          <p class="text-sm font-mono text-text-secondary">
-            (Pipeline diagram requires JavaScript. The Mermaid source is
-            in the page; see docs/orchestration/v6_pipeline.mmd in the repo.)
-          </p>
-        </noscript>
+      <div
+        class="mermaid-host"
+        role="img"
+        aria-label="Pipeline state-machine diagram"
+        data-mermaid-source={mermaidSource}
+      >
+        <p class="mermaid-fallback text-sm font-mono text-text-muted">
+          Loading diagram… (if this persists, see
+          <code class="font-mono text-text-primary">docs/orchestration/v6_pipeline.mmd</code>
+          in the repo for the source.)
+        </p>
       </div>
     </div>
 
@@ -848,7 +855,7 @@ const formatPercent = (frac: number) => `${(frac * 100).toFixed(0)}%`;
     line-height: 1.5;
   }
 
-  /* ─────────────── Mermaid pipeline diagram ─────────────── */
+  /* ─────────────── Mermaid pipeline diagram (frame) ─────────────── */
   .mermaid-frame {
     border: 1px solid var(--color-border-subtle);
     background: var(--color-bg-elevated);
@@ -859,27 +866,37 @@ const formatPercent = (frac: number) => `${(frac * 100).toFixed(0)}%`;
   }
   .mermaid-host {
     overflow-x: auto;
-  }
-  /* Hide the raw .mmd source until Mermaid replaces it with rendered
-     SVG; prevents a flash of un-rendered source on slow loads. */
-  .mermaid-host pre.mermaid:not([data-rendered]) {
-    visibility: hidden;
     min-height: 14rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
-  .mermaid-host pre.mermaid {
-    background: transparent;
-    border: 0;
-    padding: 0;
-    margin: 0;
-    font-family: var(--font-mono);
+  .mermaid-host[data-rendered="true"] {
+    display: block;
+    min-height: 0;
   }
-  /* Mermaid emits inline fills on its rendered SVG; override aggressively
-     so the diagram matches the site's monochrome dark aesthetic without
-     the default purple/teal palette bleeding through. */
+  .mermaid-fallback {
+    text-align: center;
+    padding: 1rem;
+  }
+  .mermaid-host[data-rendered] .mermaid-fallback {
+    display: none;
+  }
+</style>
+
+<!-- Global styles for the runtime-injected Mermaid SVG. Must live
+     outside the scoped <style> block above, because Astro's
+     data-astro-cid attribute selector rewrite can't tag elements
+     Mermaid generates at runtime — those nodes have no Astro CID, so
+     scoped selectors silently miss every override. is:global keeps
+     the rules untouched. -->
+<style is:global>
   .mermaid-host svg {
     background: transparent;
     max-width: 100%;
     height: auto;
+    display: block;
+    margin: 0 auto;
   }
   .mermaid-host svg .node rect,
   .mermaid-host svg .node polygon,
@@ -889,10 +906,12 @@ const formatPercent = (frac: number) => `${(frac * 100).toFixed(0)}%`;
     stroke: #363b46 !important;
     stroke-width: 1px !important;
   }
-  .mermaid-host svg .node .label {
+  .mermaid-host svg .node .label,
+  .mermaid-host svg .node text,
+  .mermaid-host svg .nodeLabel {
     color: #e6e8eb !important;
     fill: #e6e8eb !important;
-    font-family: var(--font-mono);
+    font-family: "JetBrains Mono", ui-monospace, monospace;
     font-size: 0.78rem;
   }
   .mermaid-host svg .node.first rect,
@@ -920,11 +939,14 @@ const formatPercent = (frac: number) => `${(frac * 100).toFixed(0)}%`;
     background-color: #16191f !important;
     color: #b0bac6 !important;
     fill: #b0bac6 !important;
-    font-family: var(--font-mono);
+    font-family: "JetBrains Mono", ui-monospace, monospace;
     font-size: 0.7rem;
   }
-  .mermaid-host svg .edgeLabel rect {
+  .mermaid-host svg .edgeLabel rect,
+  .mermaid-host svg .edgeLabel foreignObject div {
+    background-color: #16191f !important;
     fill: #16191f !important;
+    color: #b0bac6 !important;
   }
   .mermaid-host svg .cluster rect {
     fill: #1c2027 !important;
@@ -1019,26 +1041,38 @@ const formatPercent = (frac: number) => `${(frac * 100).toFixed(0)}%`;
 
 <script>
   // Render the LangGraph-generated Mermaid source into an SVG on mount.
-  // Mermaid is lazy-loaded via dynamic import so the ~600 KB bundle
-  // doesn't sit on the homepage's critical path; it only fetches once
-  // the page has settled and the host element is in view. Theme
-  // variables match the site's monochrome dark aesthetic; CSS in the
-  // scoped <style> block above pins the SVG fills/strokes defensively
-  // in case Mermaid's inline styles bleed through.
+  // Mermaid is lazy-loaded via dynamic import on intersection so the
+  // ~600 KB bundle doesn't sit on the homepage's critical path. Source
+  // is read from the host's data-mermaid-source attribute (not text
+  // content) so Astro's HTML escaping doesn't double-escape the
+  // <p>...</p> labels in the .mmd file. The rendered SVG replaces the
+  // host's children outright so Astro's scoped CSS doesn't try to
+  // attribute-tag elements Mermaid injected at runtime.
 
   async function renderPipelineDiagram() {
-    const host = document.querySelector<HTMLPreElement>(
-      "pre.mermaid[data-pipeline-source]",
+    const host = document.querySelector<HTMLDivElement>(
+      "div.mermaid-host[data-mermaid-source]",
     );
     if (!host) return;
-    const source = host.textContent ?? "";
+    const source = host.getAttribute("data-mermaid-source") ?? "";
     if (!source.trim()) return;
 
-    const { default: mermaid } = await import("mermaid");
+    let mermaid;
+    try {
+      ({ default: mermaid } = await import("mermaid"));
+    } catch (err) {
+      console.error("Mermaid import failed:", err);
+      return;
+    }
+
     mermaid.initialize({
       startOnLoad: false,
       theme: "base",
-      securityLevel: "strict",
+      // Default "strict" security level forces label sanitisation that
+      // mishandles the <p>__start__</p> wrappers LangGraph emits;
+      // "loose" preserves the labels and is safe here because the
+      // Mermaid source is a build-time artefact, not user input.
+      securityLevel: "loose",
       themeVariables: {
         primaryColor: "#16191f",
         primaryTextColor: "#e6e8eb",
@@ -1058,23 +1092,23 @@ const formatPercent = (frac: number) => `${(frac * 100).toFixed(0)}%`;
     });
 
     try {
-      const { svg } = await mermaid.render("attestloop-pipeline", source);
+      const { svg } = await mermaid.render("attestloop-pipeline-svg", source);
       host.innerHTML = svg;
       host.setAttribute("data-rendered", "true");
     } catch (err) {
-      // If Mermaid fails (rare; usually a syntax issue), surface the
-      // source as fallback rather than leaving a blank box.
       console.error("Mermaid render failed:", err);
       host.setAttribute("data-rendered", "error");
-      host.style.visibility = "visible";
+      const fallback = host.querySelector<HTMLElement>(".mermaid-fallback");
+      if (fallback) {
+        fallback.textContent =
+          "Pipeline diagram failed to render. The Mermaid source is at docs/orchestration/v6_pipeline.mmd in the repo.";
+      }
     }
   }
 
-  // Defer until the diagram approaches the viewport so the Mermaid
-  // bundle doesn't compete with first paint.
   function scheduleRender() {
-    const host = document.querySelector<HTMLPreElement>(
-      "pre.mermaid[data-pipeline-source]",
+    const host = document.querySelector<HTMLDivElement>(
+      "div.mermaid-host[data-mermaid-source]",
     );
     if (!host) return;
     if ("IntersectionObserver" in window) {
