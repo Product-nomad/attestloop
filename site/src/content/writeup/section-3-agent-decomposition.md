@@ -4,7 +4,7 @@ status: draft
 updated: 2026-04-30
 ---
 
-The pipeline has seven components. Three are LLM-driven agents with their own prompts, evals, and per-call cost profiles. Four are deterministic code that does work the LLM doesn't need to do. Treating those distinctions seriously is what separates "agentic system" as a label from "agentic system" as a design choice.
+The pipeline has nine components. Five are LLM-driven agents with their own prompts, evals, and per-call cost profiles — three since v1 (Classifier, Extractor, Mapper) and two added in v6 (Clarifier, Critic). Four are deterministic code that does work the LLM doesn't need to do. Treating those distinctions seriously is what separates "agentic system" as a label from "agentic system" as a design choice.
 
 The Classifier
 
@@ -40,6 +40,28 @@ Model: Claude Sonnet 4.6. This is the agent that benefits most from prompt cachi
 
 The system prompt is around 520 words and is the most heavily iterated of the three. v1 of the prompt produced exactly 3 mappings per obligation regardless of fit. v3 added an explicit confidence floor and banned hedging language ("thematically aligned," "broadly related to," "in the spirit of"). v5 added a nudge for substantive provider obligations that the v3 floor was wrongly dropping. The current shape returns 0–3 mappings honestly, with reasoning that survives reading by someone with GRC background.
 
+The Clarifier
+
+The Clarifier is the v6 addition for ambiguous Classifier outputs. When the Classifier returns in_scope=False with confidence below 0.7, the pipeline routes to the Clarifier rather than directly to the out-of-scope report. The Clarifier extracts additional document context — table of contents, first 5 pages, or section headings, whichever is most informative — and re-runs the Classifier with the augmented input. If the second classification is confident in either direction, the pipeline routes accordingly. If it's still ambiguous, the pipeline writes a "review queue" report distinguished from out-of-scope.
+
+The Clarifier itself is mostly text-extraction code. The actual LLM call is a re-invocation of the Classifier on augmented input — so the Clarifier's added cost is one extra Haiku call per ambiguous classification, ~$0.005.
+
+In practice, the Clarifier rarely fires. Real-world regulatory documents tend to classify confidently in either direction. The Clarifier is a safety net for the long tail — draft amendments, stakeholder consultations, Commission communications that announce rather than constitute binding instruments. On the canonical Commission Guidelines URL the Clarifier never triggers. The synthetic smoke test in `scripts/smoke_clarifier.py` exercises the code path with a contrived ambiguous input.
+
+The Critic
+
+The Critic is the v6 addition for second-pass review of low-confidence Mapper output. It reviews any obligation whose mappings include at least one entry below 0.80 confidence. It returns one of two decisions per reviewed obligation: confirm (mappings stand, no change) or flag_for_review (mappings stand, but the report annotates them as flagged for human attention). It does not auto-replace mappings.
+
+The decision shape matters. Auto-replacement would create a failure mode where a confidently-wrong Critic overwrites a defensible Mapper output, and the audit trail loses signal. Flagging preserves the Mapper's reasoning while adding a second-pass review record that downstream humans can act on. The Critic is advisory, not authoritative.
+
+Input: one Obligation plus the Mapper's proposed mappings plus the full controls library. Output: a CriticDecision with the decision, the Critic's own confidence (on the same 0–1 scale as the Mapper), the reasoning, and the list of control IDs reviewed.
+
+Model: Claude Sonnet 4.6, same as the Mapper, with the same prompt-caching strategy on the controls library. Each Critic call costs roughly the same as a Mapper call.
+
+The Critic only reviews obligations where review adds value. Obligations whose mappings are all above 0.80 confidence are skipped. Obligations with zero mappings are skipped — they're framework gaps, not weak mappings.
+
+The first canonical v6 run flagged 14 obligations out of 42 reviewed (33%). Reading those 14 flag reasons, every single one named a specific control that was being stretched semantically and at least one alternative the Mapper missed. Five recurring patterns surfaced — MANAGE-1.1 misused as per-event authorisation, MAP-3.3 reaching for legal-perimeter semantics, MEASURE-2.9 stretched from interpretability into manipulation-detection, GOVERN-6.1 mis-applied to provider's own legal duties, MANAGE-4.1 stretched to cover pre-event authorisation. These are real failure modes the Critic surfaces. Addressing them through negative examples in the Mapper prompt is tracked in the GitHub backlog.
+
 The four passive components
 
 Watcher, Gap analyser, Drafter, Reviewer queue. v1 implements these as code, not as LLM-driven agents.
@@ -52,4 +74,4 @@ The Drafter is the report builder code in pipeline.py. It assembles the executiv
 
 The Reviewer queue is on-disk artefacts. Every run produces runs/<run_id>/ with the publication, per-agent JSON logs, the obligations and mappings JSON, the report markdown, and a run_metadata.json. Reviewing means opening the directory. v2 turns this into a proper queue with web UI; v1 leaves it as files.
 
-The honest framing: four of the seven components in the pipeline diagram are deterministic code, not LLM agents. v1 ships three real agents, and that's the right scope for the v1 problem. Adding LLM agents where deterministic code suffices is a common failure mode in agentic projects — every stage doesn't need to be a model call.
+v1 ships three real LLM agents and four deterministic components. v6 added two more LLM agents — the Clarifier and the Critic — bringing the LLM agent count to five. The four passive components stay code, not models. Adding LLM agents where deterministic code suffices is a common failure mode in agentic projects; v6's additions both serve genuinely model-shaped purposes (handling ambiguity for the Clarifier, second-pass review for the Critic) rather than substituting for code that already worked.
