@@ -87,8 +87,11 @@ no-op; if `ANTHROPIC_API_KEY` is still unset after loading, the CLI exits
 with code 2 and a clear error pointing at `.env.example`. You can also
 export the key directly in your shell.
 
-Exit codes: `0` clean run, `2` missing API key, `3` fetch produced no usable
-content (page is JS-rendered, behind a redirect, or returns < 200 chars).
+Exit codes:
+
+- `0` — clean run
+- `2` — missing API key
+- `3` — fetch produced no usable content (page is JS-rendered, behind a redirect, or returns < 200 chars)
 
 Run logs land in `runs/<run_id>/`. The `runs/` directory itself is
 gitignored, but representative end-to-end runs are preserved in
