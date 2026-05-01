@@ -1,14 +1,15 @@
 ---
 title: "Building a multi-agent regulatory attestation pipeline"
-subtitle: "Five iterations, $1.31 per run, and what an honest agentic system looks like."
-status: draft
+subtitle: "Six iterations, two agent additions, and what real orchestration looks like"
+version: 2.0.0
+status: published
 updated: 2026-04-30
 ---
 
 
 ## The problem
 
-A compliance officer at a UK fintech with 800 employees reads roughly 40 regulator publications a week. The list comes from EUR-Lex's AI Act feed, the FCA Handbook updates, EBA guidelines, ICO opinions, ESMA technical standards, and a half-dozen sector-specific bulletins that arrive on subscription. Of those forty publications, maybe three to five contain substantive obligations affecting the firm. The rest are press releases, speeches, scoping consultations, or commentary about regulations that already exist.
+A compliance officer at a company with 800 employees reads roughly 40 regulator publications a week. The list comes from EUR-Lex's AI Act feed, the FCA Handbook updates, EBA guidelines, ICO opinions, ESMA technical standards, and a half-dozen sector-specific bulletins that arrive on subscription. Of those forty publications, maybe three to five contain substantive obligations affecting the firm. The rest are press releases, speeches, scoping consultations, or commentary about regulations that already exist.
 
 The substantive ones are the work. For each, the officer reads the document — sometimes a hundred pages of dense legal text — extracts the binding obligations, maps each obligation to the firm's existing controls library (typically two to four hundred entries in a SharePoint document or an OneTrust deployment), identifies the gaps where existing controls don't fully cover the new requirement, drafts proposed remediation, and routes the work to the affected teams in product, engineering, legal, and risk. Each substantive publication eats four to eight hours of senior compliance time.
 
@@ -44,7 +45,7 @@ A note on what v1 isn't. The pipeline ships sequential execution: Classifier ret
 
 ## Agent decomposition
 
-The pipeline has seven components. Three are LLM-driven agents with their own prompts, evals, and per-call cost profiles. Four are deterministic code that does work the LLM doesn't need to do. Treating those distinctions seriously is what separates "agentic system" as a label from "agentic system" as a design choice.
+The pipeline has nine components. Five are LLM-driven agents with their own prompts, evals, and per-call cost profiles — three since v1 (Classifier, Extractor, Mapper) and two added in v6 (Clarifier, Critic). Four are deterministic code that does work the LLM doesn't need to do. Treating those distinctions seriously is what separates "agentic system" as a label from "agentic system" as a design choice.
 
 The Classifier
 
@@ -80,6 +81,28 @@ Model: Claude Sonnet 4.6. This is the agent that benefits most from prompt cachi
 
 The system prompt is around 520 words and is the most heavily iterated of the three. v1 of the prompt produced exactly 3 mappings per obligation regardless of fit. v3 added an explicit confidence floor and banned hedging language ("thematically aligned," "broadly related to," "in the spirit of"). v5 added a nudge for substantive provider obligations that the v3 floor was wrongly dropping. The current shape returns 0–3 mappings honestly, with reasoning that survives reading by someone with GRC background.
 
+The Clarifier
+
+The Clarifier is the v6 addition for ambiguous Classifier outputs. When the Classifier returns in_scope=False with confidence below 0.7, the pipeline routes to the Clarifier rather than directly to the out-of-scope report. The Clarifier extracts additional document context — table of contents, first 5 pages, or section headings, whichever is most informative — and re-runs the Classifier with the augmented input. If the second classification is confident in either direction, the pipeline routes accordingly. If it's still ambiguous, the pipeline writes a "review queue" report distinguished from out-of-scope.
+
+The Clarifier itself is mostly text-extraction code. The actual LLM call is a re-invocation of the Classifier on augmented input — so the Clarifier's added cost is one extra Haiku call per ambiguous classification, ~$0.005.
+
+In practice, the Clarifier rarely fires. Real-world regulatory documents tend to classify confidently in either direction. The Clarifier is a safety net for the long tail — draft amendments, stakeholder consultations, Commission communications that announce rather than constitute binding instruments. On the canonical Commission Guidelines URL the Clarifier never triggers. The synthetic smoke test in `scripts/smoke_clarifier.py` exercises the code path with a contrived ambiguous input.
+
+The Critic
+
+The Critic is the v6 addition for second-pass review of low-confidence Mapper output. It reviews any obligation whose mappings include at least one entry below 0.80 confidence. It returns one of two decisions per reviewed obligation: confirm (mappings stand, no change) or flag_for_review (mappings stand, but the report annotates them as flagged for human attention). It does not auto-replace mappings.
+
+The decision shape matters. Auto-replacement would create a failure mode where a confidently-wrong Critic overwrites a defensible Mapper output, and the audit trail loses signal. Flagging preserves the Mapper's reasoning while adding a second-pass review record that downstream humans can act on. The Critic is advisory, not authoritative.
+
+Input: one Obligation plus the Mapper's proposed mappings plus the full controls library. Output: a CriticDecision with the decision, the Critic's own confidence (on the same 0–1 scale as the Mapper), the reasoning, and the list of control IDs reviewed.
+
+Model: Claude Sonnet 4.6, same as the Mapper, with the same prompt-caching strategy on the controls library. Each Critic call costs roughly the same as a Mapper call.
+
+The Critic only reviews obligations where review adds value. Obligations whose mappings are all above 0.80 confidence are skipped. Obligations with zero mappings are skipped — they're framework gaps, not weak mappings.
+
+The first canonical v6 run flagged 14 obligations out of 42 reviewed (33%). Reading those 14 flag reasons, every single one named a specific control that was being stretched semantically and at least one alternative the Mapper missed. Five recurring patterns surfaced — MANAGE-1.1 misused as per-event authorisation, MAP-3.3 reaching for legal-perimeter semantics, MEASURE-2.9 stretched from interpretability into manipulation-detection, GOVERN-6.1 mis-applied to provider's own legal duties, MANAGE-4.1 stretched to cover pre-event authorisation. These are real failure modes the Critic surfaces. Addressing them through negative examples in the Mapper prompt is tracked in the GitHub backlog.
+
 The four passive components
 
 Watcher, Gap analyser, Drafter, Reviewer queue. v1 implements these as code, not as LLM-driven agents.
@@ -92,7 +115,7 @@ The Drafter is the report builder code in pipeline.py. It assembles the executiv
 
 The Reviewer queue is on-disk artefacts. Every run produces runs/<run_id>/ with the publication, per-agent JSON logs, the obligations and mappings JSON, the report markdown, and a run_metadata.json. Reviewing means opening the directory. v2 turns this into a proper queue with web UI; v1 leaves it as files.
 
-The honest framing: four of the seven components in the pipeline diagram are deterministic code, not LLM agents. v1 ships three real agents, and that's the right scope for the v1 problem. Adding LLM agents where deterministic code suffices is a common failure mode in agentic projects — every stage doesn't need to be a model call.
+v1 ships three real LLM agents and four deterministic components. v6 added two more LLM agents — the Clarifier and the Critic — bringing the LLM agent count to five. The four passive components stay code, not models. Adding LLM agents where deterministic code suffices is a common failure mode in agentic projects; v6's additions both serve genuinely model-shaped purposes (handling ambiguity for the Clarifier, second-pass review for the Critic) rather than substituting for code that already worked.
 
 
 ## Orchestration
@@ -125,18 +148,36 @@ State passing is explicit. There's no shared mutable context, no implicit global
 
 Failure handling lives at three levels. Per-call: each LLM invocation has a 60-second timeout and a single retry on transient errors (APITimeoutError, APIConnectionError, RateLimitError, InternalServerError). Per-agent: structured error types — EmptyPublicationError from the fetcher, RateLimitBackoff from the LLM wrapper — propagate cleanly to the pipeline, where they decide whether to retry, fail loudly, or short-circuit. Per-run: any uncaught error leaves the run directory intact with whatever artefacts had been written, so post-mortem is possible.
 
-Human-in-the-loop boundaries exist conceptually but aren't wired in v1. The natural points are: between the Classifier and the Extractor (review borderline scope decisions), between the Mapper and the Report builder (review low-confidence mappings before they land in the report), and between the Report builder and any downstream system (sign-off before publication). v1 surfaces all the data needed for HITL — confidence scores per mapping, unmapped obligations as their own report section, hashed prompt versions in the provenance footer — but doesn't yet hold the pipeline open for human input. The architecture supports adding HITL hooks at those points without restructuring; v6's state-machine refactor will make the wiring explicit.
+Human-in-the-loop boundaries exist conceptually but aren't wired in v1. The natural points are: between the Classifier and the Extractor (review borderline scope decisions), between the Mapper and the Report builder (review low-confidence mappings before they land in the report), and between the Report builder and any downstream system (sign-off before publication). v1 surfaces all the data needed for HITL — confidence scores per mapping, unmapped obligations as their own report section, hashed prompt versions in the provenance footer — but doesn't yet hold the pipeline open for human input. The architecture supports adding HITL hooks at those points without restructuring; v6's state-machine refactor made the wiring explicit.
 
-What v1 doesn't have, and what v6 will: a typed PipelineState object passed through a LangGraph StateGraph, conditional edges that route based on agent outputs (Classifier returning in_scope=False, confidence<0.7 should route to a Clarifier agent, not directly to the out-of-scope report), parallel Mapper execution with concurrency control, and a Critic agent that reviews mappings below 0.80 confidence before they reach the report.
+v6: orchestration
 
-Those are real orchestration patterns, and they're tracked in issue #4. v1 prioritised end-to-end correctness with explicit per-stage observability; v6 layers orchestration on top of that foundation. The order matters: orchestrating a pipeline that produces wrong outputs is wasted optimisation. Sequential execution with disk-logged state was the cheapest way to validate that each stage produced the right thing before the stages started talking to each other.
+v6 replaces the eight-line sequential function with a typed StateGraph from LangGraph. Each agent becomes a graph node. State flows through edges. Conditional routing makes ambiguous Classifier outputs trigger the Clarifier; confident ones bypass it. Parallel Mapper execution happens within the Mapper node — 8-way concurrent calls bounded by an asyncio.Semaphore.
 
-A pragmatic note: for a v1 portfolio piece running on demand against single documents, sequential execution is also operationally adequate. 17 minutes wall-clock for a 71-obligation, 154-mapping run on a 135-page guideline is acceptable for human-paced compliance work. v6 closes the latency gap — and unlocks scheduled multi-document runs — but v1's latency isn't a v1 problem.
+The compiled graph:
+
+```
+fetch → classify → [in_scope] → extract → map → critic → report → END
+                 → [low_conf_oos] → clarify → [in_scope] → extract → ...
+                                           → [low_conf_oos] → review_queue → END
+                                           → [confident_oos] → out_of_scope → END
+                 → [confident_oos] → out_of_scope → END
+```
+
+The Mermaid source for this diagram is generated directly from the compiled LangGraph — `scripts/render_graph.py` calls `graph.get_graph().draw_mermaid()` on the compiled state machine and writes the result to `docs/orchestration/v6_pipeline.mmd`. The diagram is not hand-drawn; it's a literal rendering of the state machine the code constructs. If the orchestration changes, the diagram regenerates automatically.
+
+A PipelineConfig dataclass with feature flags (mapper_concurrency, enable_critic, enable_clarifier_routing) lets the same codebase produce v5-equivalent runs (config = V5_EQUIVALENT) and v6 canonical runs (config = V6_CANONICAL) without forking. This is what makes the v5/v6 comparison rigorous: same code, same prompts, only the orchestration toggles change.
+
+What v1 didn't have, and what v6 added: a typed PipelineState object passed through a LangGraph StateGraph, conditional edges that route based on agent outputs (Classifier returning in_scope=False, confidence<0.7 routes to the Clarifier rather than directly to the out-of-scope report), parallel Mapper execution with concurrency control, and a Critic agent that reviews mappings below 0.80 confidence before they reach the report.
+
+Those are real orchestration patterns, and they were tracked in issue #4. v1 prioritised end-to-end correctness with explicit per-stage observability; v6 layered orchestration on top of that foundation. The order matters: orchestrating a pipeline that produces wrong outputs is wasted optimisation. Sequential execution with disk-logged state was the cheapest way to validate that each stage produced the right thing before the stages started talking to each other.
+
+The v6 canonical run produces 70 obligations and 130–160 mappings on the same Commission Guidelines URL in 13 minutes 26 seconds — a 4-minute reduction from v5 baseline. Most of that gain comes from the parallel Mapper (8.13× speedup on Mapper wall-clock specifically). The Critic adds about 3 minutes of sequential review work, which is what makes the end-to-end pipeline less fast than the parallel Mapper would suggest. v6 moved the bottleneck from Mapper to Critic; the next optimisation lever (tracked as v7 work) is parallelising the Critic in the same way.
 
 
 ## Iteration
 
-Five runs are preserved in the repo at docs/example_runs/v1 through v5. Each is a full snapshot of a real pipeline execution against the Commission Guidelines on prohibited AI practices, the 135-page Communication published 4 February 2025. Each iteration changed exactly one variable. Reading them in sequence is the most honest way to understand how the v1 pipeline got to where it is.
+Six runs are preserved in the repo under docs/example_runs/. Each is a full snapshot of a real pipeline execution against the Commission Guidelines on prohibited AI practices, the 135-page Communication published 4 February 2025. Each iteration changed exactly one variable. Reading them in sequence is the most honest way to understand how the pipeline got to where it is.
 
 | Run | Approach | Obligations | Mappings | Unmapped | Cost | Wall-clock |
 |---|---|---:|---:|---:|---:|---:|
@@ -145,6 +186,7 @@ Five runs are preserved in the repo at docs/example_runs/v1 through v5. Each is 
 | v3 | Confidence floor on Mapper | 72 | 164 | 12 | $2.78 | 41m 35s |
 | v4 | Prompt caching on Mapper | 69 | 124 | 24 | $1.19 | 14m 51s |
 | v5 | Fuzzy deduplication | 71 | 154 | 13 | $1.31 | 17m 17s |
+| v6 | LangGraph + Critic + parallel Mapper | 71 | 160 | 10 | $2.09 | 13m 26s |
 
 The numbers move in interesting ways. Cost climbs and then drops. Mappings climb, then fall sharply, then partially recover. Wall-clock improves only after caching lands. The iteration story is the explanation.
 
@@ -164,9 +206,15 @@ v5 fixed a correctness issue introduced by chunking. Reading v4's output careful
 
 v5 also fixed three smaller issues surfaced during the iteration: the report was rendering "null" as a literal string for empty deadlines (cosmetic, but ugly), the title was falling back to the URL filename "112367" because the PDF metadata title was empty (also cosmetic), and the Mapper was occasionally dropping substantive provider obligations whose only confident mapping was to GOVERN-1.1 — the catch-all "legal and regulatory requirements involving AI are understood, managed, and documented" subcategory. A targeted prompt nudge restored those mappings without reintroducing slot-fill.
 
-Five runs, five changes, each visible in the comparison table and inspectable in the repo. The trajectory is what makes the writeup substantive: not "here is the system" but "here is how the system got to be defensible."
+v6 was the orchestration refactor. v1–v5 had been deliberate scope: ship a working pipeline, validate end-to-end correctness, then layer on orchestration patterns once the foundation was solid. v6 is that layer.
 
-A specific design pattern worth surfacing: every iteration was driven by reading the actual output, not by metric chasing. v3's confidence floor came from noticing hedging language in the v2 mappings. v5's dedup came from noticing duplicate obligations in v4's output. The v4 cost optimisation came from noticing that 90% of Mapper input was redundant across calls. Reading the output is the eval that always works, even before the formal eval set exists.
+The headline change is structural. `pipeline.py` shrinks from 421 lines to 88 lines; the orchestration moves to a typed StateGraph in `orchestration.py`. The same agents, same prompts, same outputs — but now connected by a state machine with conditional routing rather than sequential function calls.
+
+Three behavioural additions: a Critic agent that reviews low-confidence Mapper output, a Clarifier agent for ambiguous Classifier outputs, and 8-way concurrent Mapper execution.
+
+The cleanest measurement of orchestration impact comes from running v5-equivalent and v6-canonical configurations against the same URL with the same code. v5-equivalent (V5_EQUIVALENT config: serial Mapper, no Critic, no Clarifier routing) produced 72 obligations in 12:38, costing $1.31. v6-canonical (V6_CANONICAL config: parallel Mapper, Critic enabled, Clarifier routing enabled) produced 71 obligations in 13:26, costing $2.09. The Mapper itself was 8.13× faster (8m 18s sequential → 1m 01s parallel). The pipeline as a whole was barely faster, because the Critic added ~3 minutes of sequential review work. Cost rose 60%, almost entirely from the Critic. Whether that 60% is worth paying depends on whether you need the audit-grade output the Critic produces; the PipelineConfig flags make the choice explicit per run.
+
+Six iterations, six changes, each visible in the comparison table and inspectable in the repo. The trajectory is what makes the writeup substantive: not "here is the system" but "here is how the system got to be defensible." The pattern that ran through every iteration was reading the actual output rather than chasing metrics. v3's confidence floor came from noticing hedging language. v5's dedup came from noticing duplicate obligations. v6's Critic prompt calibration came from reading the 14 flagged obligations and confirming the failure modes the Critic surfaced were ones a human reviewer would also flag. Reading the output is the eval that always works, even before the formal eval set exists.
 
 
 ## Evals
@@ -177,31 +225,37 @@ What was measured: per-agent cost, latency, output token counts, cache hit rates
 
 What wasn't measured: precision and recall of obligation extraction against a hand-labelled gold set. Inter-rater reliability on which sentences in the source are binding obligations. Mapper accuracy against a panel of GRC consultants. Adversarial robustness on prompts that try to manipulate the Extractor or the Classifier.
 
-Building a 50-obligation gold set is the first task before any production attempt would be defensible. It's the missing artefact that converts "the system produces good output by inspection" into "the system produces output that scores X on a defined benchmark." The current honest claim is that the mapping reasoning survives reading by someone with GRC background, that no run produced hedging language after v3, and that the unmapped obligations cluster in categories NIST AI RMF genuinely doesn't cover (Member State duties, public-authority procedural obligations, Commission-level reporting). Those are useful claims. They're not the same as measured precision and recall.
+v6 introduces a different kind of eval signal: the Critic's flag rate and the patterns within it. The first canonical v6 run flagged 14 obligations out of 42 reviewed. Reading the flag reasons surfaced five recurring failure modes in the Mapper — specific patterns of semantic stretch where the Mapper used a control that didn't quite fit. This is not a precision/recall measurement, but it's a structured signal about where the Mapper's reasoning is weakest, and it's actionable: each failure mode could be addressed by adding a negative example to the Mapper prompt. The Critic effectively functions as a continuous live eval against every run, surfacing material for the next prompt iteration.
+
+Building a 50-obligation gold set is still the first task before any production attempt would be defensible. Until that exists, the Critic's flag patterns are the next-best signal: structured, actionable, and produced for free on every run. The honest current claim is that the mapping reasoning survives reading by someone with GRC background, that no run produced hedging language after v3, and that the Critic flags genuine semantic stretches at a rate consistent with what a human reviewer would catch. Those are useful claims. They're not the same as measured precision and recall.
 
 Quantitative evaluation is the v1 gap that hurts the most. Every other v1 limitation has a clean v2 path. The eval gap requires labelled data that doesn't exist yet, and labelling 50 obligations against NIST AI RMF requires somewhere between three and six hours of focused work by someone with the right background.
 
 
 ## Costs and latency
 
-| Agent | Model | Calls | Cost (v5) | Mean latency |
-|---|---|---:|---:|---:|
-| Classifier | Claude Haiku 4.5 | 1 | $0.005 | 3.7 s |
-| Extractor | Claude Sonnet 4.6 | 12 | $0.61 | 20.2 s |
-| Mapper | Claude Sonnet 4.6 | 71 | $0.69 | 11.1 s |
+| Agent | Model | Calls | Cost (v6) | Mean latency | Notes |
+|---|---|---:|---:|---:|---|
+| Classifier | Claude Haiku 4.5 | 1 | $0.005 | 3.7 s | |
+| Extractor | Claude Sonnet 4.6 | 12 | $0.61 | 20.2 s | Chunked; sequential |
+| Mapper | Claude Sonnet 4.6 | ~70 | $0.69 | 11.1 s sequential / 1.4 s effective parallel | 8-way concurrent |
+| Critic | Claude Sonnet 4.6 | ~42 | $0.50 | ~10 s | Reviews obligations with mappings <0.80 |
+| Clarifier | Claude Haiku 4.5 (delegated) | 0 (typically) | $0.00 | n/a | Only fires on ambiguous classifications |
 
-Total: $1.31 per run, 17 minutes wall-clock, against a 135-page regulator publication producing 71 obligations and 154 mapped controls.
+Total: $2.09 per run, 13 minutes 26 seconds wall-clock, against a 135-page regulator publication producing 71 obligations and 160 mapped controls.
 
 The cost shape is worth comparing. Manual review of the same publication by a senior compliance officer would cost on the order of £500-1000 in analyst time at GRC consultant rates, before any control-mapping work happens. The major incumbent regulatory monitoring tools — OneTrust, Diligent, Wolters Kluwer Enablon — sell their AI-Act monitoring modules at £40,000-150,000 per year flat fee, regardless of how many publications get processed or how few obligations get mapped. A naïve single-call GPT-4 approach against the same document would cost roughly £3-5 per run with no provenance, no confidence handles, no separately-tunable agents, and no audit trail.
 
-$1.31 per run is the cost shape of deliberate engineering: Haiku for the classification step that doesn't need Sonnet, prompt caching on the Mapper's redundant controls input, chunked extraction to handle long documents without context-limit failures. Each optimisation came from instrumented measurement, not from guesswork. The 30× return on the prompt cache write specifically is documented in *The iteration story*; it's the largest single cost reduction in the iteration sequence.
+Or compare against a v5-equivalent run on the same code: $1.31, 12 minutes 38 seconds. The 60% cost increase from v5 to v6 is entirely the Critic. v6 buys audit-grade second-pass review at that price. The PipelineConfig flags allow switching to v5-equivalent execution at one-third the cost when audit assurance isn't needed.
 
-Latency is the v1 limitation that v6's parallel Mapper execution will close. 71 sequential Sonnet calls at ~11 seconds each accounts for most of the 17-minute wall-clock. Eight-way concurrent execution would reduce that to roughly 2 minutes of Mapper work, leaving Extraction as the new dominant cost.
+$2.09 per run is the cost shape of deliberate engineering: Haiku for the classification step that doesn't need Sonnet, prompt caching on the Mapper's redundant controls input, chunked extraction to handle long documents without context-limit failures, parallel Mapper dispatch to keep wall-clock inside the cache window, and a Critic agent that reviews only the obligations where review adds value. Each optimisation came from instrumented measurement, not from guesswork. The 30× return on the prompt cache write specifically is documented in *The iteration story*; it's the largest single cost reduction in the iteration sequence.
+
+The Mapper itself is now 8.13× faster on wall-clock thanks to 8-way concurrent execution. The pipeline as a whole gained only seconds because the Critic — which runs sequentially after the Mapper — adds ~3 minutes of its own work. The bottleneck moved, in other words. The natural next step is parallelising the Critic the same way the Mapper was, which would bring total pipeline wall-clock to roughly 5–7 minutes. That work is tracked as v7 in the GitHub backlog.
 
 
 ## Failure modes
 
-Six things that broke or surprised during development. Each is preserved in the git history; the stories are what makes the writeup credible to a reader who has built systems like this.
+Eight things that broke or surprised during development. Each is preserved in the git history; the stories are what makes the writeup credible to a reader who has built systems like this.
 
 EUR-Lex's PDF-on-demand quirk. The first attempt to fetch the AI Act guidelines from EUR-Lex returned an HTTP 202 response with an empty body. EUR-Lex generates PDFs on demand; the first request kicks off generation, and the client is expected to retry. The fetcher needed magic-byte detection — checking the first five bytes of the response for %PDF- — because both Content-Type and URL-pattern checks failed on the redirect chain. Real regulator scraping is materially harder than the demos suggest.
 
@@ -215,25 +269,35 @@ Anthropic's 5-minute cache TTL exceeded by rate-limit retries. v4's prompt cachi
 
 The model's tendency to map every prohibition to GOVERN-1.1. GOVERN-1.1 — "legal and regulatory requirements involving AI are understood, managed, and documented" — is a defensible mapping for almost any Article 5 prohibition. The v2 Mapper used it on 26% of all mappings. v3's confidence floor brought that to 21% by dropping the weakest catch-all uses. v5's targeted prompt nudge for substantive provider obligations restored some legitimate uses, settling at 32%. The v5 share is correct: GOVERN-1.1 is the right control for most prohibition-shaped obligations, and the trajectory wasn't "use it less" but "use it precisely."
 
+The Critic's first calibration check, and the value of high flag rates. v6's Critic agent flagged 14 of 42 reviewed obligations on its first canonical run — a 33% flag rate. The natural reaction was to wonder whether the prompt was over-cautious. Reading the 14 flag reasons in detail showed something different: every flag named a specific control that the Mapper had stretched semantically, and at least one alternative the Mapper had missed. Five recurring patterns surfaced. The Critic was finding genuine issues, not boilerplate concerns.
+
+The diagnostic that mattered most was where the Critic didn't flag. In 12 of 14 cases, GOVERN-1.1 was one of the reviewed mappings, and the Critic explicitly noted "GOVERN-1.1 is defensible, no concerns there" while flagging the secondary mapping. The prompt's anti-rubber-stamp guidance was working precisely: confirm legitimate catch-all uses, flag the second/third "reaching" mappings.
+
+The cache-hit dip from concurrency, which is fine. v4's prompt caching delivered a 97% hit rate on the Mapper's controls library. v6's parallel Mapper, with 8 calls dispatched before any return, dropped the hit rate to 86.6%. The first 8 calls each pay the cache-write cost once because none can read from a warm cache that hasn't been written yet. The fix would be to seed the cache with one synchronous call before fanning out, but that adds ~10 seconds of cold start for $0.04 of saving. Not worth it. The 86.6% rate is the structural cost of cold-start parallelism, and it's small enough to leave alone. Optimisation isn't always a free win — sometimes the cost is small enough that fighting for it produces complexity that's worse than the saving.
+
 
 ## What's next
 
-v2 work is tracked in the repo's GitHub issues. The most important items:
+v6 has shipped. The orchestration work tracked in issue #4 is complete: LangGraph state machine, parallel Mapper, Critic agent, and Clarifier agent with conditional routing. The remaining items below are the v7+ backlog.
 
 - **Mapper batching for cost optimisation (#1).** 4–8 obligations per Sonnet call instead of one, reducing API overhead by ~10×. Trade-off: per-batch failure handling becomes the new failure mode to manage.
 - **Longer-TTL cache for sustained throughput (#2).** The 5-minute ephemeral cache is insufficient for runs that hit rate limits. Anthropic's longer-TTL cache tier or restructured call cadence both close the gap.
 - **Multi-source watcher agent (#3).** v1 runs on demand against URLs the user supplies. The Watcher polls regulator sources on a schedule, deduplicates against historical runs, and queues new in-scope publications. The architecture supports it; v2 implements the per-regulator scrape adapters.
-- **Real orchestration: state machine, parallel execution, critic agent (#4).** The largest piece of v6 work and the one that converts v1 from a sequential pipeline into a genuinely orchestrated system.
 - **Quantitative evals.** Hand-labelled gold sets for obligation extraction and mapping accuracy. The first task before any production attempt would be defensible.
 - **Multi-framework support.** ISO 42001, SOC 2 AI Trust Criteria, customer-supplied control libraries. The Framework registry already supports the abstraction; v2 implements the additional frameworks.
+- **Parallelise the Critic.** v6 moved the bottleneck from Mapper to Critic. The Critic's pattern is identical to the Mapper's (per-obligation, cacheable controls block, embarrassingly parallel) — applying the same `asyncio.gather` + `Semaphore` pattern brings total pipeline wall-clock to ~5–7 minutes.
+- **Negative examples in the Mapper prompt.** The five recurring failure patterns the Critic surfaced (MANAGE-1.1 mis-used as per-event gate, MAP-3.3 reaching for legal-perimeter semantics, etc.) could be addressed directly in the Mapper prompt with negative examples. Worth measuring whether this drops the Critic flag rate without hurting overall mapping coverage.
 
 v1 is a portfolio piece designed to demonstrate orchestration thinking and end-to-end engineering against a real problem. Production readiness is a different artefact, and the gap between v1 and a real product is named explicitly so the reader knows what's missing. Naming the gap is itself a v1 feature.
 
 
 ## Closing
 
-What the project demonstrates: the ability to scope a multi-agent system against a real problem, ship it iteratively with measured cost and quality at each step, and reason honestly about the production gap. The pipeline produces $1.31 attestation reports against a real EU regulator publication, with full provenance, configurable confidence floors, and a clear v6 path to genuine orchestration.
+What the project demonstrates: the ability to scope a multi-agent system against a real problem, ship it iteratively with measured cost and quality at each step, and reason honestly about the production gap. The pipeline produces attestation reports against a real EU regulator publication, with full provenance, configurable confidence floors, and a LangGraph-orchestrated state machine that runs the v5-baseline configuration for $1.31 and the v6-canonical configuration with second-pass Critic review for $2.09.
 
-The live demo at [attestloop.ai](https://attestloop.ai/). The source at [github.com/Product-nomad/attestloop](https://github.com/Product-nomad/attestloop). Available for AI Delivery Manager roles in regulated industries — particularly UK gov, financial services, and healthtech.
+The live demo at [attestloop.ai](https://attestloop.ai/). The source at [github.com/Product-nomad/attestloop](https://github.com/Product-nomad/attestloop).
+
+The artefact this writeup describes is v2.0.0 of attestloop. The orchestration delta from v5 to v6 is documented in the v5_equivalent_clean and v6_clean snapshots in the repository. Future iterations are tracked in the GitHub issues. The system continues to evolve.
 
 — Simon Newton, April 2026
+
