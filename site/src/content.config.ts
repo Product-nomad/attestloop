@@ -36,9 +36,22 @@ export const evolutionRowSchema = z.object({
   approach: z.string(),
   obligations: z.number().int().nonnegative(),
   mappings: z.number().int().nonnegative(),
-  unmapped: z.number().int().nonnegative(),
+  unmapped: z.number().int().nonnegative().nullable(),
   cost_usd: z.number(),
   runtime_seconds: z.number().int().nonnegative(),
+});
+
+// Mirrors CriticDecision in src/attestloop/schemas.py.
+export const criticDecisionSchema = z.object({
+  obligation_id: z.string(),
+  decision: z.enum(["confirm", "flag_for_review"]),
+  reasoning: z.string(),
+  confidence: z.number().min(0).max(1),
+  reviewed_mappings: z.array(z.string()),
+});
+
+export const criticOutputFileSchema = z.object({
+  decisions: z.array(criticDecisionSchema),
 });
 
 const runs = defineCollection({

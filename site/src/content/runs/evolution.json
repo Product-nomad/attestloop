@@ -43,5 +43,23 @@
     "unmapped": 13,
     "cost_usd": 1.31,
     "runtime_seconds": 1037
+  },
+  {
+    "version": "v5_eq",
+    "approach": "v6 code, V5_EQUIVALENT config (serial Mapper, no Critic, no Clarifier)",
+    "obligations": 72,
+    "mappings": 157,
+    "unmapped": 13,
+    "cost_usd": 1.31,
+    "runtime_seconds": 758
+  },
+  {
+    "version": "v6",
+    "approach": "LangGraph + Critic + Clarifier + 8-way concurrent Mapper",
+    "obligations": 71,
+    "mappings": 160,
+    "unmapped": 10,
+    "cost_usd": 2.09,
+    "runtime_seconds": 806
   }
 ]
