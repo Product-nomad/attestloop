@@ -136,16 +136,12 @@ to v5-equivalent execution at v5 cost when audit assurance isn't needed.
 
 | File                                                    | What's in it                                                                       |
 |---------------------------------------------------------|------------------------------------------------------------------------------------|
-| [`README.md`](README.md)                                | This file — overview, how to run, current status.                                  |
 | [`CONTEXT.md`](CONTEXT.md)                              | Single source of truth for domain language (Publication, Obligation, etc.).        |
 | [`THREAT_MODEL.md`](THREAT_MODEL.md)                    | What Attestloop defends against, what it doesn't, where the soft spots are.        |
 | [`docs/adr/`](docs/adr/)                                | Numbered Architectural Decision Records — one file per decision.                   |
-| [`DECISIONS.md`](DECISIONS.md)                          | Redirect to `docs/adr/` (kept so `grep DECISIONS` still works).                    |
 | [`CHANGELOG.md`](CHANGELOG.md)                          | Keep-a-Changelog history with `[Unreleased]` and tagged releases.                  |
 | [`docs/example_runs/`](docs/example_runs/)              | Six per-version snapshots of the same source document with a comparison index.     |
-| [`docs/example_runs/v6_clean/`](docs/example_runs/v6_clean/) | Canonical v2.0.0 run.                                                          |
 | [`docs/orchestration/v6_pipeline.mmd`](docs/orchestration/v6_pipeline.mmd) | Mermaid source generated from the compiled LangGraph state machine. |
-| [`LICENSE`](LICENSE)                                    | Apache 2.0.                                                                        |
 
 ## Status
 
