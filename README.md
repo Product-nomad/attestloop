@@ -128,7 +128,9 @@ A like-for-like v5-equivalent baseline (`--config v5`: serial Mapper, no
 Critic, no Clarifier routing) on the same code produces 72 obligations,
 157 mappings, $1.31 total cost, 12 min 38 s wall-clock — see
 [`docs/example_runs/v6_v5_equivalent_clean/`](docs/example_runs/v6_v5_equivalent_clean/).
-The 60 % cost increase from v5_eq to v6 is entirely the Critic.
+The 60 % cost increase from v5_eq to v6 is entirely the Critic — the
+price of audit-grade second-pass review. Use `--config v5` to switch back
+to v5-equivalent execution at v5 cost when audit assurance isn't needed.
 
 ## Project documentation
 
