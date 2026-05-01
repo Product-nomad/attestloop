@@ -1054,8 +1054,31 @@ const formatPercent = (frac: number) => `${(frac * 100).toFixed(0)}%`;
       "div.mermaid-host[data-mermaid-source]",
     );
     if (!host) return;
-    const source = host.getAttribute("data-mermaid-source") ?? "";
-    if (!source.trim()) return;
+    const rawSource = host.getAttribute("data-mermaid-source") ?? "";
+    if (!rawSource.trim()) return;
+
+    // LangGraph emits three classDef declarations at the bottom of the
+    // .mmd file with hard-coded fills (#f2f0ff default, #bfb6fc last,
+    // fill-opacity:0 first). Those become inline styles on the rendered
+    // SVG and win the cascade against our scoped CSS theme — leaving
+    // pale-lavender boxes with unreadable text on the dark site.
+    // Rewrite the classDefs to match the monochrome theme before
+    // passing the source to Mermaid. The class *names* are preserved
+    // so :::first / :::last references on __start__ / __end__ still
+    // resolve.
+    const source = rawSource
+      .replace(
+        /classDef\s+default\s+[^\n]+/g,
+        "classDef default fill:#16191f,stroke:#363b46,color:#e6e8eb,line-height:1.2",
+      )
+      .replace(
+        /classDef\s+first\s+[^\n]+/g,
+        "classDef first fill:#1c2027,stroke:#7c8ea3,color:#e6e8eb",
+      )
+      .replace(
+        /classDef\s+last\s+[^\n]+/g,
+        "classDef last fill:#1c2027,stroke:#7c8ea3,color:#e6e8eb",
+      );
 
     let mermaid;
     try {
