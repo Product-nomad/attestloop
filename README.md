@@ -64,12 +64,11 @@ and PDF endpoints automatically.
   includes a mapping below 0.80 confidence. Returns `confirm` or
   `flag_for_review` (advisory; never auto-replaces a mapping). Sonnet 4.6.
 
-## How to run
+## Quick start
 
 ```bash
-uv sync --extra dev
-uv run pytest          # tests covering schemas, mapper, orchestration, config, report
 cp .env.example .env   # then paste your ANTHROPIC_API_KEY
+uv sync
 uv run python -m attestloop \
     --url <regulator-publication-url> \
     --regulation eu_ai_act \
@@ -97,6 +96,13 @@ Run logs land in `runs/<run_id>/`. The `runs/` directory itself is
 gitignored, but representative end-to-end runs are preserved in
 [`docs/example_runs/`](docs/example_runs/) — six versions of the same source
 document, including the canonical v6 run and a v5-equivalent baseline.
+
+## Contributing
+
+```bash
+uv sync --extra dev
+uv run pytest    # tests covering schemas, mapper, orchestration, config, report
+```
 
 ## Canonical v6 run
 
