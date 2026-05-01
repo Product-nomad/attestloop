@@ -8,11 +8,11 @@ updated: 2026-04-30
 |---|---|---:|---:|---:|---|
 | Classifier | Claude Haiku 4.5 | 1 | $0.005 | 3.7 s | |
 | Extractor | Claude Sonnet 4.6 | 12 | $0.61 | 20.2 s | Chunked; sequential |
-| Mapper | Claude Sonnet 4.6 | ~70 | $0.69 | 11.1 s sequential / 1.4 s effective parallel | 8-way concurrent |
-| Critic | Claude Sonnet 4.6 | ~42 | $0.50 | ~10 s | Reviews obligations with mappings <0.80 |
+| Mapper | Claude Sonnet 4.6 | 71 | $0.89 | 11.1 s sequential / 1.4 s effective parallel | 8-way concurrent (includes the cache-write premium on the first 8 calls) |
+| Critic | Claude Sonnet 4.6 | 44 | $0.58 | ~10 s | Reviews obligations with mappings <0.80 |
 | Clarifier | Claude Haiku 4.5 (delegated) | 0 (typically) | $0.00 | n/a | Only fires on ambiguous classifications |
 
-Total: $2.09 per run, 13 minutes 26 seconds wall-clock, against a 135-page regulator publication producing 71 obligations and 160 mapped controls.
+Total: $2.09 per run, 13 minutes 26 seconds wall-clock, against a 135-page regulator publication producing 71 obligations and 160 mapped controls. The per-agent column sums to the run total exactly — cache-write premiums on the first Mapper call and the first Critic call are included in those agents' rows rather than broken out separately.
 
 The cost shape is worth comparing. Manual review of the same publication by a senior compliance officer would cost on the order of £500-1000 in analyst time at GRC consultant rates, before any control-mapping work happens. The major incumbent regulatory monitoring tools — OneTrust, Diligent, Wolters Kluwer Enablon — sell their AI-Act monitoring modules at £40,000-150,000 per year flat fee, regardless of how many publications get processed or how few obligations get mapped. A naïve single-call GPT-4 approach against the same document would cost roughly £3-5 per run with no provenance, no confidence handles, no separately-tunable agents, and no audit trail.
 
