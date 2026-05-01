@@ -42,9 +42,9 @@ const questions = [
     anchor: "q-future",
     question: "What's coming next?",
     elaboration:
-      "Boards ask about the regulatory pipeline, not just last week's publication. What's in flight at the regulator that we should be preparing for? This is the strategic question — and the one v1 doesn't yet answer.",
+      "Boards ask about the regulatory pipeline, not just last week's publication. What's in flight at the regulator that we should be preparing for? Today (v2.0.0) Attestloop answers this on demand — point it at any regulator URL for ad-hoc triage. Scheduled monitoring of regulator sources is the v3 work.",
     technicalNote:
-      "The architecture supports the watcher and the multi-framework registry already; v1 ships with the on-demand path enabled. Adding a new regulation is a config plus a small set of regulator-specific prompts.",
+      "The Watcher agent is the v3 work that converts Attestloop from on-demand triage to scheduled regulatory monitoring. Multi-source polling, per-regulator adapters, deduplication against historical runs, and alerting integration are all tracked in the GitHub backlog.",
     AnswerComponent: RoadmapAnswer,
   },
 ];
