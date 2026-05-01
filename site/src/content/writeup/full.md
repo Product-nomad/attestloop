@@ -6,7 +6,7 @@ updated: 2026-04-30
 ---
 
 
-## Section 1 — The problem
+## The problem
 
 A compliance officer at a UK fintech with 800 employees reads roughly 40 regulator publications a week. The list comes from EUR-Lex's AI Act feed, the FCA Handbook updates, EBA guidelines, ICO opinions, ESMA technical standards, and a half-dozen sector-specific bulletins that arrive on subscription. Of those forty publications, maybe three to five contain substantive obligations affecting the firm. The rest are press releases, speeches, scoping consultations, or commentary about regulations that already exist.
 
@@ -23,7 +23,7 @@ This is a workflow problem, not an information problem. It has natural decomposi
 That decomposition is where multi-agent systems earn their keep.
 
 
-## Section 2 — Why multi-agent
+## Why multi-agent
 
 The honest thing about agentic systems in 2026 is that most projects called "agentic" don't need to be. A single well-prompted Claude or GPT call, with retrieval grounding it in domain context, handles a remarkable amount of what gets pitched as multi-agent work. The agentic framing is fashionable enough that picking it for fashion's sake is the default failure mode.
 
@@ -42,7 +42,7 @@ Multi-agent won, but not because agents are fashionable. It won because the work
 A note on what v1 isn't. The pipeline ships sequential execution: Classifier returns, Extractor runs, Mapper runs through the obligation list one at a time, the report builder assembles the output. There is no orchestrator agent making routing decisions. There is no parallel execution. There is no critic agent reviewing low-confidence mappings before the report is finalised. These are real and useful patterns; they're tracked as v6 work in the project's GitHub issues. v1 prioritised end-to-end correctness over orchestration sophistication, which is the right ordering for a portfolio piece — orchestration on top of a broken pipeline is wasted optimisation.
 
 
-## Section 3 — Agent decomposition
+## Agent decomposition
 
 The pipeline has seven components. Three are LLM-driven agents with their own prompts, evals, and per-call cost profiles. Four are deterministic code that does work the LLM doesn't need to do. Treating those distinctions seriously is what separates "agentic system" as a label from "agentic system" as a design choice.
 
@@ -66,7 +66,7 @@ Input: the publication's cleaned text, plus the regulation context. Output: a li
 
 Model: Claude Sonnet 4.6. Sonnet's reasoning depth matters here in a way it doesn't for classification. The Extractor has to handle ambiguous regulatory language — sentences that contain a binding requirement and an explanatory aside and an exception clause, all in one paragraph. Haiku produces noticeably worse output on this; the gold-set check, when it gets built, will quantify how much worse.
 
-The Extractor doesn't get the whole document at once. EU AI Act guidelines are routinely 100+ pages, and the cleaned text from the Commission's prohibited-practices guideline runs to ~430,000 characters. v1 chunks the document at ~40,000 characters with 2,000-character overlap, runs the Extractor once per chunk, and deduplicates the results. The chunk overlap catches obligations that straddle boundaries; the dedup pass handles the resulting paraphrased duplicates with fuzzy matching at threshold 80. Both are documented in Section 5.
+The Extractor doesn't get the whole document at once. EU AI Act guidelines are routinely 100+ pages, and the cleaned text from the Commission's prohibited-practices guideline runs to ~430,000 characters. v1 chunks the document at ~40,000 characters with 2,000-character overlap, runs the Extractor once per chunk, and deduplicates the results. The chunk overlap catches obligations that straddle boundaries; the dedup pass handles the resulting paraphrased duplicates with fuzzy matching at threshold 80. Both are documented in *The iteration story*.
 
 The system prompt is around 370 words. It defines what counts as a binding obligation (verbs like "shall," "must," "is prohibited"), what doesn't (verbs like "may," "should consider," "is encouraged to"), and how to populate the structured fields. It also includes explicit instruction to output an empty list when a chunk contains no binding obligations — without that instruction, the model fills the slot with weak extractions.
 
@@ -76,7 +76,7 @@ The Mapper takes one obligation at a time and returns 0–3 NIST AI RMF subcateg
 
 Input: one Obligation plus the full controls library (~70 NIST AI RMF subcategories). Output: a list of ControlMapping records.
 
-Model: Claude Sonnet 4.6. This is the agent that benefits most from prompt caching: the controls library is identical across all 71 mapper calls in a run, so caching the prefix delivers 30× ROI on the cache write cost. Section 5 covers the iteration that established this.
+Model: Claude Sonnet 4.6. This is the agent that benefits most from prompt caching: the controls library is identical across all 71 mapper calls in a run, so caching the prefix delivers 30× ROI on the cache write cost. *The iteration story* covers the iteration that established this.
 
 The system prompt is around 520 words and is the most heavily iterated of the three. v1 of the prompt produced exactly 3 mappings per obligation regardless of fit. v3 added an explicit confidence floor and banned hedging language ("thematically aligned," "broadly related to," "in the spirit of"). v5 added a nudge for substantive provider obligations that the v3 floor was wrongly dropping. The current shape returns 0–3 mappings honestly, with reasoning that survives reading by someone with GRC background.
 
@@ -95,7 +95,7 @@ The Reviewer queue is on-disk artefacts. Every run produces runs/<run_id>/ with 
 The honest framing: four of the seven components in the pipeline diagram are deterministic code, not LLM agents. v1 ships three real agents, and that's the right scope for the v1 problem. Adding LLM agents where deterministic code suffices is a common failure mode in agentic projects — every stage doesn't need to be a model call.
 
 
-## Section 4 — Orchestration
+## Orchestration
 
 The pipeline is a Python module — src/attestloop/pipeline.py — that ties the three agents and four passive components together. v1 ships sequential execution: each step runs to completion, writes its output to disk, and the next step picks it up. There is no orchestrator agent, no parallel work, no conditional routing. The shape is closer to a Unix pipeline than to LangGraph.
 
@@ -134,7 +134,7 @@ Those are real orchestration patterns, and they're tracked in issue #4. v1 prior
 A pragmatic note: for a v1 portfolio piece running on demand against single documents, sequential execution is also operationally adequate. 17 minutes wall-clock for a 71-obligation, 154-mapping run on a 135-page guideline is acceptable for human-paced compliance work. v6 closes the latency gap — and unlocks scheduled multi-document runs — but v1's latency isn't a v1 problem.
 
 
-## Section 5 — Iteration
+## Iteration
 
 Five runs are preserved in the repo at docs/example_runs/v1 through v5. Each is a full snapshot of a real pipeline execution against the Commission Guidelines on prohibited AI practices, the 135-page Communication published 4 February 2025. Each iteration changed exactly one variable. Reading them in sequence is the most honest way to understand how the v1 pipeline got to where it is.
 
@@ -169,7 +169,7 @@ Five runs, five changes, each visible in the comparison table and inspectable in
 A specific design pattern worth surfacing: every iteration was driven by reading the actual output, not by metric chasing. v3's confidence floor came from noticing hedging language in the v2 mappings. v5's dedup came from noticing duplicate obligations in v4's output. The v4 cost optimisation came from noticing that 90% of Mapper input was redundant across calls. Reading the output is the eval that always works, even before the formal eval set exists.
 
 
-## Section 6 — Evals
+## Evals
 
 The honest claim about v1's evals is that they're qualitative, not quantitative. Every iteration was driven by reading the actual output of the previous run. The v3 confidence floor came from noticing hedging language in the v2 mappings. The v5 deduplication came from noticing paraphrased duplicates in v4's obligation list. The cost optimisations came from reading per-agent JSON logs and identifying redundant input. This is real eval discipline; it just isn't measurement.
 
@@ -182,7 +182,7 @@ Building a 50-obligation gold set is the first task before any production attemp
 Quantitative evaluation is the v1 gap that hurts the most. Every other v1 limitation has a clean v2 path. The eval gap requires labelled data that doesn't exist yet, and labelling 50 obligations against NIST AI RMF requires somewhere between three and six hours of focused work by someone with the right background.
 
 
-## Section 7 — Costs and latency
+## Costs and latency
 
 | Agent | Model | Calls | Cost (v5) | Mean latency |
 |---|---|---:|---:|---:|
@@ -194,12 +194,12 @@ Total: $1.31 per run, 17 minutes wall-clock, against a 135-page regulator public
 
 The cost shape is worth comparing. Manual review of the same publication by a senior compliance officer would cost on the order of £500-1000 in analyst time at GRC consultant rates, before any control-mapping work happens. The major incumbent regulatory monitoring tools — OneTrust, Diligent, Wolters Kluwer Enablon — sell their AI-Act monitoring modules at £40,000-150,000 per year flat fee, regardless of how many publications get processed or how few obligations get mapped. A naïve single-call GPT-4 approach against the same document would cost roughly £3-5 per run with no provenance, no confidence handles, no separately-tunable agents, and no audit trail.
 
-$1.31 per run is the cost shape of deliberate engineering: Haiku for the classification step that doesn't need Sonnet, prompt caching on the Mapper's redundant controls input, chunked extraction to handle long documents without context-limit failures. Each optimisation came from instrumented measurement, not from guesswork. The 30× return on the prompt cache write specifically is documented in Section 5; it's the largest single cost reduction in the iteration sequence.
+$1.31 per run is the cost shape of deliberate engineering: Haiku for the classification step that doesn't need Sonnet, prompt caching on the Mapper's redundant controls input, chunked extraction to handle long documents without context-limit failures. Each optimisation came from instrumented measurement, not from guesswork. The 30× return on the prompt cache write specifically is documented in *The iteration story*; it's the largest single cost reduction in the iteration sequence.
 
 Latency is the v1 limitation that v6's parallel Mapper execution will close. 71 sequential Sonnet calls at ~11 seconds each accounts for most of the 17-minute wall-clock. Eight-way concurrent execution would reduce that to roughly 2 minutes of Mapper work, leaving Extraction as the new dominant cost.
 
 
-## Section 8 — Failure modes
+## Failure modes
 
 Six things that broke or surprised during development. Each is preserved in the git history; the stories are what makes the writeup credible to a reader who has built systems like this.
 
@@ -216,7 +216,7 @@ Anthropic's 5-minute cache TTL exceeded by rate-limit retries. v4's prompt cachi
 The model's tendency to map every prohibition to GOVERN-1.1. GOVERN-1.1 — "legal and regulatory requirements involving AI are understood, managed, and documented" — is a defensible mapping for almost any Article 5 prohibition. The v2 Mapper used it on 26% of all mappings. v3's confidence floor brought that to 21% by dropping the weakest catch-all uses. v5's targeted prompt nudge for substantive provider obligations restored some legitimate uses, settling at 32%. The v5 share is correct: GOVERN-1.1 is the right control for most prohibition-shaped obligations, and the trajectory wasn't "use it less" but "use it precisely."
 
 
-## Section 9 — What's next
+## What's next
 
 v2 work is tracked in the repo's GitHub issues. The most important items:
 
