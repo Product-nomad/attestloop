@@ -8,6 +8,7 @@ import classifierPrompt from "../content/prompts/classifier.md?raw";
 import extractorPrompt from "../content/prompts/extractor.md?raw";
 import mapperPrompt from "../content/prompts/mapper.md?raw";
 import reportText from "../content/runs/v5_report.md?raw";
+import mermaidSource from "../content/orchestration/v6_pipeline.mmd?raw";
 
 // Shape of a single LLMCallLog entry, matching the Pydantic model.
 interface LogEntry {
@@ -332,59 +333,32 @@ const formatPercent = (frac: number) => `${(frac * 100).toFixed(0)}%`;
     <p
       class="text-base text-text-secondary leading-relaxed max-w-[42rem] mb-10"
     >
-      Seven stages, plain Python, no orchestrator. v1 ships three of them as
-      live LLM agents; the others are implemented as code that the same
-      typed schemas pass through. Click any box for the role, prompt, exact
-      v5 input and output, and per-call metrics.
+      The diagram below is generated directly from the compiled LangGraph
+      state machine — <code class="font-mono text-text-primary">scripts/render_graph.py</code>
+      writes the Mermaid source to <code class="font-mono text-text-primary">docs/orchestration/v6_pipeline.mmd</code>,
+      which the page renders client-side. If the orchestration changes, the
+      diagram regenerates automatically. v2.0.0's five-agent topology with
+      conditional routing is what's drawn here. Click any agent below for
+      role, prompt, sample input and output, and per-call metrics from the
+      canonical v6 run.
     </p>
 
-    <!-- Pipeline diagram: 8 cells (1 source + 7 agents). Single grid; CSS
-         media queries handle mobile vertical stack. -->
-    <div class="pipeline-grid mb-12" role="list">
-      <div
-        class="pipeline-cell pipeline-input"
-        data-cell="source"
-        aria-hidden="true"
-      >
-        <div
-          class="border border-border-subtle bg-bg-base px-3 py-3 h-full flex flex-col justify-center"
-        >
-          <p class="text-xs font-mono text-text-secondary leading-tight">
-            Source PDF
+    <!-- Mermaid diagram, generated from the compiled LangGraph state
+         machine. Source lives at site/src/content/orchestration/
+         v6_pipeline.mmd; the script tag below renders it on mount. -->
+    <div class="mermaid-frame mb-12">
+      <p class="mermaid-caption text-xs font-mono uppercase tracking-[0.18em] text-text-muted">
+        Compiled LangGraph state machine · v2.0.0
+      </p>
+      <div class="mermaid-host" role="img" aria-label="Pipeline state-machine diagram">
+        <pre class="mermaid" data-pipeline-source>{mermaidSource}</pre>
+        <noscript>
+          <p class="text-sm font-mono text-text-secondary">
+            (Pipeline diagram requires JavaScript. The Mermaid source is
+            in the page; see docs/orchestration/v6_pipeline.mmd in the repo.)
           </p>
-          <p
-            class="text-[0.7rem] font-mono text-text-muted mt-1 leading-tight"
-          >
-            Commission Guidelines
-          </p>
-        </div>
+        </noscript>
       </div>
-
-      {
-        agents.map((a) => (
-          <button
-            type="button"
-            class:list={[
-              "pipeline-cell agent-box",
-              `status-${a.status}`,
-              a.id === "extractor" && "row-end",
-            ]}
-            data-agent-id={a.id}
-            aria-controls={`agent-panel-${a.id}`}
-            aria-expanded="false"
-            role="listitem"
-          >
-            <div class="cell-card">
-              <p class="text-xs font-mono text-text-primary leading-tight">
-                {a.name}
-              </p>
-              <p class="text-[0.7rem] font-mono text-text-muted mt-1 leading-tight">
-                {a.blurb}
-              </p>
-            </div>
-          </button>
-        ))
-      }
     </div>
 
     <!-- Agent detail panels. All seven rendered as hidden articles; JS
@@ -808,6 +782,95 @@ const formatPercent = (frac: number) => `${(frac * 100).toFixed(0)}%`;
     line-height: 1.3;
     word-break: break-word;
   }
+
+  /* ─────────────── Mermaid pipeline diagram ─────────────── */
+  .mermaid-frame {
+    border: 1px solid var(--color-border-subtle);
+    background: var(--color-bg-elevated);
+    padding: 1.5rem 1rem 1.25rem;
+  }
+  .mermaid-caption {
+    margin-bottom: 1rem;
+  }
+  .mermaid-host {
+    overflow-x: auto;
+  }
+  /* Hide the raw .mmd source until Mermaid replaces it with rendered
+     SVG; prevents a flash of un-rendered source on slow loads. */
+  .mermaid-host pre.mermaid:not([data-rendered]) {
+    visibility: hidden;
+    min-height: 14rem;
+  }
+  .mermaid-host pre.mermaid {
+    background: transparent;
+    border: 0;
+    padding: 0;
+    margin: 0;
+    font-family: var(--font-mono);
+  }
+  /* Mermaid emits inline fills on its rendered SVG; override aggressively
+     so the diagram matches the site's monochrome dark aesthetic without
+     the default purple/teal palette bleeding through. */
+  .mermaid-host svg {
+    background: transparent;
+    max-width: 100%;
+    height: auto;
+  }
+  .mermaid-host svg .node rect,
+  .mermaid-host svg .node polygon,
+  .mermaid-host svg .node circle,
+  .mermaid-host svg .node ellipse {
+    fill: #16191f !important;
+    stroke: #363b46 !important;
+    stroke-width: 1px !important;
+  }
+  .mermaid-host svg .node .label {
+    color: #e6e8eb !important;
+    fill: #e6e8eb !important;
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+  }
+  .mermaid-host svg .node.first rect,
+  .mermaid-host svg .node.first polygon,
+  .mermaid-host svg .node.first circle,
+  .mermaid-host svg .node.first ellipse,
+  .mermaid-host svg .node.last rect,
+  .mermaid-host svg .node.last polygon,
+  .mermaid-host svg .node.last circle,
+  .mermaid-host svg .node.last ellipse {
+    fill: #1c2027 !important;
+    stroke: #7c8ea3 !important;
+  }
+  .mermaid-host svg .edgePath .path,
+  .mermaid-host svg .flowchart-link {
+    stroke: #7c8ea3 !important;
+    fill: none !important;
+  }
+  .mermaid-host svg .arrowheadPath,
+  .mermaid-host svg marker path {
+    fill: #7c8ea3 !important;
+    stroke: #7c8ea3 !important;
+  }
+  .mermaid-host svg .edgeLabel {
+    background-color: #16191f !important;
+    color: #b0bac6 !important;
+    fill: #b0bac6 !important;
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+  }
+  .mermaid-host svg .edgeLabel rect {
+    fill: #16191f !important;
+  }
+  .mermaid-host svg .cluster rect {
+    fill: #1c2027 !important;
+    stroke: #363b46 !important;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .mermaid-host svg * {
+      animation: none !important;
+      transition: none !important;
+    }
+  }
 </style>
 
 <script>
@@ -887,4 +950,90 @@ const formatPercent = (frac: number) => `${(frac * 100).toFixed(0)}%`;
     }
   });
 
+</script>
+
+<script>
+  // Render the LangGraph-generated Mermaid source into an SVG on mount.
+  // Mermaid is lazy-loaded via dynamic import so the ~600 KB bundle
+  // doesn't sit on the homepage's critical path; it only fetches once
+  // the page has settled and the host element is in view. Theme
+  // variables match the site's monochrome dark aesthetic; CSS in the
+  // scoped <style> block above pins the SVG fills/strokes defensively
+  // in case Mermaid's inline styles bleed through.
+
+  async function renderPipelineDiagram() {
+    const host = document.querySelector<HTMLPreElement>(
+      "pre.mermaid[data-pipeline-source]",
+    );
+    if (!host) return;
+    const source = host.textContent ?? "";
+    if (!source.trim()) return;
+
+    const { default: mermaid } = await import("mermaid");
+    mermaid.initialize({
+      startOnLoad: false,
+      theme: "base",
+      securityLevel: "strict",
+      themeVariables: {
+        primaryColor: "#16191f",
+        primaryTextColor: "#e6e8eb",
+        primaryBorderColor: "#363b46",
+        lineColor: "#7c8ea3",
+        secondaryColor: "#1c2027",
+        tertiaryColor: "#1c2027",
+        background: "#0d0f13",
+        mainBkg: "#16191f",
+        nodeBorder: "#363b46",
+        clusterBkg: "#1c2027",
+        clusterBorder: "#363b46",
+        edgeLabelBackground: "#16191f",
+        fontFamily: "JetBrains Mono, ui-monospace, monospace",
+        fontSize: "13px",
+      },
+    });
+
+    try {
+      const { svg } = await mermaid.render("attestloop-pipeline", source);
+      host.innerHTML = svg;
+      host.setAttribute("data-rendered", "true");
+    } catch (err) {
+      // If Mermaid fails (rare; usually a syntax issue), surface the
+      // source as fallback rather than leaving a blank box.
+      console.error("Mermaid render failed:", err);
+      host.setAttribute("data-rendered", "error");
+      host.style.visibility = "visible";
+    }
+  }
+
+  // Defer until the diagram approaches the viewport so the Mermaid
+  // bundle doesn't compete with first paint.
+  function scheduleRender() {
+    const host = document.querySelector<HTMLPreElement>(
+      "pre.mermaid[data-pipeline-source]",
+    );
+    if (!host) return;
+    if ("IntersectionObserver" in window) {
+      const observer = new IntersectionObserver(
+        (entries, obs) => {
+          for (const entry of entries) {
+            if (entry.isIntersecting) {
+              obs.disconnect();
+              renderPipelineDiagram();
+              return;
+            }
+          }
+        },
+        { rootMargin: "200px" },
+      );
+      observer.observe(host);
+    } else {
+      renderPipelineDiagram();
+    }
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", scheduleRender);
+  } else {
+    scheduleRender();
+  }
 </script>
