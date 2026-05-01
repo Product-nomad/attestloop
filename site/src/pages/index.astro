@@ -17,7 +17,7 @@ const questions = [
     elaboration:
       "When a regulator publishes something new, leadership wants to know whether it affects us — and whether our existing controls already handle it. The honest answer is usually \"we don't know yet, give us two weeks.\" Attestloop closes the per-publication slice of that gap to about fifteen minutes: read the document, extract the binding obligations, map them against a named control framework, surface the gaps. Multi-source monitoring across regulators is v3 work.",
     technicalNote:
-      "Classifier agent confirms scope; Extractor agent identifies binding obligations from the source PDF; Mapper agent compares each to the active control framework with explicit confidence floors.",
+      "Classifier confirms scope; Clarifier handles ambiguous cases; Extractor identifies binding obligations from the source PDF; Mapper compares each to the active control framework with explicit confidence floors; Critic second-passes any low-confidence mappings.",
     AnswerComponent: CoverageAnswer,
   },
   {
