@@ -15,13 +15,10 @@ database, no web framework. Orchestration is a typed LangGraph StateGraph
 in `src/attestloop/orchestration.py`; agent code lives under
 `src/attestloop/agents/`.
 
-v2 ships with two configs out of the box:
-
-- **Regulation:** EU AI Act
-- **Framework:** NIST AI RMF (full 72-subcategory Core)
-
-Adding a new regulation or framework is a matter of dropping a new config
-package under `src/attestloop/regulations/<id>/` or
+v2 ships configurations for one regulation (EU AI Act) and one control
+framework (NIST AI RMF, full 72-subcategory Core). Adding new regulations
+or frameworks is a config drop, not a code change — drop a new package
+under `src/attestloop/regulations/<id>/` or
 `src/attestloop/frameworks/<id>/`; nothing in the core pipeline needs to
 change.
 
