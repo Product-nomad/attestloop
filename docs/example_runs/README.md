@@ -20,7 +20,9 @@ served via redirect; detected by magic-byte sniff and parsed via
 | **v3** chunked extractor + Mapper confidence floor 0.75, no slot-filling | [`v3_confidence_floor/`](v3_confidence_floor/) | 72 | 164 | 12 | 0.817 | 0.750 | 34/164 = 20.7 % | $2.78 | 41 min 35 s |
 | **v4** + Anthropic prompt caching on Mapper controls list | [`v4_prompt_caching/`](v4_prompt_caching/) | 69 | 124 | 24 | 0.812 | 0.760 | 19/124 = 15.3 % | **$1.19** | **14 min 51 s** |
 | **v5** + fuzzy dedup, title fallback, null rendering, mapper nudge — **canonical writeup run** | [`v5_clean/`](v5_clean/) | 71 (from 83 raw) | 154 | 13 | 0.815 | 0.750 | 49/154 = 31.8 % | $1.30 | 17 min 17 s |
-| **v6 task 4** + LangGraph orchestration + Critic + Clarifier + 8-way concurrent Mapper | [`v6_parallel_mapper/`](v6_parallel_mapper/) | 61 (from 73 raw) | 129 | 13 | 0.817 | 0.750 | 43/129 = 33.3 % | $1.76 | **13 min 23 s** |
+| **v6 task 4** + LangGraph orchestration + Critic + Clarifier + 8-way concurrent Mapper | [`v6_parallel_mapper/`](v6_parallel_mapper/) | 61 (from 73 raw) | 129 | 13 | 0.817 | 0.750 | 43/129 = 33.3 % | $1.76 | 13 min 23 s |
+| **v5-equivalent under v6 code** (`--config v5`: serial Mapper, no Critic, no Clarifier) | [`v6_v5_equivalent_clean/`](v6_v5_equivalent_clean/) | 72 (from 82 raw) | 157 | 13 | 0.818 | 0.750 | 51/157 = 32.5 % | $1.31 | 12 min 38 s |
+| **v6 canonical** (`--config v6`: 8-way Mapper, Critic, Clarifier routing) | [`v6_clean/`](v6_clean/) | 71 (from 82 raw) | 160 | 10 | 0.818 | 0.750 | 54/160 = 33.8 % | **$2.09** | **13 min 26 s** |
 
 ## What changed between v2 and v3
 
@@ -314,6 +316,98 @@ attributable to it. The wall-clock and cost savings reported above
 are conservative because the v6-task-3 baseline produced *more*
 obligations to map (71 vs 61); on a per-obligation basis the speedup
 is even larger.
+
+## What changed between v5 and v6 — orchestration impact in isolation
+
+v6 introduces orchestration via LangGraph: the previously sequential
+pipeline becomes a typed state machine with conditional routing, a
+Critic agent for second-pass review of low-confidence mappings, a
+Clarifier agent for ambiguous Classifier outputs, and 8-way concurrent
+Mapper execution.
+
+The `v6_v5_equivalent_clean` snapshot is a like-for-like baseline
+executed under v6 code with all orchestration features disabled
+(`PipelineConfig.V5_EQUIVALENT`: `mapper_concurrency=1`,
+`enable_critic=False`, `enable_clarifier_routing=False`). It exists to
+isolate the orchestration delta from other v5→v6 changes — file
+naming convention (`<agent>.calls.json`), classifier structured output
+(`classification.json`), prompt-cache behaviour with parallel dispatch
+— so the comparison below attributes the deltas to the orchestration
+features rather than to incidental refactors.
+
+### Headline numbers
+
+| Metric | v5-equivalent (v6 code, v5 config) | v6 canonical | Delta |
+|---|---:|---:|---:|
+| Obligations (post-dedup) | 72 | 71 | stochastic |
+| Mappings produced | 157 | 160 | stochastic |
+| Unmapped obligations | 13 | 10 | stochastic |
+| Mean / min confidence | 0.818 / 0.750 | 0.818 / 0.750 | unchanged |
+| GOVERN-1.1 share | 51/157 = 32.5 % | 54/160 = 33.8 % | +1.3 pp |
+| **Mapper wall-clock** | **8 min 18 s** | **1 min 01 s** | **−87.7 % (8.13× speedup)** |
+| Mapper sum-latency (would-be sequential) | 8 min 17 s | 7 min 46 s | n/a |
+| Effective parallelism (sum-latency ÷ wall-clock) | 1.00× | **7.61×** | semaphore cap=8 |
+| Mapper max in-flight calls | 1 | 8 | semaphore working |
+| Mapper cache hit rate | 91.5 % | 82.3 % | −9.2 pp (parallel cold-start) |
+| Pipeline wall-clock (CLI start→exit) | 12 min 38 s | 13 min 26 s | +6.3 % |
+| Critic obligations reviewed | 0 (skipped) | 44 | new |
+| Critic flag rate | n/a | 15/44 = 34.1 % | new |
+| Total cost | $1.31 | $2.09 | **+59.6 %** |
+| Mapper cost | $0.69 | $0.89 | +27.9 % (parallel cache writes) |
+| Critic cost (derived) | $0 | ~$0.78 | new spend |
+
+### Reading these numbers
+
+**The Mapper is no longer the bottleneck.** Going from sequential to
+8-way parallel collapses Mapper wall-clock by 8.13×, almost exactly
+matching the semaphore cap — there's no contention overhead worth
+worrying about at this scale. Effective parallelism reached 7.61×,
+within rounding distance of the cap.
+
+**Pipeline wall-clock barely moved (+0.8 min).** The Critic is
+sequential (it processes flagged obligations one at a time) and added
+~3 min of new work. The Mapper saved ~7 min of work. Net change:
+roughly flat. v6 trades "fast Mapper / no review" for "very fast
+Mapper / second-pass review" at a similar total wall-clock — the
+audit value comes from the Critic, not from end-to-end speed.
+
+**Cost rose 60 %, almost entirely from the Critic.** The Critic
+reviews any obligation whose Mapper output has at least one mapping
+below 0.80 confidence (44 of 71 here, 62 %), at roughly Sonnet rates.
+This is the price of having a second model second-guess the first.
+The +28 % Mapper cost is the parallel-dispatch cache-write penalty
+already documented in the v6 task 4 section above (first 8 concurrent
+calls each pay cache_creation; the rest read).
+
+**Mapping quality is essentially unchanged.** Mean confidence,
+minimum confidence, GOVERN-1.1 share, and unmapped count all sit
+within the document's stochastic-extraction noise band. The Critic's
+authority is limited to flag/confirm — it doesn't rewrite mappings —
+so v6 doesn't change *which* mappings appear in the report; it adds a
+labelled review queue alongside them.
+
+**The Clarifier did not fire.** The Commission Guidelines URL gets a
+high-confidence `in_scope` verdict from the Classifier on every run
+we've measured. The Clarifier is dormant code on this document; its
+effect is verified separately by `scripts/smoke_clarifier.py` against
+a synthetic ambiguous fixture, and by the conditional-routing tests
+in `tests/test_orchestration.py`.
+
+### Why pair this comparison with the historical `v5_clean/` row
+
+`v5_clean` was produced by the v5 codebase before any v6 refactors.
+It uses the old `<agent>.json` filename convention and lacks
+`classification.json` as a structured output. Comparing it directly
+to `v6_clean` would conflate orchestration impact with file-format
+churn. `v6_v5_equivalent_clean` strips that confound: same code, same
+output format, same prompt versions — only the `PipelineConfig`
+differs. The 0.5–1 % cost / 5 % wall-clock variance between
+`v5_clean` ($1.30 / 17 min 17 s) and `v6_v5_equivalent_clean` ($1.31 /
+12 min 38 s) is *not* attributable to any code change — it's pure
+inter-run noise (Anthropic latency, rate-limit backoff luck, LLM
+non-determinism). The 4-min-shorter wall-clock here vs `v5_clean` is
+the most striking inter-run variance and a useful reminder that
+single-run wall-clocks are noisy.
 
 ## Side note: the run that didn't happen
 

@@ -1,0 +1,6 @@
+{
+  "in_scope": true,
+  "category": "guideline",
+  "confidence": 0.95,
+  "reasoning": "This is a Commission Communication (C(2025) 5052 final) containing binding guidelines on prohibited AI practices under the EU AI Act (Regulation (EU) 2024/1689). The document is explicitly titled \"Commission Guidelines on prohibited artificial intelligence practices established by Regulation (EU) 2024/1689\" and provides detailed interpretive guidance on Article 5 prohibitions. While styled as a \"Communication,\" it functions as binding guidance from the Commission on how the AI Act's prohibitions apply to providers, deployers, and other responsible actors. The document contains mandatory (\"shall,\" \"must\") language throughout and covers the material and personal scope of the prohibitions, exclusions, and enforcement mechanisms, creating substantive obligations. The publication is dated 29.7.2025 and clearly addresses the content, application, and interpretation of binding legal obligations under the AI Act itself, making it a binding guideline in scope."
+}

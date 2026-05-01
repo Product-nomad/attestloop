@@ -1,0 +1,9 @@
+{
+  "run_id": "20260501-000808",
+  "started_at": "2026-05-01T00:08:08.730468Z",
+  "regulation_id": "eu_ai_act",
+  "framework_id": "nist_ai_rmf",
+  "total_cost_usd": 2.0925621,
+  "total_input_tokens": 218476,
+  "total_output_tokens": 62434
+}

@@ -1,0 +1,572 @@
+{
+  "obligations": [
+    {
+      "id": "EUAIA-OBL-001",
+      "source_paragraph": "Article 5(1)(a) AI Act; section 3.2.3.c), paragraph 95(2)",
+      "requirement_text": "Providers and deployers of AI systems that deploy manipulative or deceptive techniques shall comply with relevant applicable legislation.",
+      "scope": "Providers and deployers of AI systems deploying manipulative or deceptive techniques",
+      "deadline": "2025-02-02",
+      "evidence_required": "Documentation demonstrating compliance with applicable legislation"
+    },
+    {
+      "id": "EUAIA-OBL-002",
+      "source_paragraph": "Article 5(1)(c) AI Act",
+      "requirement_text": "Providers and deployers shall not place on the market, put into service, or use AI systems that evaluate or classify natural persons or groups of persons based on social behaviour or personal or personality characteristics over a certain period of time, where the social score leads to detrimental or unfavourable treatment in unrelated social contexts or to treatment that is unjustified or disproportionate to the gravity of the social behaviour.",
+      "scope": "Providers and deployers of AI systems (public or private) placed on the EU market, put into service, or used in the Union",
+      "deadline": "2025-02-02",
+      "evidence_required": null
+    },
+    {
+      "id": "EUAIA-OBL-003",
+      "source_paragraph": "Article 5(1)(d) AI Act (as interpreted in paragraph 188)",
+      "requirement_text": "Providers and deployers of AI systems shall not place on the market, put into service, or use AI systems that make risk assessments solely based on profiling or personality trait assessment to predict the risk of a natural person committing a criminal offence, each within their respective responsibilities.",
+      "scope": "Providers and deployers of AI systems used for criminal offence risk assessment or prediction",
+      "deadline": "2025-02-02",
+      "evidence_required": null
+    },
+    {
+      "id": "EUAIA-OBL-004",
+      "source_paragraph": "Article 5(1)(e) AI Act (paragraph 222, 224–225)",
+      "requirement_text": "The placing on the market, the putting into service for this specific purpose, or the use of AI systems that create or expand facial recognition databases through the untargeted scraping of facial images from the internet or CCTV footage shall be prohibited.",
+      "scope": "Providers and deployers of AI systems used for untargeted scraping of facial images from the internet or CCTV footage to create or expand facial recognition databases",
+      "deadline": "2025-02-02",
+      "evidence_required": null
+    },
+    {
+      "id": "EUAIA-OBL-005",
+      "source_paragraph": "Article 5(1)(f), as analysed in paragraph (243)",
+      "requirement_text": "Providers and deployers of AI systems shall not place on the market, put into service, or use AI systems to infer emotions of a natural person in the areas of workplace and education institutions, except where the use of the AI system is intended for medical or safety reasons.",
+      "scope": "Providers and deployers of AI systems used to infer emotions in workplace or education institution contexts",
+      "deadline": "2025-02-02",
+      "evidence_required": null
+    },
+    {
+      "id": "EUAIA-OBL-006",
+      "source_paragraph": "Article 5(1)(g), as analysed in paragraph (274)",
+      "requirement_text": "Providers and deployers of AI systems shall not place on the market, put into service, or use biometric categorisation systems that categorise individually natural persons based on their biometric data to deduce or infer their race, political opinions, trade union membership, religious or philosophical beliefs, sex-life or sexual orientation.",
+      "scope": "Providers and deployers of biometric categorisation AI systems",
+      "deadline": "2025-02-02",
+      "evidence_required": null
+    },
+    {
+      "id": "EUAIA-OBL-007",
+      "source_paragraph": "Article 5(1)(h) AI Act",
+      "requirement_text": "Law enforcement authorities and deployers shall not use real-time remote biometric identification (RBI) AI systems in publicly accessible spaces for law enforcement purposes, except where necessary for the targeted search of specific victims of crime, the prevention of specific imminent threats including terrorist attacks, or the localisation and identification of suspects of certain specified offences, subject to the procedural safeguards in Article 5(2)-(7) AI Act.",
+      "scope": "Deployers using real-time remote biometric identification AI systems for law enforcement purposes in the Union",
+      "deadline": "2025-02-02",
+      "evidence_required": null
+    },
+    {
+      "id": "EUAIA-OBL-008",
+      "source_paragraph": "Section 2.4 / Article 3(3) AI Act; recital context of Article 5 AI Act",
+      "requirement_text": "Providers must ensure their AI systems meet all relevant requirements before placing them on the market or putting them into service.",
+      "scope": "Providers of AI systems placed on the EU market or put into service in the Union",
+      "deadline": "before placing on the market or putting into service",
+      "evidence_required": null
+    },
+    {
+      "id": "EUAIA-OBL-009",
+      "source_paragraph": "Section 2.4, paragraph (20)",
+      "requirement_text": "Providers and deployers of AI systems are required to continuously comply with the AI Act during all phases of the AI lifecycle, including ongoing monitoring of and updates to AI systems placed on the market or put into service in the Union, to ensure that the AI system remains compliant and does not result in a practice prohibited under Article 5 AI Act.",
+      "scope": "Providers and deployers of AI systems placed on the EU market or put into service in the Union",
+      "deadline": null,
+      "evidence_required": null
+    },
+    {
+      "id": "EUAIA-OBL-010",
+      "source_paragraph": "Section 2.5.1, paragraph (24)",
+      "requirement_text": "Where an AI system placed on the market, put into service, or used for military, defence or national security purposes is also used (temporarily or permanently) for other purposes such as civilian, humanitarian, law enforcement or public security purposes, the entity using the AI system for such other purposes must ensure compliance of the AI system with the AI Act, unless it has already been verified that the system complies.",
+      "scope": "Any entity using a dual-purpose AI system for non-excluded purposes (e.g. civilian, law enforcement) in the Union",
+      "deadline": "before such use",
+      "evidence_required": "Verification that the AI system complies with the AI Act prior to use for non-excluded purposes"
+    },
+    {
+      "id": "EUAIA-OBL-011",
+      "source_paragraph": "Section 2.5.1, paragraph (25)",
+      "requirement_text": "Providers of AI systems placed on the market or put into service for both excluded purposes (military, defence, national security) and non-excluded purposes (civilian, law enforcement) — so-called 'dual use' systems — must ensure that those systems comply with the requirements of the AI Act.",
+      "scope": "Providers of dual-use AI systems placed on the EU market or put into service in the Union",
+      "deadline": null,
+      "evidence_required": null
+    },
+    {
+      "id": "EUAIA-OBL-012",
+      "source_paragraph": "Section 2.5.1 (paragraph 26, example)",
+      "requirement_text": "A company that offers a dual-use AI system (including for law enforcement and national security purposes) is the provider of that system and must ensure its compliance with the requirements in the AI Act.",
+      "scope": "Providers of dual-use AI systems placed on the market or put into service",
+      "deadline": null,
+      "evidence_required": null
+    },
+    {
+      "id": "EUAIA-OBL-013",
+      "source_paragraph": "Section 2.5.3 (paragraph 32)",
+      "requirement_text": "Where an AI system is placed on the market or put into service as a result of research and development activity, the obligation to comply with the AI Act applies. Real-world testing of AI systems must be fully compliant with the requirements of the AI Act unless conducted in an AI regulatory sandbox or under the special regime in Articles 60 and 61 AI Act.",
+      "scope": "Providers and any party placing an AI system on the market or putting it into service following R&D; parties conducting real-world testing",
+      "deadline": "before placing on the market or putting into service; at the time of real-world testing",
+      "evidence_required": null
+    },
+    {
+      "id": "EUAIA-OBL-014",
+      "source_paragraph": "Section 2.5.5 (paragraph 36)",
+      "requirement_text": "Providers of AI systems released under free and open-source licences cannot benefit from the open-source exclusion if the AI system they place on the market or put into service constitutes a prohibited practice under Article 5 AI Act; such systems must comply with the AI Act.",
+      "scope": "Providers of AI systems released under free and open-source licences that constitute prohibited practices under Article 5 AI Act",
+      "deadline": null,
+      "evidence_required": null
+    },
+    {
+      "id": "EUAIA-OBL-015",
+      "source_paragraph": "Section 2.7 (paragraph 39)",
+      "requirement_text": "Each operator shall take measures for which they are best placed based on their role and control over the system in the value chain to ensure a responsible and safe provision and use of AI systems, balancing their risks and benefits with a view to achieving the twin objectives of the AI Act.",
+      "scope": "All operators (providers, deployers, importers, distributors) of AI systems",
+      "deadline": null,
+      "evidence_required": null
+    },
+    {
+      "id": "EUAIA-OBL-016",
+      "source_paragraph": "Section 2.7 (paragraph 40)",
+      "requirement_text": "Deployers are expected not to use any AI system in a manner prohibited under Article 5 AI Act, including not to bypass any safety guardrails implemented by the providers of the system.",
+      "scope": "Deployers of AI systems",
+      "deadline": null,
+      "evidence_required": null
+    },
+    {
+      "id": "EUAIA-OBL-017",
+      "source_paragraph": "Section 2.7 (paragraph 40)",
+      "requirement_text": "Providers shall not place on the market or put into service AI systems, including general-purpose AI systems, that are reasonably likely to behave or be directly used in a manner prohibited by Article 5 AI Act. Providers are also expected to take effective and verifiable measures to build in safeguards and prevent and mitigate such harmful behaviour and misuse to the extent reasonably foreseeable and where measures are feasible and proportionate.",
+      "scope": "Providers of AI systems, including general-purpose AI systems",
+      "deadline": "before placing on the market or putting into service",
+      "evidence_required": "Effective and verifiable safeguards; documented measures to prevent and mitigate harmful behaviour and misuse"
+    },
+    {
+      "id": "EUAIA-OBL-018",
+      "source_paragraph": "Section 2.7 (paragraph 40)",
+      "requirement_text": "In their contractual relationships with deployers (i.e. in the terms of use of the AI system), providers are expected to exclude use of their AI system for prohibited practices and provide appropriate information in the instructions of use for deployers and regarding the necessary human oversight.",
+      "scope": "Providers of AI systems in contractual relationships with deployers",
+      "deadline": null,
+      "evidence_required": "Terms of use explicitly excluding prohibited practices; instructions of use containing appropriate information on human oversight"
+    },
+    {
+      "id": "EUAIA-OBL-019",
+      "source_paragraph": "Section 2.7 (paragraph 41)",
+      "requirement_text": "Where providers may have limited possibilities to integrate preventive and mitigating measures, they shall primarily provide appropriate instructions and information to deployers, require the necessary human oversight, and restrict prohibited use of the AI system. Where appropriate, providers are also expected to take measures to monitor for compliance with use restrictions, in line with Union law and without amounting to general monitoring of deployers' activities.",
+      "scope": "Providers of AI systems where prevention of prohibited use relies primarily on instructions and restrictions",
+      "deadline": null,
+      "evidence_required": "Instructions of use; use restriction documentation; evidence of monitoring measures where applicable"
+    },
+    {
+      "id": "EUAIA-OBL-020",
+      "source_paragraph": "Section 2.9.1 (paragraph 53)",
+      "requirement_text": "Member States must designate their competent market surveillance authorities by 2 August 2025.",
+      "scope": "Member States",
+      "deadline": "2025-08-02",
+      "evidence_required": null
+    },
+    {
+      "id": "EUAIA-OBL-021",
+      "source_paragraph": "Section 2.9.1 (paragraph 54)",
+      "requirement_text": "Where there are cross-border implications beyond the territory of the market surveillance authority, the authority of the Member State concerned must inform the Commission and the market surveillance authorities of other Member States, and all market surveillance authorities should follow a Union safeguard procedure with a decision taken by the Commission determining whether the AI system constitutes a prohibited practice.",
+      "scope": "Market surveillance authorities of Member States in cross-border cases",
+      "deadline": null,
+      "evidence_required": null
+    },
+    {
+      "id": "EUAIA-OBL-022",
+      "source_paragraph": "Section 2.9.1 (paragraph 54)",
+      "requirement_text": "National market surveillance authorities should strive for a harmonised application of the prohibitions for comparable cases that do not cross the Member State's territory by drawing inspiration from the Commission Guidelines and cooperating within the AI Board.",
+      "scope": "National market surveillance authorities",
+      "deadline": null,
+      "evidence_required": null
+    },
+    {
+      "id": "EUAIA-OBL-023",
+      "source_paragraph": "Article 50(4) AI Act",
+      "requirement_text": "Deployers shall label 'deep fakes' and certain AI-generated text publications on matters of public interest.",
+      "scope": "Deployers of AI systems generating deep fakes or AI-generated text on matters of public interest",
+      "deadline": null,
+      "evidence_required": "Visible labelling applied to deep fakes and AI-generated content on matters of public interest"
+    },
+    {
+      "id": "EUAIA-OBL-024",
+      "source_paragraph": "Article 50(1) AI Act",
+      "requirement_text": "Providers shall ensure AI systems interacting with people are designed in a way to inform people that they are interacting with AI and not a human.",
+      "scope": "Providers of AI systems that interact with natural persons",
+      "deadline": null,
+      "evidence_required": "Design documentation or technical measures demonstrating that the AI system informs users they are interacting with AI"
+    },
+    {
+      "id": "EUAIA-OBL-025",
+      "source_paragraph": "Article 50(2) AI Act",
+      "requirement_text": "Providers shall enable visible disclosure through design features embedded in the AI system, including technical measures enabling the detection of AI-generated and manipulated content.",
+      "scope": "Providers of AI systems capable of generating or manipulating content",
+      "deadline": null,
+      "evidence_required": "Technical documentation of embedded design features and technical measures enabling detection of AI-generated and manipulated content"
+    },
+    {
+      "id": "EUAIA-OBL-026",
+      "source_paragraph": "Article 5(1)(a) AI Act; section 3.2.3.c)",
+      "requirement_text": "Providers and deployers of AI systems that deploy subliminal, purposefully manipulative, or deceptive techniques shall implement appropriate preventive and mitigating measures to avoid or mitigate the risk of significant harm that is reasonably likely to result from those techniques.",
+      "scope": "Providers and deployers of AI systems deploying subliminal, purposefully manipulative, or deceptive techniques",
+      "deadline": null,
+      "evidence_required": "Documentation of preventive and mitigating measures implemented to avoid significant harm from manipulative or deceptive techniques"
+    },
+    {
+      "id": "EUAIA-OBL-027",
+      "source_paragraph": "Article 5(1)(a) AI Act; section 3.2.1.b)",
+      "requirement_text": "Where an AI system's manipulative behaviour is not merely incidental and significant harms are reasonably likely to occur, the provider shall have taken appropriate preventive and mitigating measures; failure to do so means the system may be considered to deploy purposefully manipulative techniques and fall within the prohibition.",
+      "scope": "Providers of AI systems exhibiting manipulative behaviour",
+      "deadline": null,
+      "evidence_required": "Records of preventive and mitigating measures taken in respect of AI systems capable of exhibiting manipulative behaviour"
+    },
+    {
+      "id": "EUAIA-OBL-028",
+      "source_paragraph": "Article 5(1)(a) AI Act; section 3.2.3.c), paragraph 95",
+      "requirement_text": "Providers and deployers of AI systems that deploy manipulative or deceptive techniques are encouraged to provide transparency in how the AI system operates, clear disclosures about its capabilities and limitations, and relevant information to ensure informed decisions; respect individual autonomy; and integrate appropriate user control and safeguard measures to ensure the system is not deceptive and operates within the boundaries of lawful persuasion.",
+      "scope": "Providers and deployers of AI systems deploying manipulative or deceptive techniques",
+      "deadline": null,
+      "evidence_required": "Transparency disclosures, user control mechanisms, and safeguard documentation demonstrating the system operates within lawful persuasion boundaries"
+    },
+    {
+      "id": "EUAIA-OBL-029",
+      "source_paragraph": "Article 5(1)(a) AI Act; section 3.2.3.c), paragraph 94",
+      "requirement_text": "Market surveillance authorities must investigate each case's specific facts and circumstances, assessing whether the subliminal, purposefully manipulative or deceptive technique deployed by the AI system is likely to appreciably impair the decision-making, individual autonomy and free choice of an 'average' individual within a targeted group when the system affects a group of persons in a manner that is reasonably likely to cause significant harm.",
+      "scope": "Market surveillance authorities",
+      "deadline": null,
+      "evidence_required": "Case investigation records and assessments of the AI system's capability to impair individual autonomy and cause significant harm"
+    },
+    {
+      "id": "EUAIA-OBL-030",
+      "source_paragraph": "Article 5(1)(b)",
+      "requirement_text": "The placing on the market, the putting into service or the use of an AI system that exploits any of the vulnerabilities of a natural person or a specific group of persons due to their age, disability or a specific social or economic situation, with the objective, or the effect, of materially distorting the behaviour of that person or a person belonging to that group in a manner that causes or is reasonably likely to cause that person or another person significant harm shall be prohibited.",
+      "scope": "Providers and deployers placing on the market, putting into service, or using AI systems that exploit vulnerabilities of persons due to age, disability, or specific social or economic situation",
+      "deadline": null,
+      "evidence_required": null
+    },
+    {
+      "id": "EUAIA-OBL-031",
+      "source_paragraph": "Article 5(1)(b) AI Act, section 3.3, paragraph (110)",
+      "requirement_text": "Providers or deployers of AI systems that are aware that their systems unlawfully discriminate against persons or groups of persons in specific social or economic situations and are aware of the reasonably likely significant harm that they are likely to suffer shall take appropriate corrective measures.",
+      "scope": "Providers and deployers of AI systems that are aware their systems unlawfully discriminate against persons or groups in specific social or economic situations",
+      "deadline": null,
+      "evidence_required": "Documentation of corrective measures taken upon awareness of unlawful discriminatory impact"
+    },
+    {
+      "id": "EUAIA-OBL-032",
+      "source_paragraph": "Article 5(1)(c) AI Act (as interpreted in paragraph 171)",
+      "requirement_text": "In the case of checks by competent market surveillance authorities, the provider and the deployer of the AI system, each within their responsibilities, shall demonstrate that the AI practice is legitimate and justified, including by providing transparency of the functioning of the AI system, and information about the types of data and data sources, ensuring that only data related to the social context in which the score is used are processed for the purpose of the evaluation or classification, the system is performing as intended, and any resulting detrimental or unfavourable treatment is justified and proportionate to the social behaviour.",
+      "scope": "Providers and deployers of AI systems used for evaluation or classification of natural persons (social scoring systems)",
+      "deadline": null,
+      "evidence_required": "Documentation demonstrating transparency of the AI system's functioning; records of types of data and data sources used; evidence that only contextually related data is processed; evidence that the system performs as intended; justification that any detrimental or unfavourable treatment is proportionate to the social behaviour"
+    },
+    {
+      "id": "EUAIA-OBL-033",
+      "source_paragraph": "Article 5(1)(c) AI Act (as interpreted in paragraph 178)",
+      "requirement_text": "Providers and deployers shall carefully assess whether other applicable Union and national legislation applies to any particular AI scoring system used in their activities, in particular if there is more specific legislation that strictly regulates the types of data that can be used as relevant and necessary for specific evaluation purposes and if there are more specific rules and procedures to ensure justified and fair treatment.",
+      "scope": "Providers and deployers of AI systems used for scoring or evaluation of natural persons",
+      "deadline": null,
+      "evidence_required": "Records of legal assessment identifying applicable Union and national legislation relevant to the AI scoring system in question"
+    },
+    {
+      "id": "EUAIA-OBL-034",
+      "source_paragraph": "Article 5(1)(d) AI Act",
+      "requirement_text": "The placing on the market, the putting into service for this specific purpose, or the use of an AI system for making risk assessments of natural persons in order to assess or predict the risk of a natural person committing a criminal offence, based solely on the profiling of a natural person or on assessing their personality traits and characteristics, shall be prohibited.",
+      "scope": "Providers and deployers of AI systems used by or on behalf of law enforcement or other authorities for individual criminal risk assessment or prediction",
+      "deadline": null,
+      "evidence_required": null
+    },
+    {
+      "id": "EUAIA-OBL-035",
+      "source_paragraph": "Article 5(1)(d) AI Act (as discussed in section 5.2.3, paragraph 204)",
+      "requirement_text": "Where an AI system falls within the scope of the exclusion from the Article 5(1)(d) prohibition and is classified as a high-risk AI system under Annex III, point 6(d), human oversight must be assigned to persons with the necessary competence, training and authority who shall be able to properly understand the capabilities and limitations of the AI system, correctly interpret its output, and address the risk of automation bias.",
+      "scope": "Deployers (law enforcement authorities or those acting on their behalf) of high-risk AI systems used to support human assessment of involvement of a person in a criminal activity (Annex III, point 6(d))",
+      "deadline": null,
+      "evidence_required": "Documentation of human oversight procedures, training records, and evidence of assigned competence and authority for persons conducting human oversight of AI system outputs"
+    },
+    {
+      "id": "EUAIA-OBL-036",
+      "source_paragraph": "Article 5(1)(d) AI Act (as discussed in section 5.2.3, paragraph 204)",
+      "requirement_text": "Persons assigned human oversight of high-risk AI systems under Article 14 and Article 26 AI Act shall have clear procedures, training and the necessary competence and authority to meaningfully assess the outputs of the AI system, intervene to avoid negative consequences or risks, and stop the use of the AI system if it does not perform as intended.",
+      "scope": "Deployers (law enforcement authorities or those acting on their behalf) of high-risk AI systems used to support human assessment of involvement of a person in a criminal activity (Annex III, point 6(d))",
+      "deadline": null,
+      "evidence_required": "Clear documented procedures for human oversight, training records, and records of interventions or system stops where the AI system did not perform as intended"
+    },
+    {
+      "id": "EUAIA-OBL-037",
+      "source_paragraph": "Article 5(1)(e) AI Act (paragraph 230–231)",
+      "requirement_text": "Where systems combine targeted searches for images or videos with untargeted searches, the untargeted scraping component is prohibited; and scraping of the Internet or CCTV footage for the creation of a database step-by-step, thereby selecting specific groups of individuals or other criteria each time, shall fall within the prohibition of Article 5(1)(e) AI Act where the end-result is functionally the same as pursuing untargeted scraping from the outset.",
+      "scope": "Providers and deployers of AI systems that combine targeted and untargeted scraping of facial images, or that conduct incremental scraping functionally equivalent to untargeted scraping",
+      "deadline": null,
+      "evidence_required": null
+    },
+    {
+      "id": "EUAIA-OBL-038",
+      "source_paragraph": "Article 5(1)(e) AI Act (paragraph 236)",
+      "requirement_text": "Existing facial databases built up prior to the entry into application of the prohibition, which are not further expanded through AI-enabled untargeted scraping, must comply with the applicable Union data protection rules.",
+      "scope": "Any party holding pre-existing facial recognition databases not expanded through AI-enabled untargeted scraping after the prohibition's entry into application",
+      "deadline": null,
+      "evidence_required": "Evidence of compliance with applicable Union data protection rules for pre-existing facial recognition databases"
+    },
+    {
+      "id": "EUAIA-OBL-039",
+      "source_paragraph": "Article 5(1)(f), paragraph (259)",
+      "requirement_text": "Any use of emotion recognition systems for medical and safety reasons shall always remain limited to what is strictly necessary and proportionate, including limits in time, personal application and scale, and shall be accompanied by sufficient safeguards, such as prior written and motivated expert opinion relating to the specific use case.",
+      "scope": "Deployers of emotion recognition AI systems invoking the medical or safety exception under Article 5(1)(f)",
+      "deadline": null,
+      "evidence_required": "Prior written and motivated expert opinion relating to the specific use case; documentation of necessity assessment and proportionality limits"
+    },
+    {
+      "id": "EUAIA-OBL-040",
+      "source_paragraph": "Article 5(1)(f), paragraph (260)",
+      "requirement_text": "Employers and educators shall only deploy emotion recognition systems for medical and safety reasons in case of an explicit need, and data collected and processed in this context may not be used for any other purpose.",
+      "scope": "Employers and educators (deployers) deploying emotion recognition AI systems under the medical/safety exception",
+      "deadline": null,
+      "evidence_required": "Documentation of explicit need; data use limitation controls preventing secondary use of collected data"
+    },
+    {
+      "id": "EUAIA-OBL-041",
+      "source_paragraph": "Article 5(1)(f) and Article 6(2), paragraph (263)",
+      "requirement_text": "Emotion recognition systems that classify as high-risk systems pursuant to Article 6(2) and Annex III(1)(c) AI Act shall comply with the high-risk requirements in Chapter III Section 2 AI Act and the transparency obligation of Article 50(3) AI Act.",
+      "scope": "Providers and deployers of high-risk emotion recognition AI systems classified under Article 6(2) and Annex III(1)(c)",
+      "deadline": null,
+      "evidence_required": "Documentation of compliance with Chapter III Section 2 requirements; records demonstrating fulfilment of Article 50(3) transparency obligations"
+    },
+    {
+      "id": "EUAIA-OBL-042",
+      "source_paragraph": "Article 5(1)(f), paragraph (270)",
+      "requirement_text": "Deployers of crowd control or similar AI systems that may incidentally infer emotions of employees must employ safeguards to avoid the screening of employees.",
+      "scope": "Deployers of AI systems used for crowd control or public safety that may incidentally infer employee emotions",
+      "deadline": null,
+      "evidence_required": "Documentation of safeguards implemented to prevent employee emotion screening"
+    },
+    {
+      "id": "EUAIA-OBL-043",
+      "source_paragraph": "Article 5(1)(h) AI Act; Article 5(2)–(7) AI Act",
+      "requirement_text": "The use of 'real-time' remote biometric identification systems in publicly accessible spaces for the purpose of law enforcement shall be prohibited, unless such use is strictly necessary for one of the exhaustively listed objectives (Article 5(1)(h)(i)–(iii) AI Act) and is authorised by national legislation that fulfils the requirements in Article 5(2)–(7) AI Act.",
+      "scope": "Deployers of real-time remote biometric identification systems used in publicly accessible spaces for law enforcement purposes, including law enforcement authorities and entities acting on their behalf",
+      "deadline": "2025-02-02",
+      "evidence_required": "National legislation authorising the use; documentation demonstrating the use falls within one of the three permitted objectives and complies with the conditions and safeguards of Article 5(2)–(7) AI Act"
+    },
+    {
+      "id": "EUAIA-OBL-044",
+      "source_paragraph": "Article 5(1)(h) AI Act; Article 5(5) AI Act",
+      "requirement_text": "In the absence of national legislation allowing and regulating the use of real-time RBI systems in publicly accessible spaces for law enforcement purposes, law enforcement authorities and entities acting on their behalf may not deploy such systems for law enforcement purposes.",
+      "scope": "Law enforcement authorities and entities acting on their behalf as deployers of real-time RBI systems",
+      "deadline": "2025-02-02",
+      "evidence_required": "National legislation permitting such use"
+    },
+    {
+      "id": "EUAIA-OBL-045",
+      "source_paragraph": "Article 6(2) and Annex III, point (a) AI Act; Article 5(1)(h) AI Act",
+      "requirement_text": "The placing on the market and the putting into service of real-time RBI systems, as well as the use of other RBI systems, is not prohibited but shall be subject to the rules for high-risk AI systems in accordance with Article 6(2) and point (a) of Annex III AI Act.",
+      "scope": "Providers and deployers of real-time RBI systems (for placing on the market or putting into service) and deployers of other (non-real-time) RBI systems",
+      "deadline": null,
+      "evidence_required": "Compliance documentation for high-risk AI system requirements"
+    },
+    {
+      "id": "EUAIA-OBL-046",
+      "source_paragraph": "Article 26(10) AI Act",
+      "requirement_text": "The retrospective (non-real-time) use of RBI systems for law enforcement purposes is not prohibited but is subject to additional safeguards for the deployment of high-risk AI systems as set out in Article 26(10) AI Act.",
+      "scope": "Deployers of retrospective (post) RBI systems used for law enforcement purposes",
+      "deadline": null,
+      "evidence_required": "Documentation demonstrating compliance with the additional safeguards for high-risk AI system deployment under Article 26(10) AI Act"
+    },
+    {
+      "id": "EUAIA-OBL-047",
+      "source_paragraph": "Article 5(1)(h)(i) AI Act; Article 5(2)–(7) AI Act",
+      "requirement_text": "Where real-time RBI systems are used in publicly accessible spaces for the targeted search for specific victims of abduction, trafficking in human beings or sexual exploitation of human beings, as well as the search for missing persons, such use must be strictly necessary and subject to the conditions and safeguards in Article 5(2)–(7) AI Act.",
+      "scope": "Law enforcement authorities and entities acting on their behalf as deployers of real-time RBI systems",
+      "deadline": null,
+      "evidence_required": "Prior authorisation under national law; documentation of strict necessity; defined perimeter of deployment and duration of use"
+    },
+    {
+      "id": "EUAIA-OBL-048",
+      "source_paragraph": "Article 5(1)(h)(ii) AI Act; Article 5(2)–(7) AI Act",
+      "requirement_text": "Where real-time RBI systems are used in publicly accessible spaces for the prevention of a specific, substantial and imminent threat to the life or physical safety of natural persons or a genuine and present or genuine and foreseeable threat of a terrorist attack, such use must be strictly necessary and subject to the conditions and safeguards in Article 5(2)–(7) AI Act.",
+      "scope": "Law enforcement authorities and entities acting on their behalf as deployers of real-time RBI systems",
+      "deadline": null,
+      "evidence_required": "Prior authorisation under national law; documentation of strict necessity and compliance with Article 5(2)–(7) safeguards"
+    },
+    {
+      "id": "EUAIA-OBL-049",
+      "source_paragraph": "Article 5(1)(h)(iii) AI Act; Article 5(2)–(7) AI Act",
+      "requirement_text": "Where real-time RBI systems are used in publicly accessible spaces for the localisation or identification of a person suspected of having committed a criminal offence listed in Annex II and punishable by a custodial sentence or detention order for a maximum period of at least four years, such use must be strictly necessary and subject to the conditions and safeguards in Article 5(2)–(7) AI Act.",
+      "scope": "Law enforcement authorities and entities acting on their behalf as deployers of real-time RBI systems",
+      "deadline": null,
+      "evidence_required": "Prior authorisation under national law; evidence that the offence is listed in Annex II and meets the penalty threshold; documentation of strict necessity and compliance with Article 5(2)–(7) safeguards"
+    },
+    {
+      "id": "EUAIA-OBL-050",
+      "source_paragraph": "Article 5(2) AI Act",
+      "requirement_text": "The use of 'real-time' remote biometric identification systems in publicly accessible spaces for the purposes of law enforcement shall be deployed only to confirm the identity of the specifically targeted individual, and shall take into account the nature of the situation giving rise to the possible use (including the seriousness, probability and scale of the harm) and the consequences of the use of the system for the rights and freedoms of all persons concerned.",
+      "scope": "Law enforcement authorities deploying real-time remote biometric identification (RBI) systems in publicly accessible spaces for law enforcement purposes under Article 5(1)(h) AI Act.",
+      "deadline": "before deployment",
+      "evidence_required": "Documentation demonstrating that use was limited to confirming the identity of a specifically targeted individual, and records of the assessment of seriousness, probability, and scale of harm and consequences."
+    },
+    {
+      "id": "EUAIA-OBL-051",
+      "source_paragraph": "Article 5(2) AI Act",
+      "requirement_text": "The use of 'real-time' remote biometric identification systems in publicly accessible spaces for the purposes of law enforcement shall comply with necessary and proportionate safeguards and conditions in relation to the use in accordance with the national law authorising the use thereof, in particular as regards the temporal, geographic and personal limitations.",
+      "scope": "Law enforcement authorities deploying real-time RBI systems in publicly accessible spaces for law enforcement purposes under Article 5(1)(h) AI Act.",
+      "deadline": "before deployment",
+      "evidence_required": "Records documenting the defined temporal, geographic, and personal scope limitations applied to each deployment, in accordance with national law."
+    },
+    {
+      "id": "EUAIA-OBL-052",
+      "source_paragraph": "Article 5(2) AI Act",
+      "requirement_text": "The use of 'real-time' remote biometric identification systems in publicly accessible spaces for law enforcement purposes shall be authorised only if the law enforcement authority has completed a fundamental rights impact assessment as provided for in Article 27 and has registered the system in the EU database according to Article 49. In duly justified cases of urgency, use may be commenced without prior registration, provided that such registration is completed without undue delay.",
+      "scope": "Law enforcement authorities (deployers) of real-time RBI systems in publicly accessible spaces for law enforcement purposes.",
+      "deadline": "before deployment (or without undue delay in cases of duly justified urgency)",
+      "evidence_required": "Completed Fundamental Rights Impact Assessment (FRIA) per Article 27; registration record in the EU database per Article 49."
+    },
+    {
+      "id": "EUAIA-OBL-053",
+      "source_paragraph": "Article 5(2) AI Act; paragraph (370) of the Guidelines",
+      "requirement_text": "In the period after 2 February 2025 but before 2 August 2026, deployers of real-time RBI systems meeting the conditions for exceptions under Article 5(1)(h) AI Act must implement the requirements for the Fundamental Rights Impact Assessment set out in Article 27 AI Act.",
+      "scope": "Deployers of real-time RBI systems in publicly accessible spaces for law enforcement purposes, during the transitional period (2 February 2025 to 2 August 2026).",
+      "deadline": "2025-02-02 (applicable from); 2026-08-02 (end of transitional period)",
+      "evidence_required": "Fundamental Rights Impact Assessment carried out in compliance with Article 27 AI Act requirements."
+    },
+    {
+      "id": "EUAIA-OBL-054",
+      "source_paragraph": "Article 5(2) AI Act; paragraph (373) of the Guidelines",
+      "requirement_text": "The obligation to carry out the FRIA under Article 5(2) AI Act is imposed on the deployers of the RBI system. If other actors are acting on behalf of the deployer/law enforcement authority, they must contribute to the preparation of the FRIA with all relevant information to ensure it is properly carried out.",
+      "scope": "Deployers of real-time RBI systems (law enforcement authorities) and entities acting on their behalf.",
+      "deadline": "before deployment",
+      "evidence_required": "Completed FRIA documenting contributions from all relevant actors, including those acting on behalf of the deployer."
+    },
+    {
+      "id": "EUAIA-OBL-055",
+      "source_paragraph": "Article 5(2) AI Act; paragraph (374) of the Guidelines",
+      "requirement_text": "A FRIA must be carried out before the deployment of the authorised real-time RBI system.",
+      "scope": "Deployers of real-time RBI systems in publicly accessible spaces for law enforcement purposes.",
+      "deadline": "before deployment",
+      "evidence_required": "Dated FRIA documentation completed prior to first deployment of the real-time RBI system."
+    },
+    {
+      "id": "EUAIA-OBL-056",
+      "source_paragraph": "Article 27 AI Act; paragraph (375) of the Guidelines",
+      "requirement_text": "The FRIA shall include: a description of the RBI use and the deployer's processes, including the deployer's name, law enforcement purpose(s), description of the reference database, description of the underlying technology, and the legal basis for deployment; the period and frequency of use; the categories of persons and groups affected; and the specific risks of harm to affected persons.",
+      "scope": "Deployers of real-time RBI systems in publicly accessible spaces for law enforcement purposes.",
+      "deadline": "before deployment",
+      "evidence_required": "FRIA document containing all required elements: system description, period/frequency of use, categories of affected persons, and specific risks of harm analysis."
+    },
+    {
+      "id": "EUAIA-OBL-057",
+      "source_paragraph": "Article 27 AI Act; paragraph (376) of the Guidelines",
+      "requirement_text": "The FRIA must identify the fundamental rights of affected persons, assess the impact on their fundamental rights including the severity and scale of impact, and include an assessment of whether the use of a real-time RBI system is necessary and proportionate, including the existence or absence of less intrusive alternatives. The FRIA shall also describe the performance and accuracy level of the system based on technical documentation.",
+      "scope": "Deployers of real-time RBI systems in publicly accessible spaces for law enforcement purposes.",
+      "deadline": "before deployment (at an abstract level prior to first putting into service)",
+      "evidence_required": "FRIA containing a fundamental rights impact analysis with necessity and proportionality assessment, description of system performance and accuracy, and documentation on less intrusive alternatives considered."
+    },
+    {
+      "id": "EUAIA-OBL-058",
+      "source_paragraph": "Article 5(3) AI Act; paragraph (376) of the Guidelines",
+      "requirement_text": "The FRIA shall describe the procedures that will be followed during operation of the real-time RBI system, including how the output will be interpreted in the decision-making process, the role of a human agent in verifying and interpreting the output, and training to operate the system. No decision adversely affecting an individual may be taken solely on the basis of the output of the real-time RBI system.",
+      "scope": "Deployers of real-time RBI systems in publicly accessible spaces for law enforcement purposes.",
+      "deadline": "before deployment",
+      "evidence_required": "FRIA section describing human oversight procedures, human agent roles, and training provisions; operational procedures documentation."
+    },
+    {
+      "id": "EUAIA-OBL-059",
+      "source_paragraph": "Article 5(2) AI Act; paragraph (377) of the Guidelines",
+      "requirement_text": "The deployer of a real-time RBI system used in publicly accessible spaces for law enforcement purposes must register the system in the EU database provided for in Article 49 AI Act before deployment. In cases of duly justified emergency, deployment may start prior to registration, provided the law enforcement authority registers the system without undue delay (as soon as possible given the circumstances).",
+      "scope": "Deployers (law enforcement authorities) of real-time RBI systems in publicly accessible spaces for law enforcement purposes.",
+      "deadline": "before deployment (or without undue delay in emergencies)",
+      "evidence_required": "Registration record of the RBI system in the EU database (secure non-public section per Article 49(4) AI Act); in emergency cases, timestamped registration demonstrating registration was completed without undue delay."
+    },
+    {
+      "id": "EUAIA-OBL-060",
+      "source_paragraph": "Article 5(3) AI Act",
+      "requirement_text": "Each individual use of a 'real-time' remote biometric identification system in publicly accessible spaces for law enforcement purposes shall be subject to prior authorisation granted by a judicial authority or an independent administrative authority whose decision is binding of the Member State in which the use is to take place, issued upon a reasoned request and in accordance with the detailed rules of national law. In a duly justified situation of urgency, use may be commenced without prior authorisation, provided that such authorisation is requested without undue delay and at the latest within 24 hours.",
+      "scope": "Law enforcement authorities deploying real-time RBI systems in publicly accessible spaces for law enforcement purposes.",
+      "deadline": "before each individual deployment (or within 24 hours in cases of urgency)",
+      "evidence_required": "Prior authorisation decision from a judicial or independent administrative authority; in urgent cases, documentation of the authorisation request submitted within 24 hours of commencement of use."
+    },
+    {
+      "id": "EUAIA-OBL-061",
+      "source_paragraph": "Article 5(3) AI Act",
+      "requirement_text": "If the authorisation for use of a real-time RBI system is rejected, the use shall be stopped with immediate effect and all the data, as well as the results and outputs of that use, shall be immediately discarded and deleted.",
+      "scope": "Law enforcement authorities deploying real-time RBI systems in publicly accessible spaces for law enforcement purposes.",
+      "deadline": "immediately upon rejection of authorisation",
+      "evidence_required": "Records confirming immediate cessation of use and deletion/discarding of all data, results, and outputs upon rejection of authorisation."
+    },
+    {
+      "id": "EUAIA-OBL-062",
+      "source_paragraph": "Article 5(3) AI Act",
+      "requirement_text": "No decision that produces an adverse legal effect on a person may be taken based solely on the output of the 'real-time' remote biometric identification system.",
+      "scope": "Deployers (law enforcement authorities) of real-time remote biometric identification systems in publicly accessible spaces",
+      "deadline": null,
+      "evidence_required": "Documentation showing that decisions producing adverse legal effects are not based solely on RBI system output but include additional verification steps"
+    },
+    {
+      "id": "EUAIA-OBL-063",
+      "source_paragraph": "Article 5(3) AI Act; paragraph (388)",
+      "requirement_text": "Each individual request for the use of real-time RBI must be 'reasoned' and hence substantiated and motivated.",
+      "scope": "Deployers (law enforcement authorities) seeking authorisation to use real-time remote biometric identification systems in publicly accessible spaces",
+      "deadline": "prior to each individual use (or within 24 hours in urgent cases)",
+      "evidence_required": "Written reasoned request containing sufficient evidence to determine strict necessity and proportionality of the use"
+    },
+    {
+      "id": "EUAIA-OBL-064",
+      "source_paragraph": "Article 14 AI Act; paragraph (407)",
+      "requirement_text": "High-risk AI systems (including permitted real-time RBI systems) shall be designed and developed in such a way, including with appropriate human-machine interface tools, that they can be effectively overseen by natural persons during the period in which they are in use.",
+      "scope": "Providers and deployers of high-risk AI systems, including real-time remote biometric identification systems used for law enforcement",
+      "deadline": null,
+      "evidence_required": "Documentation of human-machine interface design and human oversight mechanisms implemented in the system"
+    },
+    {
+      "id": "EUAIA-OBL-065",
+      "source_paragraph": "Article 14(5) AI Act; paragraph (407)",
+      "requirement_text": "No action or decision may be taken by the deployer on the basis of the identification resulting from a real-time RBI system unless that identification has been separately verified and confirmed by at least two natural persons with the necessary competence, training and authority, or unless Union or national law considers the application of this requirement to be disproportionate.",
+      "scope": "Deployers of real-time remote biometric identification systems used for law enforcement",
+      "deadline": null,
+      "evidence_required": "Records of verification and confirmation of identifications by at least two qualified natural persons before any action or decision is taken"
+    },
+    {
+      "id": "EUAIA-OBL-066",
+      "source_paragraph": "Article 4 AI Act; paragraph (407)",
+      "requirement_text": "Providers and users of AI systems shall ensure a sufficient level of AI literacy of their staff and other persons dealing with the operation and use of AI systems, considering the persons on whom the systems are to be used.",
+      "scope": "Providers and deployers (users) of AI systems, including real-time remote biometric identification systems",
+      "deadline": null,
+      "evidence_required": "Documentation of AI literacy measures and training programmes implemented for staff and other relevant persons"
+    },
+    {
+      "id": "EUAIA-OBL-067",
+      "source_paragraph": "Article 5(4) AI Act; paragraph (409)",
+      "requirement_text": "Each use of a 'real-time' remote biometric identification system in publicly accessible spaces for law enforcement purposes shall be notified to the relevant market surveillance authority and the national data protection authority in accordance with national rules. The notification shall, as a minimum, contain the information specified under Article 5(6) AI Act and shall not include sensitive operational data.",
+      "scope": "Deployers (law enforcement authorities) of real-time remote biometric identification systems in publicly accessible spaces",
+      "deadline": "after each use",
+      "evidence_required": "Notification records submitted to the relevant market surveillance authority and national data protection authority containing required information and excluding sensitive operational data"
+    },
+    {
+      "id": "EUAIA-OBL-068",
+      "source_paragraph": "Article 5(5) AI Act; paragraph (414)",
+      "requirement_text": "Member States shall notify their national laws authorising the use of real-time remote biometric identification systems in publicly accessible spaces for law enforcement purposes to the Commission at the latest 30 days following the adoption thereof.",
+      "scope": "Member States that adopt national laws authorising use of real-time remote biometric identification systems for law enforcement purposes",
+      "deadline": "at the latest 30 days following the adoption of the national law",
+      "evidence_required": "Notification submitted to the Commission including the adopted national law"
+    },
+    {
+      "id": "EUAIA-OBL-069",
+      "source_paragraph": "Article 5(6) AI Act; paragraph (419)",
+      "requirement_text": "National market surveillance authorities and the national data protection authorities of Member States that have been notified of the use of 'real-time' remote biometric identification systems in publicly accessible spaces for law enforcement purposes shall submit annual reports on such use to the Commission.",
+      "scope": "National market surveillance authorities and national data protection authorities of Member States",
+      "deadline": "annually",
+      "evidence_required": "Annual reports submitted to the Commission based on the Commission's template, covering the number and results of authorisation decisions"
+    },
+    {
+      "id": "EUAIA-OBL-070",
+      "source_paragraph": "Article 5(7) AI Act; paragraph (423)",
+      "requirement_text": "The Commission shall publish annual reports on the use of real-time remote biometric identification systems in publicly accessible spaces for law enforcement purposes, based on aggregated data in Member States, and these reports shall not include sensitive operational data.",
+      "scope": "The European Commission",
+      "deadline": "annually",
+      "evidence_required": "Published annual reports based on aggregated data from Member States' annual reports, excluding sensitive operational data"
+    },
+    {
+      "id": "EUAIA-OBL-071",
+      "source_paragraph": "Article 113 AI Act; paragraph (431)",
+      "requirement_text": "Providers and deployers of AI systems shall take necessary measures to ensure that they do not place on the market, put into service or use AI systems that could constitute prohibited practices under Article 5 AI Act, even during the interim period before monitoring and fines provisions apply (i.e., before 2 August 2025).",
+      "scope": "Providers and deployers of AI systems subject to Article 5 AI Act prohibitions",
+      "deadline": "2025-02-02",
+      "evidence_required": "Documentation of measures taken to assess and ensure AI systems placed on the market, put into service, or used do not constitute prohibited practices under Article 5 AI Act."
+    }
+  ]
+}
