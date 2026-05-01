@@ -1,5 +1,5 @@
 ---
-import reportText from "../../content/runs/v5_report.md?raw";
+import reportText from "../../content/runs/v6_report.md?raw";
 
 // Extract everything from "## Provenance" to the next H2 (or end of file).
 function extractProvenance(text: string): string {
@@ -18,6 +18,7 @@ const auditBullets = [
   "Hashed prompt versions",
   "Sourced control library",
   "Reproducible against same source",
+  "Second-pass review by independent Critic agent",
 ];
 ---
 
@@ -26,7 +27,7 @@ const auditBullets = [
     <p
       class="text-xs font-mono uppercase tracking-[0.18em] text-text-muted"
     >
-      Provenance footer · v5 run
+      Provenance footer · v6 canonical run
     </p>
   </div>
   <pre

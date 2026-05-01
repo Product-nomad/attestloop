@@ -1,5 +1,5 @@
 ---
-type Status = "live" | "architected" | "backlog";
+type Status = "live-v2" | "live-v1" | "architected" | "backlog";
 
 interface Item {
   status: Status;
@@ -9,24 +9,30 @@ interface Item {
 
 const items: Item[] = [
   {
-    status: "live",
+    status: "live-v2",
+    statusLabel: "Live in v2.0.0",
+    body: "LangGraph state machine orchestration with five LLM-driven agents and conditional routing. Critic agent for second-pass review of low-confidence mappings. 8-way concurrent Mapper execution.",
+  },
+  {
+    status: "live-v1",
     statusLabel: "Live in v1",
-    body: "Single-document attestation against EU AI Act and NIST AI RMF, on demand.",
+    body: "Single-document attestation against EU AI Act and NIST AI RMF, on demand. Available under V5_EQUIVALENT config flag for ~$1.31/run when audit-grade output isn't required.",
   },
   {
     status: "architected",
     statusLabel: "Architected, not yet shipping",
-    body: "Watcher agent polls regulator sources (EUR-Lex, FCA Handbook, EBA, ICO) on a schedule, deduplicates against history, alerts on new in-scope publications.",
+    body: "Watcher agent polls regulator sources on a schedule, deduplicates against history, queues new in-scope publications. Per-regulator scrape adapters in v3 backlog.",
   },
   {
     status: "backlog",
-    statusLabel: "v2 backlog",
-    body: "Multi-framework mapping (ISO 42001, SOC 2 AI Trust Criteria), customer-supplied control libraries, mapper batching for cost optimisation, longer-TTL cache for sustained throughput.",
+    statusLabel: "v3 backlog",
+    body: "Multi-framework support (ISO 42001, SOC 2 AI Trust Criteria, customer-supplied control libraries). Critic parallelisation for 5–7 minute total runtime. Mapper batching for sustained throughput.",
   },
 ];
 
 const statusClass: Record<Status, string> = {
-  live: "text-accent",
+  "live-v2": "text-accent",
+  "live-v1": "text-text-secondary",
   architected: "text-text-secondary",
   backlog: "text-text-muted",
 };

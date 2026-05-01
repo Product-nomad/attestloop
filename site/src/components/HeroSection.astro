@@ -20,12 +20,13 @@
     <p
       class="text-base sm:text-lg text-text-secondary leading-relaxed mb-10 sm:mb-12"
     >
-      Attestloop ingests a regulator's publication, classifies it, extracts
-      the binding obligations from the text, and maps each obligation to
-      controls in a named framework. Each run writes a self-contained,
-      auditable log to disk — no database, no orchestrator, no web framework.
-      v1 demonstrates the approach against the EU AI Act and the NIST AI Risk
-      Management Framework.
+      Attestloop is a multi-agent regulatory attestation pipeline. v2.0.0
+      ships five LLM-driven agents — Classifier, Extractor, Mapper, Critic,
+      Clarifier — connected by a typed state machine with conditional
+      routing and parallel execution. Currently a research artefact
+      demonstrating the approach against the EU AI Act and NIST AI RMF.
+      Total cost per attestation: $2.09. Total wall-clock: 13 minutes.
+      Open source under Apache 2.0.
     </p>
 
     <div class="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
@@ -44,8 +45,8 @@
     </div>
 
     <p class="mt-10 text-xs text-text-muted">
-      Currently a research artefact built by Simon Newton. Not for production
-      use.
+      Currently a research artefact built by Simon Newton. v2.0.0 — see
+      GitHub for source.
     </p>
   </div>
 </section>

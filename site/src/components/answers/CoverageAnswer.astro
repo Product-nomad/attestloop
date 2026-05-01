@@ -1,7 +1,7 @@
 ---
-import runMetadata from "../../content/runs/v5_run_metadata.json";
-import obligationsFile from "../../content/runs/v5_obligations.json";
-import mappingsFile from "../../content/runs/v5_mappings.json";
+import runMetadata from "../../content/runs/v6_run_metadata.json";
+import obligationsFile from "../../content/runs/v6_obligations.json";
+import mappingsFile from "../../content/runs/v6_mappings.json";
 
 const obligations = obligationsFile.obligations;
 const mappings = mappingsFile.mappings;
@@ -15,7 +15,7 @@ const unmappedCount = totalObligations - mappedCount;
 const startedAt = new Date(runMetadata.started_at);
 const isoDate = startedAt.toISOString().slice(0, 10);
 
-const runtimeSeconds = 1037; // wall-clock from the v5 run
+const runtimeSeconds = 806; // wall-clock from the v6 canonical run
 const runtimeMinutes = Math.floor(runtimeSeconds / 60);
 const runtimeRemainder = runtimeSeconds % 60;
 const runtimeLabel = `${runtimeMinutes} minutes ${runtimeRemainder} seconds`;

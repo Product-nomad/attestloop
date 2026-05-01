@@ -38,8 +38,9 @@ const columns = [
     <p
       class="text-base text-text-secondary leading-relaxed max-w-[42rem] mb-10"
     >
-      v1 through v5 on the same source document. Each iteration changed
-      exactly one thing.
+      Seven runs against the same source document. v1 through v5 walk the
+      v1 architecture; v5_eq and v6 isolate the orchestration impact in
+      v2.0.0.
     </p>
 
     <div class="border border-border-subtle bg-bg-elevated overflow-x-auto">
@@ -97,12 +98,13 @@ const columns = [
     <p
       class="text-base text-text-secondary leading-relaxed max-w-[42rem] mt-10"
     >
-      Five iterations from a 50,000-character truncated baseline to a
-      full-document run with confidence-floored mappings, prompt caching,
-      and fuzzy deduplication. Each step kept the previous quality while
-      changing one variable. The v5 cost shape — $1.31 per run, 17 minutes
-      wall-clock — is what production-grade attestation against a single
-      regulation looks like at this scale.
+      Six iterations from a 50,000-character truncated baseline to a
+      LangGraph state machine with second-pass review and parallel
+      execution. Each step kept the previous quality while changing one
+      variable. The v6 canonical run produces the same Commission
+      Guidelines attestation in 13 minutes 26 seconds at $2.09 — Mapper
+      wall-clock 8.13× faster than v5_eq, total wall-clock essentially
+      flat because the Critic adds ~3 minutes of sequential review work.
     </p>
 
     <p
@@ -110,8 +112,10 @@ const columns = [
     >
       v3 → v4 caching delivered a 30× return on the cache write cost.
       v4 → v5 dedup removed 12 paraphrased duplicates that substring-match
-      missed. Both changes informed the architecture writeup. Read it for
-      the engineering detail.
+      missed. v5 → v6 swapped sequential function calls for a typed state
+      machine and 8-way concurrent Mapper. The v5_eq vs v6 pair isolates
+      the orchestration impact under identical code. Read the writeup
+      for the engineering detail.
     </p>
 
     <a

@@ -1,11 +1,15 @@
 ---
-import obligationsFile from "../../content/runs/v5_obligations.json";
+import obligationsFile from "../../content/runs/v6_obligations.json";
 
+// Same shapes as the v5 selection — a hard prohibition with effective
+// date, a substantive provider obligation, a Member State duty with a
+// future deadline, and a forward-looking application date —
+// re-selected from the v6 canonical run's obligation list.
 const FEATURED_IDS = [
-  "EUAIA-OBL-001",
-  "EUAIA-OBL-008",
-  "EUAIA-OBL-020",
-  "EUAIA-OBL-051",
+  "EUAIA-OBL-001", // Article 5(1)(a) prohibition; deadline 2025-02-02
+  "EUAIA-OBL-008", // Provider obligation; "before placing on the market"
+  "EUAIA-OBL-020", // Member State duty; deadline 2025-08-02
+  "EUAIA-OBL-071", // Article 113 application; 2025-02-02
 ];
 
 const byId = new Map(obligationsFile.obligations.map((o) => [o.id, o]));
@@ -79,11 +83,12 @@ const columns = ["ID", "Article", "Requirement", "Scope", "Deadline"];
 </div>
 
 <p class="text-xs font-mono text-text-muted mt-4 leading-relaxed">
-  Excerpt from the v5 run. The full report contains {
+  Excerpt from the v6 canonical run. The full report contains {
     obligationsFile.obligations.length
-  } obligations with mapped control IDs and proposed actions.
+  } obligations with mapped control IDs, proposed actions, and Critic
+  flags on low-confidence mappings.
   <a
-    href="https://github.com/Product-nomad/attestloop/blob/main/docs/example_runs/v5_clean/report.md"
+    href="https://github.com/Product-nomad/attestloop/blob/main/docs/example_runs/v6_clean/report.md"
     class="text-text-secondary hover:text-text-primary transition-colors duration-150 underline underline-offset-4"
     >View the full report on GitHub.</a
   >
