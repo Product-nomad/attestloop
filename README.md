@@ -145,31 +145,25 @@ to v5-equivalent execution at v5 cost when audit assurance isn't needed.
 
 ## Status
 
-| Component                                                    | Status                                          |
-|--------------------------------------------------------------|-------------------------------------------------|
-| Pydantic schemas (`schemas.py`)                              | ✅ done                                         |
-| Registry (`registry.py`)                                     | ✅ done                                         |
-| EU AI Act config + classifier/extractor                      | ✅ done                                         |
-| NIST AI RMF config (72 subcategories)                        | ✅ done                                         |
-| `fetch.py` (HTML + PDF, EUR-Lex helpers)                     | ✅ done                                         |
-| `llm.py` (tool-use, retry, cost log)                         | ✅ done                                         |
-| Five agents + pipeline CLI                                   | ✅ done (Classifier, Clarifier, Extractor, Mapper, Critic) |
-| Chunked extractor + rapidfuzz dedup                          | ✅ done (v2 → v5)                               |
-| Mapper prompt caching                                        | ✅ done (v4)                                    |
-| LangGraph orchestration + conditional routing                | ✅ done (v6)                                    |
-| Critic agent (advisory second-pass review)                   | ✅ done (v6)                                    |
-| Clarifier agent (low-confidence Classifier retry)            | ✅ done (v6)                                    |
-| 8-way concurrent Mapper                                      | ✅ done (v6)                                    |
-| `PipelineConfig` flag dataclass (V5_EQUIVALENT / V6_CANONICAL) | ✅ done (v6)                                  |
-| Canonical v6 run + v5-equivalent baseline                    | ✅ done (see [`docs/example_runs/`](docs/example_runs/)) |
-| Threat model (`THREAT_MODEL.md`)                             | ✅ done                                         |
-| Architectural decisions (`docs/adr/`)                        | ✅ done (15 ADRs)                               |
-| Parallelise the Critic                                       | 🚧 v7 backlog                                   |
-| Negative examples in Mapper prompt for Critic-flagged patterns | 🚧 v7 backlog                                 |
-| Frozen golden set + quantitative evals                       | 🚧 v7                                           |
-| Multi-source watcher                                         | 🚧 v7                                           |
-| Multi-framework support (ISO 42001, SOC 2 AI Trust Criteria) | 🚧 v7 backlog                                   |
-| Mapper batching                                              | 🚧 v7 backlog                                   |
+**Shipped in v2.0.0:**
+
+- Five LLM agents (Classifier, Clarifier, Extractor, Mapper, Critic) with versioned prompts and per-call cost logging
+- LangGraph orchestration with conditional routing on Classifier confidence
+- 8-way concurrent Mapper execution with prompt caching
+- `PipelineConfig` flag dataclass (`V5_EQUIVALENT` / `V6_CANONICAL` presets)
+- Chunked extractor with rapidfuzz dedup
+- Critic agent for advisory second-pass review of low-confidence mappings
+- EU AI Act regulation config; NIST AI RMF framework config (72 subcategories)
+- Threat model, ADRs (15 records), canonical v6 run + v5-equivalent baseline
+
+**v7 backlog:**
+
+- Parallelise the Critic (the current bottleneck after v6's Mapper parallelisation)
+- Negative examples in Mapper prompt for the five recurring patterns the Critic flags
+- Frozen golden set + quantitative evals (precision, recall against hand-labelled obligations)
+- Multi-source watcher (poll EUR-Lex, FCA, EBA, ICO, ESMA on a schedule)
+- Multi-framework support (ISO 42001, SOC 2 AI Trust Criteria)
+- Mapper batching (4–8 obligations per Sonnet call to reduce API overhead)
 
 ## Honest scope
 
