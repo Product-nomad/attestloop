@@ -106,11 +106,9 @@ uv run pytest    # tests covering schemas, mapper, orchestration, config, report
 
 ## Canonical v6 run
 
-Tagged at
-[`v2.0.0`](https://github.com/Product-nomad/attestloop/releases/tag/v2.0.0).
-
 | Metric                     | Value                                                                 |
 |----------------------------|-----------------------------------------------------------------------|
+| Git tag                    | [`v2.0.0`](https://github.com/Product-nomad/attestloop/releases/tag/v2.0.0) |
 | Source document            | Commission Guidelines on prohibited AI practices (C(2025) 5052 final) |
 | Fetch path                 | PDF (detected by magic bytes), `pypdf` extraction                     |
 | Cleaned text               | 428 902 chars (chunked at 12 × ~40 000 with 2 000-char overlap)       |
