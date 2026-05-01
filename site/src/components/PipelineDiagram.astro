@@ -1,13 +1,15 @@
 ---
-import classifierLogs from "../content/runs/v5_classifier.json";
-import extractorLogs from "../content/runs/v5_extractor.json";
-import mapperLogs from "../content/runs/v5_mapper.json";
-import obligationsFile from "../content/runs/v5_obligations.json";
-import mappingsFile from "../content/runs/v5_mappings.json";
+import classifierLogs from "../content/runs/v6_classifier.json";
+import extractorLogs from "../content/runs/v6_extractor.json";
+import mapperLogs from "../content/runs/v6_mapper.json";
+import criticLogs from "../content/runs/v6_critic_calls.json";
+import criticDecisionsFile from "../content/runs/v6_critic.json";
+import obligationsFile from "../content/runs/v6_obligations.json";
+import mappingsFile from "../content/runs/v6_mappings.json";
 import classifierPrompt from "../content/prompts/classifier.md?raw";
 import extractorPrompt from "../content/prompts/extractor.md?raw";
 import mapperPrompt from "../content/prompts/mapper.md?raw";
-import reportText from "../content/runs/v5_report.md?raw";
+import criticPrompt from "../content/prompts/critic.md?raw";
 import mermaidSource from "../content/orchestration/v6_pipeline.mmd?raw";
 
 // Shape of a single LLMCallLog entry, matching the Pydantic model.
@@ -29,6 +31,25 @@ interface LogEntry {
 const classifier = classifierLogs as LogEntry[];
 const extractor = extractorLogs as LogEntry[];
 const mapper = mapperLogs as LogEntry[];
+const critic = criticLogs as LogEntry[];
+
+interface CriticDecision {
+  obligation_id: string;
+  decision: "confirm" | "flag_for_review";
+  reasoning: string;
+  confidence: number;
+  reviewed_mappings: string[];
+}
+const criticDecisions = (criticDecisionsFile as { decisions: CriticDecision[] })
+  .decisions;
+const criticReviewed = criticDecisions.length;
+const criticFlagged = criticDecisions.filter(
+  (d) => d.decision === "flag_for_review",
+).length;
+const criticConfirmed = criticReviewed - criticFlagged;
+const criticFlagRate = criticReviewed
+  ? criticFlagged / criticReviewed
+  : 0;
 
 // ───────────── publication snippet (Classifier input) ─────────────
 // We don't ship publication.json (5 MB raw_html); pull the first 500 chars
@@ -108,7 +129,9 @@ function cacheStats(logs: LogEntry[]) {
 const classifierMetrics = aggregate(classifier);
 const extractorMetrics = aggregate(extractor);
 const mapperMetrics = aggregate(mapper);
+const criticMetrics = aggregate(critic);
 const mapperCache = cacheStats(mapper);
+const criticCache = cacheStats(critic);
 
 // ───────────── output samples ─────────────
 const classifierOutput = JSON.parse(classifier[0].response);
@@ -118,21 +141,21 @@ const mapperOBL001Sample =
   mappingsFile.mappings.find((m) => m.obligation_id === "EUAIA-OBL-001") ??
   mappingsFile.mappings[0];
 
-// Extract a chunk of report.md for the Drafter / Report builder panels:
-// the executive summary and the unmapped section, respectively.
-function extractSection(text: string, startMarker: string): string {
-  const startIdx = text.indexOf(startMarker);
-  if (startIdx < 0) return "";
-  const tail = text.slice(startIdx);
-  const next = tail.search(/\n## /m);
-  // Allow the start marker line itself to remain
-  return next === -1 ? tail.trim() : tail.slice(0, next).trim();
-}
-const executiveSummary = extractSection(reportText, "## Executive summary");
-const unmappedSection = extractSection(
-  reportText,
-  "## Obligations with no high-confidence framework mapping",
-);
+// Critic sample: pick the first flag_for_review entry so the panel
+// shows the more interesting decision shape rather than a "confirm".
+const criticDecisionSample =
+  criticDecisions.find((d) => d.decision === "flag_for_review") ??
+  criticDecisions[0];
+const criticReviewedObligation = criticDecisionSample
+  ? obligationsFile.obligations.find(
+      (o) => o.id === criticDecisionSample.obligation_id,
+    ) ?? obligationsFile.obligations[0]
+  : obligationsFile.obligations[0];
+const criticReviewedMappings = criticDecisionSample
+  ? mappingsFile.mappings.filter(
+      (m) => m.obligation_id === criticDecisionSample.obligation_id,
+    )
+  : [];
 
 // ───────────── word count helper ─────────────
 function wordCount(text: string): number {
@@ -140,11 +163,14 @@ function wordCount(text: string): number {
 }
 
 // ───────────── agent specs ─────────────
-type Status = "active" | "passive" | "architected";
+// All five entries below are LLM-driven agents in v2.0.0. The four
+// passive components (Watcher, Gap analyser, Drafter, Reviewer queue)
+// are listed in a separate "Code, not agent" callout below the panels
+// since they're deterministic code, not model calls.
+type Status = "active" | "rare-fire";
 const STATUS_LABELS: Record<Status, string> = {
-  active: "Active in v1",
-  passive: "Passive in v1",
-  architected: "Architected, not yet shipping",
+  active: "Active in v2.0.0",
+  "rare-fire": "Active in v2.0.0 · rarely fires",
 };
 
 interface AgentSpec {
@@ -171,27 +197,11 @@ interface AgentSpec {
 
 const agents: AgentSpec[] = [
   {
-    id: "watcher",
-    name: "Watcher",
-    blurb: "Polls regulator sources",
-    status: "architected",
-    role: "Polls regulator sources (EUR-Lex, FCA Handbook, EBA, ICO) on a schedule, deduplicates against history, and emits structured Publication objects when something new appears. Not invoked in v1's on-demand path — the user supplies a single URL directly to the pipeline. The watcher is the first piece of v2 work.",
-    prompt: { kind: "code", codePath: "(architected, not yet shipping)" },
-    input: {
-      mode: "text",
-      body: "(no LLM input — non-LLM scheduled poller)",
-    },
-    output: {
-      mode: "text",
-      body: "(architected output: structured Publication objects from polled sources, deduplicated against history)",
-    },
-  },
-  {
     id: "classifier",
     name: "Classifier",
     blurb: "Haiku 4.5 · in scope?",
     status: "active",
-    role: "Decides whether a fetched publication is in scope for the named regulation, and what category of document it is. Runs once per pipeline invocation. If the verdict is out-of-scope, the pipeline short-circuits before any extractor or mapper call — protecting cost on press releases and commentary.",
+    role: "Decides whether a fetched publication is in scope for the named regulation, and what category of document it is. Runs once per pipeline invocation. If the verdict is in_scope=False at confidence ≥ 0.7 the pipeline routes straight to the out-of-scope report; below 0.7 the Clarifier re-runs classification with augmented context before committing.",
     prompt: {
       kind: "file",
       path: "src/attestloop/regulations/eu_ai_act/classifier.md",
@@ -209,11 +219,31 @@ const agents: AgentSpec[] = [
     metrics: classifierMetrics,
   },
   {
+    id: "clarifier",
+    name: "Clarifier",
+    blurb: "Re-classifies low-confidence",
+    status: "rare-fire",
+    role: "Triggered only when the Classifier returns in_scope=False at confidence < 0.7. Extracts additional context (table of contents, first 5 pages, or section headings — whichever is most informative) and re-runs the Classifier on the augmented input. The Clarifier itself makes no classification decision; its single LLM call is a re-invocation of the Classifier (Haiku) on the augmented prompt. Rarely fires on real regulator URLs that classify confidently — the Commission Guidelines URL never triggers it. Exercised end-to-end via scripts/smoke_clarifier.py against a synthetic ambiguous fixture.",
+    prompt: {
+      kind: "code",
+      codePath:
+        "src/attestloop/agents/clarifier.py (delegates the LLM call to the Classifier)",
+    },
+    input: {
+      mode: "text",
+      body: "(when triggered: the original cleaned text plus an --- ADDITIONAL CONTEXT FROM CLARIFIER --- block carrying the table of contents, first 5 pages, or section headings extracted from the publication)",
+    },
+    output: {
+      mode: "text",
+      body: "(when triggered: a re-classification ClassifierOutput plus a structured ClarifierOutput recording the initial classification, the source of the augmented context, and the re-classification verdict — preserved in clarifier_output.json for audit)",
+    },
+  },
+  {
     id: "extractor",
     name: "Extractor",
     blurb: "Sonnet 4.6 · 12 chunks",
     status: "active",
-    role: "Pulls discrete, citeable obligations from the publication body. Runs once per chunk; the v5 source PDF is split into 12 ~40 000-character chunks with a 2 000-character overlap. After all chunks complete, a fuzzy deduplicator merges paraphrased duplicates that span chunk boundaries.",
+    role: "Pulls discrete, citeable obligations from the publication body. Runs once per chunk; the v6 source PDF is split into 12 ~40 000-character chunks with a 2 000-character overlap. After all chunks complete, a fuzzy deduplicator merges paraphrased duplicates that span chunk boundaries.",
     prompt: {
       kind: "file",
       path: "src/attestloop/regulations/eu_ai_act/extractor.md",
@@ -227,8 +257,7 @@ const agents: AgentSpec[] = [
     },
     output: {
       mode: "json",
-      intro:
-        "71 obligations extracted across 12 chunks (12 paraphrased duplicates merged via rapidfuzz). Sample output (first obligation from chunk 1):",
+      intro: `${obligationsFile.obligations.length} obligations extracted across 12 chunks (paraphrased duplicates merged via rapidfuzz). Sample output (first obligation from chunk 1):`,
       body: extractorChunk1Sample,
     },
     metrics: extractorMetrics,
@@ -236,9 +265,9 @@ const agents: AgentSpec[] = [
   {
     id: "mapper",
     name: "Mapper",
-    blurb: "Sonnet 4.6 · 71 obligations",
+    blurb: "Sonnet 4.6 · 8-way parallel",
     status: "active",
-    role: "Maps each obligation to between zero and three controls in the chosen framework, with a confidence score and reasoning. Runs once per obligation in v1. The 0.75 confidence floor is what produces the unmapped list — empty mappings for procedural duties NIST AI RMF doesn't cover are surfaced honestly rather than slot-filled.",
+    role: "Maps each obligation to between zero and three controls in the chosen framework, with a confidence score and reasoning. v6 dispatches the per-obligation calls through asyncio.gather with an asyncio.Semaphore(8); the public sync entrypoint is unchanged but mapper wall-clock collapses 8.13× vs the v5-equivalent serial baseline. The 0.75 confidence floor is what produces the unmapped list — empty mappings for procedural duties NIST AI RMF doesn't cover are surfaced honestly rather than slot-filled.",
     prompt: {
       kind: "file",
       path: "src/attestloop/frameworks/nist_ai_rmf/mapper.md",
@@ -246,63 +275,50 @@ const agents: AgentSpec[] = [
     },
     input: {
       mode: "json",
-      intro: "71 obligations, processed sequentially. Sample input below:",
+      intro: `${obligationsFile.obligations.length} obligations, dispatched 8 at a time via asyncio.Semaphore. Sample input below:`,
       body: obligationSample,
     },
     output: {
       mode: "json",
-      intro:
-        "154 high-confidence mappings, 13 obligations unmapped. Sample mapping for EUAIA-OBL-001:",
+      intro: `${mappingsFile.mappings.length} high-confidence mappings, ${obligationsFile.obligations.length - new Set(mappingsFile.mappings.map((m) => m.obligation_id)).size} obligations unmapped. Sample mapping for EUAIA-OBL-001:`,
       body: mapperOBL001Sample,
     },
     metrics: { ...mapperMetrics, cache: mapperCache },
   },
   {
-    id: "gap",
-    name: "Gap analyser",
-    blurb: "Folded into Mapper",
-    status: "passive",
-    role: "Surfaces the obligations the framework does not cover. In v1 this is implicit: any obligation for which the Mapper's high-confidence mappings list comes back empty is emitted into a separate \"unmapped\" section of the report. The 0.75 confidence floor is the gap-analysis policy. A dedicated agent is on the v2 roadmap once we add multi-framework comparison.",
-    prompt: { kind: "code", codePath: "src/attestloop/agents/mapper.py + pipeline.py" },
-    input: { mode: "text", body: "(no LLM input — implemented as the empty-mappings code path inside Mapper and the unmapped-obligations section of the report generator)" },
-    output: {
-      mode: "text",
-      intro: "Unmapped section from v5's report.md:",
-      body: unmappedSection,
+    id: "critic",
+    name: "Critic",
+    blurb: `Sonnet 4.6 · ${criticReviewed} reviewed`,
+    status: "active",
+    role: `Second-pass review of any obligation whose Mapper output includes at least one mapping below 0.80 confidence. Returns one of two decisions: confirm (mappings stand) or flag_for_review (mappings stand, but the report annotates them as flagged). The Critic is advisory — it does not auto-replace mappings, so a confidently-wrong Critic can't silently overwrite a defensible Mapper output. On the canonical v6 run it reviewed ${criticReviewed} obligations and flagged ${criticFlagged} (${(criticFlagRate * 100).toFixed(0)}% flag rate); each flag named a specific control being stretched semantically and at least one alternative the Mapper missed.`,
+    prompt: {
+      kind: "file",
+      path: "src/attestloop/frameworks/nist_ai_rmf/critic.md",
+      content: criticPrompt,
     },
-  },
-  {
-    id: "drafter",
-    name: "Drafter",
-    blurb: "Report generator",
-    status: "passive",
-    role: "Composes the final attestation report — executive summary, obligations table, control mappings table, unmapped section, and provenance footer. In v1 this is a Python report-generator function that consumes the typed Pydantic outputs of the three active agents. A dedicated LLM-driven drafter is plausible in v2 for natural-language summaries.",
-    prompt: { kind: "code", codePath: "src/attestloop/pipeline.py (_build_in_scope_report)" },
     input: {
       mode: "text",
-      body: "(no LLM input — typed Pydantic objects: ClassifierOutput, ExtractorOutput.obligations, MapperOutput.mappings, RunMetadata)",
+      intro:
+        criticDecisionSample
+          ? `Per-obligation: one Obligation plus the Mapper's proposed mappings plus the full controls library. Sample input for ${criticDecisionSample.obligation_id}:`
+          : "Per-obligation: one Obligation plus the Mapper's proposed mappings plus the full controls library.",
+      body: criticDecisionSample
+        ? JSON.stringify(
+            {
+              obligation: criticReviewedObligation,
+              proposed_mappings: criticReviewedMappings,
+            },
+            null,
+            2,
+          )
+        : "(no Critic decisions in this run)",
     },
     output: {
-      mode: "text",
-      intro: "Executive summary from v5's report.md:",
-      body: executiveSummary,
+      mode: "json",
+      intro: `${criticReviewed} CriticDecision records: ${criticConfirmed} confirmed, ${criticFlagged} flagged for human review. Sample decision below:`,
+      body: criticDecisionSample ?? null,
     },
-  },
-  {
-    id: "report",
-    name: "Reviewer queue",
-    blurb: "Report builder",
-    status: "passive",
-    role: "Persists the rendered report and run artefacts. In v1 the pipeline writes report.md, run_metadata.json, obligations.json, mappings.json, and per-agent LLM call logs to runs/<run_id>/, where a human reviewer reads them. The v2 roadmap adds a small in-process reviewer queue for routing reports to named owners and tracking sign-off.",
-    prompt: { kind: "code", codePath: "src/attestloop/pipeline.py (write to runs/<run_id>/)" },
-    input: {
-      mode: "text",
-      body: "(no LLM input — file-system writes of the rendered report and per-stage JSON artefacts)",
-    },
-    output: {
-      mode: "text",
-      body: "Persisted artefacts on disk: runs/20260430-115905/{report.md, run_metadata.json, classifier.json, extractor.json, mapper.json, obligations.json, mappings.json, fetch.log, publication.json}",
-    },
+    metrics: { ...criticMetrics, cache: criticCache },
   },
 ];
 
@@ -346,7 +362,7 @@ const formatPercent = (frac: number) => `${(frac * 100).toFixed(0)}%`;
     <!-- Mermaid diagram, generated from the compiled LangGraph state
          machine. Source lives at site/src/content/orchestration/
          v6_pipeline.mmd; the script tag below renders it on mount. -->
-    <div class="mermaid-frame mb-12">
+    <div class="mermaid-frame mb-10">
       <p class="mermaid-caption text-xs font-mono uppercase tracking-[0.18em] text-text-muted">
         Compiled LangGraph state machine · v2.0.0
       </p>
@@ -361,12 +377,40 @@ const formatPercent = (frac: number) => `${(frac * 100).toFixed(0)}%`;
       </div>
     </div>
 
+    <!-- Agent selector row. Each button toggles its expansion panel
+         below. Keyboard navigation (arrow keys + Escape) is wired in
+         the script block at the bottom of the component. -->
+    <p class="text-xs font-mono uppercase tracking-[0.18em] text-text-muted mb-3">
+      LLM agents · click to expand
+    </p>
+    <div class="agent-selector-row mb-12" role="list">
+      {
+        agents.map((a) => (
+          <button
+            type="button"
+            class:list={["agent-selector", `status-${a.status}`]}
+            data-agent-id={a.id}
+            aria-controls={`agent-panel-${a.id}`}
+            aria-expanded="false"
+            role="listitem"
+          >
+            <p class="text-xs font-mono text-text-primary leading-tight">
+              {a.name}
+            </p>
+            <p class="text-[0.7rem] font-mono text-text-muted mt-1 leading-tight">
+              {a.blurb}
+            </p>
+          </button>
+        ))
+      }
+    </div>
+
     <!-- Agent detail panels. All seven rendered as hidden articles; JS
          toggles visibility one at a time. -->
     <div id="agent-panels" class="agent-panels-root">
       {
         agents.map((a) => {
-          const isActive = a.status === "active";
+          const isActive = a.status === "active" || a.status === "rare-fire";
           const promptHasContent = a.prompt.kind === "file";
           const promptWords =
             a.prompt.kind === "file" ? wordCount(a.prompt.content) : 0;
@@ -387,8 +431,7 @@ const formatPercent = (frac: number) => `${(frac * 100).toFixed(0)}%`;
                     class:list={[
                       "text-xs font-mono uppercase tracking-[0.18em]",
                       a.status === "active" && "text-accent",
-                      a.status === "passive" && "text-text-secondary",
-                      a.status === "architected" && "text-text-muted",
+                      a.status === "rare-fire" && "text-text-secondary",
                     ]}
                   >
                     {STATUS_LABELS[a.status]}
@@ -459,7 +502,7 @@ const formatPercent = (frac: number) => `${(frac * 100).toFixed(0)}%`;
                 <details class="panel-details">
                   <summary class="panel-summary">
                     <span class="text-xs font-mono uppercase tracking-[0.18em] text-text-muted">
-                      Input (v5 run)
+                      Input (v6 run)
                     </span>
                     <span class="panel-toggle text-xs font-mono text-text-secondary">
                       Show
@@ -480,7 +523,7 @@ const formatPercent = (frac: number) => `${(frac * 100).toFixed(0)}%`;
                 <details class="panel-details">
                   <summary class="panel-summary">
                     <span class="text-xs font-mono uppercase tracking-[0.18em] text-text-muted">
-                      Output (v5 run)
+                      Output (v6 run)
                     </span>
                     <span class="panel-toggle text-xs font-mono text-text-secondary">
                       Show
@@ -578,115 +621,101 @@ const formatPercent = (frac: number) => `${(frac * 100).toFixed(0)}%`;
         })
       }
     </div>
+
+    <!-- Code-not-agent callout: the four passive components in the
+         pipeline are deterministic code, not LLM-driven agents. v6
+         keeps the separation explicit so the LLM agent count above
+         (five) isn't inflated by support code that doesn't make
+         model calls. -->
+    <aside class="code-not-agent mt-14">
+      <p class="text-xs font-mono uppercase tracking-[0.18em] text-text-muted mb-3">
+        Code, not agent
+      </p>
+      <p class="text-sm text-text-secondary leading-relaxed max-w-[42rem] mb-5">
+        Four passive components in the pipeline. Each is deterministic
+        Python in v2.0.0, not an LLM-driven agent — adding a model call
+        where code already does the job is a common failure mode in
+        agentic projects.
+      </p>
+      <ul class="code-not-agent-list">
+        <li>
+          <span class="cna-name">Watcher</span>
+          <span class="cna-body">
+            Architected, not yet shipping. Will poll regulator sources
+            (EUR-Lex, FCA Handbook, EBA, ICO) on a schedule, deduplicate
+            against history, and queue new in-scope publications. v3
+            backlog work; v2.0.0 runs on demand against a single URL.
+          </span>
+        </li>
+        <li>
+          <span class="cna-name">Gap analyser</span>
+          <span class="cna-body">
+            Folded into the Mapper's confidence floor. Any obligation
+            with zero high-confidence mappings is surfaced in the
+            report's "Obligations with no high-confidence framework
+            mapping" section. The 0.75 confidence floor is the gap-
+            analysis policy.
+          </span>
+        </li>
+        <li>
+          <span class="cna-name">Drafter</span>
+          <span class="cna-body">
+            Report builder code. Composes the executive summary,
+            obligations table, control mappings table, unmapped section,
+            Critic flags, and provenance footer from the typed Pydantic
+            outputs of the upstream agents. Pure templating — no LLM call.
+          </span>
+        </li>
+        <li>
+          <span class="cna-name">Reviewer queue</span>
+          <span class="cna-body">
+            On-disk artefacts. Each run writes
+            <code class="font-mono text-text-primary">runs/&lt;run_id&gt;/</code>
+            with the report, run metadata, structured outputs, and per-
+            agent call logs. Reviewing means opening the directory; v3
+            backlog adds a proper in-process queue.
+          </span>
+        </li>
+      </ul>
+    </aside>
   </div>
 </section>
 
 <style>
-  /* ─────────────── Diagram grid ─────────────── */
-  .pipeline-grid {
+  /* ─────────────── Agent selector row ─────────────── */
+  .agent-selector-row {
     display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    grid-template-rows: auto auto;
-    column-gap: 32px;
-    row-gap: 56px;
-    position: relative;
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
   }
-  .pipeline-cell {
-    height: 64px;
-    border-radius: 0;
-    text-align: left;
-    background: transparent;
-    padding: 0;
-    border: 0;
-    position: relative;
-    cursor: pointer;
+  @media (min-width: 641px) {
+    .agent-selector-row {
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 0.75rem;
+    }
   }
-  .pipeline-cell:focus-visible {
-    outline: 1px solid var(--color-accent);
-    outline-offset: 2px;
-  }
-  .pipeline-input {
-    cursor: default;
-  }
-  .cell-card {
+  .agent-selector {
     border: 1px solid var(--color-border-default);
     background: var(--color-bg-elevated);
-    height: 100%;
-    padding: 0.6rem 0.85rem;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
+    padding: 0.7rem 0.9rem;
+    text-align: left;
+    cursor: pointer;
     transition:
       border-color 150ms ease,
       background-color 150ms ease;
   }
-  .agent-box:hover .cell-card,
-  .agent-box[aria-expanded="true"] .cell-card {
+  .agent-selector:hover,
+  .agent-selector[aria-expanded="true"] {
     border-color: var(--color-accent);
     background: var(--color-bg-overlay);
   }
-  .status-passive .cell-card {
+  .agent-selector:focus-visible {
+    outline: 1px solid var(--color-accent);
+    outline-offset: 2px;
+  }
+  .agent-selector.status-rare-fire {
     opacity: 0.78;
-  }
-  .status-architected .cell-card {
-    opacity: 0.55;
     border-style: dashed;
-  }
-
-  /* Connecting arrow indicators using CSS pseudo-elements. Within-row
-     "→" between adjacent cells; between rows "↓" below the rightmost
-     top-row cell. Hidden on mobile (replaced by per-cell ↓ between
-     vertically-stacked items). */
-  @media (min-width: 641px) {
-    .pipeline-grid > .pipeline-cell:not(.row-end)::after {
-      content: "→";
-      position: absolute;
-      top: 50%;
-      right: -22px;
-      transform: translateY(-50%);
-      color: var(--color-accent);
-      font-family: var(--font-mono);
-      font-size: 1rem;
-      line-height: 1;
-      pointer-events: none;
-    }
-    .pipeline-grid > .pipeline-cell.row-end::after {
-      content: "↓";
-      position: absolute;
-      bottom: -42px;
-      right: 50%;
-      transform: translateX(50%);
-      color: var(--color-accent);
-      font-family: var(--font-mono);
-      font-size: 1rem;
-      line-height: 1;
-      pointer-events: none;
-    }
-  }
-
-  /* Mobile vertical stack with downward arrows between cells. */
-  @media (max-width: 640px) {
-    .pipeline-grid {
-      grid-template-columns: 1fr;
-      grid-template-rows: repeat(8, auto);
-      column-gap: 0;
-      row-gap: 28px;
-    }
-    .pipeline-grid > .pipeline-cell {
-      grid-column: 1;
-    }
-    .pipeline-grid > .pipeline-cell:not(:last-child)::after {
-      content: "↓";
-      position: absolute;
-      bottom: -22px;
-      left: 50%;
-      transform: translateX(-50%);
-      color: var(--color-accent);
-      font-family: var(--font-mono);
-      font-size: 1rem;
-      line-height: 1;
-      pointer-events: none;
-    }
   }
 
   /* ─────────────── Panel ─────────────── */
@@ -781,6 +810,42 @@ const formatPercent = (frac: number) => `${(frac * 100).toFixed(0)}%`;
     color: var(--color-text-primary);
     line-height: 1.3;
     word-break: break-word;
+  }
+
+  /* ─────────────── Code-not-agent callout ─────────────── */
+  .code-not-agent {
+    border: 1px dashed var(--color-border-subtle);
+    background: var(--color-bg-base);
+    padding: 1.5rem 1.25rem;
+  }
+  .code-not-agent-list {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+  @media (min-width: 641px) {
+    .code-not-agent-list {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 1rem 2rem;
+    }
+  }
+  .code-not-agent-list li {
+    display: grid;
+    grid-template-columns: minmax(7rem, auto) 1fr;
+    gap: 0.85rem;
+    align-items: baseline;
+  }
+  .cna-name {
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    color: var(--color-text-primary);
+    text-transform: none;
+    letter-spacing: normal;
+  }
+  .cna-body {
+    font-size: 0.85rem;
+    color: var(--color-text-secondary);
+    line-height: 1.5;
   }
 
   /* ─────────────── Mermaid pipeline diagram ─────────────── */
