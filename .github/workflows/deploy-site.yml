@@ -49,19 +49,28 @@ jobs:
       - name: Type-check
         run: pnpm check
 
+      - name: Capture single-line commit subject
+        id: commit-subject
+        # Cloudflare Pages' API rejects multi-line commit bodies as
+        # "Invalid commit message, must be a valid UTF-8 string [code:
+        # 8000111]" — has bitten this deploy twice. Wrangler's default
+        # behaviour is to auto-fill --commit-message from `git log -1`
+        # which sends the FULL message including body. Capture only
+        # the subject (first line) here and pass it explicitly below.
+        # Use ::set-output via $GITHUB_OUTPUT, escape any quotes that
+        # could break the YAML interpolation.
+        run: |
+          subject=$(git log -1 --pretty=%s | tr -d '"' | head -c 100)
+          echo "subject=${subject}" >> "$GITHUB_OUTPUT"
+        working-directory: .
+
       - name: Deploy to Cloudflare Pages
         uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          # --commit-message MUST be passed explicitly. Without it,
-          # wrangler auto-fills from `git log -1`, which sends the full
-          # multi-line message to Cloudflare's API. Their validator
-          # rejects messages with certain content (newlines, hex
-          # sequences, etc.) as "Invalid commit message, must be a
-          # valid UTF-8 string [code: 8000111]" — which has bitten
-          # several deploys. A fixed short message keeps the deploy
-          # idempotent regardless of what's in the git body; the
-          # commit hash still identifies the deploy.
-          command: pages deploy dist --project-name=attestloop --branch=main --commit-hash=${{ github.sha }} --commit-message="site deploy ${{ github.sha }}"
+          # --commit-message MUST be passed explicitly. See the
+          # "Capture single-line commit subject" step above for the
+          # underlying Cloudflare API constraint.
+          command: pages deploy dist --project-name=attestloop --branch=main --commit-hash=${{ github.sha }} --commit-message="${{ steps.commit-subject.outputs.subject }}"
           workingDirectory: site
