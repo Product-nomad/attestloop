@@ -27,12 +27,6 @@ change.
 
 ## Pipeline
 
-The compiled state graph is rendered to Mermaid by
-[`scripts/render_graph.py`](scripts/render_graph.py); the source lives at
-[`docs/orchestration/v6_pipeline.mmd`](docs/orchestration/v6_pipeline.mmd) and
-regenerates whenever the orchestration changes. The site at
-[attestloop.ai](https://attestloop.ai/) renders it client-side.
-
 ```
 fetch → classify → [in_scope]    → extract → map → critic → report → END
                  → [low_conf_oos] → clarify → [in_scope]      → extract → ...
@@ -41,13 +35,20 @@ fetch → classify → [in_scope]    → extract → map → critic → report �
                  → [confident_oos] → out_of_scope → END
 ```
 
+The diagram above is rendered from the compiled LangGraph state machine —
+[`scripts/render_graph.py`](scripts/render_graph.py) writes the Mermaid
+source to
+[`docs/orchestration/v6_pipeline.mmd`](docs/orchestration/v6_pipeline.mmd),
+which the site at [attestloop.ai](https://attestloop.ai/) renders
+client-side. If the orchestration changes, the diagram regenerates
+automatically.
+
 Each agent stage is one or more Anthropic calls with a versioned,
-regulation-specific prompt; the Mapper dispatches its per-obligation calls
-through `asyncio.gather` with an `asyncio.Semaphore(8)`. Inputs and outputs
-are typed Pydantic models. The fetcher detects PDFs by magic bytes (then
-`Content-Type`, then URL) and extracts text via `pypdf` when the response is
-binary; otherwise it cleans HTML via `selectolax`. EUR-Lex CELEX URLs are
-expanded to the official HTML and PDF endpoints automatically.
+regulation-specific prompt. Inputs and outputs are typed Pydantic models.
+The fetcher detects PDFs by magic bytes (then `Content-Type`, then URL) and
+extracts text via `pypdf` when the response is binary; otherwise it cleans
+HTML via `selectolax`. EUR-Lex CELEX URLs are expanded to the official HTML
+and PDF endpoints automatically.
 
 ## Agents
 
