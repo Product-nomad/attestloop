@@ -7,7 +7,7 @@ build out of `site/dist/`.
 
 This is part of the same git repository as the pipeline (`../src/attestloop/`),
 the architectural decision records (`../docs/adr/`), and the canonical run
-snapshot (`../docs/example_runs/v5_clean/`). The site uses pnpm; the
+snapshot (`../docs/example_runs/v6_clean/`). The site uses pnpm; the
 pipeline uses uv. They do not share dependencies.
 
 ## Local development
@@ -38,16 +38,11 @@ the built output by Astro.
 
 - **Pipeline source:** [`../src/attestloop/`](../src/attestloop/)
 - **Architectural decisions:** [`../docs/adr/`](../docs/adr/)
-- **Canonical v5 run:** [`../docs/example_runs/v5_clean/`](../docs/example_runs/v5_clean/)
+- **Canonical v6 run:** [`../docs/example_runs/v6_clean/`](../docs/example_runs/v6_clean/)
+- **v5-equivalent baseline:** [`../docs/example_runs/v6_v5_equivalent_clean/`](../docs/example_runs/v6_v5_equivalent_clean/)
+- **Pipeline Mermaid source:** [`../docs/orchestration/v6_pipeline.mmd`](../docs/orchestration/v6_pipeline.mmd) (regenerates from the compiled LangGraph)
 - **Threat model:** [`../THREAT_MODEL.md`](../THREAT_MODEL.md)
 - **Domain language:** [`../CONTEXT.md`](../CONTEXT.md)
-
-## Build phases (this repo)
-
-- **Task A** — site skeleton + deploy config. **(this commit)**
-- Task B — content for the four question sections, numbers table.
-- Task C — pipeline diagram component.
-- Task D — live re-run integration (post-v1).
 
 ## Tone
 
