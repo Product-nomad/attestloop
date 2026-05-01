@@ -3,13 +3,13 @@ title: "Building a multi-agent regulatory attestation pipeline"
 subtitle: "Six iterations, two agent additions, and what real orchestration looks like"
 version: 2.0.0
 status: published
-updated: 2026-04-30
+updated: 2026-05-01
 ---
 
 
 ## The problem
 
-A compliance officer at a company with 800 employees reads roughly 40 regulator publications a week. The list comes from EUR-Lex's AI Act feed, the FCA Handbook updates, EBA guidelines, ICO opinions, ESMA technical standards, and a half-dozen sector-specific bulletins that arrive on subscription. Of those forty publications, maybe three to five contain substantive obligations affecting the firm. The rest are press releases, speeches, scoping consultations, or commentary about regulations that already exist.
+A compliance officer at a financial-services firm reads dozens of regulator publications a week. The list comes from EUR-Lex's AI Act feed, the FCA Handbook updates, EBA guidelines, ICO opinions, ESMA technical standards, and a half-dozen sector-specific bulletins that arrive on subscription. Most are press releases, speeches, scoping consultations, or commentary about regulations that already exist. A handful contain substantive obligations affecting the firm.
 
 The substantive ones are the work. For each, the officer reads the document — sometimes a hundred pages of dense legal text — extracts the binding obligations, maps each obligation to the firm's existing controls library (typically two to four hundred entries in a SharePoint document or an OneTrust deployment), identifies the gaps where existing controls don't fully cover the new requirement, drafts proposed remediation, and routes the work to the affected teams in product, engineering, legal, and risk. Each substantive publication eats four to eight hours of senior compliance time.
 
@@ -40,7 +40,7 @@ A multi-agent pipeline with explicit contracts between stages. Three LLM-driven 
 
 Multi-agent won, but not because agents are fashionable. It won because the workflow has natural boundaries between extraction (a parsing problem), mapping (a retrieval-and-reasoning problem), and synthesis (a structured-output problem). Treating those boundaries as agent contracts makes the system testable, observable, and improvable in ways the alternatives are not.
 
-A note on what v1 isn't. The pipeline ships sequential execution: Classifier returns, Extractor runs, Mapper runs through the obligation list one at a time, the report builder assembles the output. There is no orchestrator agent making routing decisions. There is no parallel execution. There is no critic agent reviewing low-confidence mappings before the report is finalised. These are real and useful patterns; they're tracked as v6 work in the project's GitHub issues. v1 prioritised end-to-end correctness over orchestration sophistication, which is the right ordering for a portfolio piece — orchestration on top of a broken pipeline is wasted optimisation.
+A note on what v1 isn't. The pipeline ships sequential execution: Classifier returns, Extractor runs, Mapper runs through the obligation list one at a time, the report builder assembles the output. There is no orchestrator agent making routing decisions. There is no parallel execution. There is no critic agent reviewing low-confidence mappings before the report is finalised. These are real and useful patterns; they're tracked as v6 work in the project's GitHub issues. v1 prioritised end-to-end correctness over orchestration sophistication. Orchestrating a pipeline that produces wrong outputs is wasted optimisation; v6 layers orchestration on top of a foundation that already worked.
 
 
 ## Agent decomposition
@@ -67,7 +67,7 @@ Input: the publication's cleaned text, plus the regulation context. Output: a li
 
 Model: Claude Sonnet 4.6. Sonnet's reasoning depth matters here in a way it doesn't for classification. The Extractor has to handle ambiguous regulatory language — sentences that contain a binding requirement and an explanatory aside and an exception clause, all in one paragraph. Haiku produces noticeably worse output on this; the gold-set check, when it gets built, will quantify how much worse.
 
-The Extractor doesn't get the whole document at once. EU AI Act guidelines are routinely 100+ pages, and the cleaned text from the Commission's prohibited-practices guideline runs to ~430,000 characters. v1 chunks the document at ~40,000 characters with 2,000-character overlap, runs the Extractor once per chunk, and deduplicates the results. The chunk overlap catches obligations that straddle boundaries; the dedup pass handles the resulting paraphrased duplicates with fuzzy matching at threshold 80. Both are documented in *The iteration story*.
+The Extractor doesn't get the whole document at once. EU AI Act guidelines are routinely 100+ pages, and the cleaned text from the Commission's prohibited-practices guideline runs to 428,902 characters. v1 chunks the document at ~40,000 characters with 2,000-character overlap, runs the Extractor once per chunk, and deduplicates the results. The chunk overlap catches obligations that straddle boundaries; the dedup pass handles the resulting paraphrased duplicates with fuzzy matching at threshold 80. Both are documented in *The iteration story*.
 
 The system prompt is around 370 words. It defines what counts as a binding obligation (verbs like "shall," "must," "is prohibited"), what doesn't (verbs like "may," "should consider," "is encouraged to"), and how to populate the structured fields. It also includes explicit instruction to output an empty list when a chunk contains no binding obligations — without that instruction, the model fills the slot with weak extractions.
 
@@ -190,7 +190,7 @@ Six runs are preserved in the repo under docs/example_runs/. Each is a full snap
 
 The numbers move in interesting ways. Cost climbs and then drops. Mappings climb, then fall sharply, then partially recover. Wall-clock improves only after caching lands. The iteration story is the explanation.
 
-v1 was the first end-to-end run. The Extractor's input was hard-truncated to 50,000 characters — about 12% of the document's 430,000 characters of cleaned text. 18 obligations came out, all from Article 5(1)(a)–(h), the prohibitions section that opens the guidelines. The mappings were dense — 3 controls per obligation, none rejected — but the obligation count was a known undercount of roughly an order of magnitude. The right next move was obvious: process the whole document.
+v1 was the first end-to-end run. The Extractor's input was hard-truncated to 50,000 characters — about 12% of the document's 428,902 characters of cleaned text. 18 obligations came out, all from Article 5(1)(a)–(h), the prohibitions section that opens the guidelines. The mappings were dense — 3 controls per obligation, none rejected — but the obligation count was a known undercount of roughly an order of magnitude. The right next move was obvious: process the whole document.
 
 v2 replaced truncation with chunked extraction. 12 chunks of ~40,000 characters each, with 2,000-character overlap to catch obligations that straddled boundaries. The Extractor ran twelve times instead of once. The obligation count jumped to 68. The mapping count jumped to 203 — still 3 per obligation, still nothing rejected. Cost rose 4.2× to $2.61 because the Mapper was now making 68 sequential Sonnet calls instead of 18. Wall-clock rose to 21 minutes. Coverage was now full; quality was now the question.
 
@@ -238,11 +238,11 @@ Quantitative evaluation is the v1 gap that hurts the most. Every other v1 limita
 |---|---|---:|---:|---:|---|
 | Classifier | Claude Haiku 4.5 | 1 | $0.005 | 3.7 s | |
 | Extractor | Claude Sonnet 4.6 | 12 | $0.61 | 20.2 s | Chunked; sequential |
-| Mapper | Claude Sonnet 4.6 | ~70 | $0.69 | 11.1 s sequential / 1.4 s effective parallel | 8-way concurrent |
-| Critic | Claude Sonnet 4.6 | ~42 | $0.50 | ~10 s | Reviews obligations with mappings <0.80 |
+| Mapper | Claude Sonnet 4.6 | 71 | $0.89 | 11.1 s sequential / 1.4 s effective parallel | 8-way concurrent (includes the cache-write premium on the first 8 calls) |
+| Critic | Claude Sonnet 4.6 | 44 | $0.58 | ~10 s | Reviews obligations with mappings <0.80 |
 | Clarifier | Claude Haiku 4.5 (delegated) | 0 (typically) | $0.00 | n/a | Only fires on ambiguous classifications |
 
-Total: $2.09 per run, 13 minutes 26 seconds wall-clock, against a 135-page regulator publication producing 71 obligations and 160 mapped controls.
+Total: $2.09 per run, 13 minutes 26 seconds wall-clock, against a 135-page regulator publication producing 71 obligations and 160 mapped controls. The per-agent column sums to the run total exactly — cache-write premiums on the first Mapper call and the first Critic call are included in those agents' rows rather than broken out separately.
 
 The cost shape is worth comparing. Manual review of the same publication by a senior compliance officer would cost on the order of £500-1000 in analyst time at GRC consultant rates, before any control-mapping work happens. The major incumbent regulatory monitoring tools — OneTrust, Diligent, Wolters Kluwer Enablon — sell their AI-Act monitoring modules at £40,000-150,000 per year flat fee, regardless of how many publications get processed or how few obligations get mapped. A naïve single-call GPT-4 approach against the same document would cost roughly £3-5 per run with no provenance, no confidence handles, no separately-tunable agents, and no audit trail.
 
