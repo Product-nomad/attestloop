@@ -1,5 +1,5 @@
 ---
-type Status = "live-v2" | "live-v1" | "architected" | "backlog";
+type Status = "today" | "architected" | "backlog";
 
 interface Item {
   status: Status;
@@ -9,30 +9,24 @@ interface Item {
 
 const items: Item[] = [
   {
-    status: "live-v2",
-    statusLabel: "Live in v2.0.0",
-    body: "LangGraph state machine orchestration with five LLM-driven agents and conditional routing. Critic agent for second-pass review of low-confidence mappings. 8-way concurrent Mapper execution.",
-  },
-  {
-    status: "live-v1",
-    statusLabel: "Live in v1",
-    body: "Single-document attestation against EU AI Act and NIST AI RMF, on demand. Available under V5_EQUIVALENT config flag for ~$1.31/run when audit-grade output isn't required.",
+    status: "today",
+    statusLabel: "Today (v2.0.0)",
+    body: "On-demand. Point Attestloop at any regulator URL and it tells you whether the publication is in scope and what obligations it contains. Useful for ad-hoc triage but not for forward monitoring.",
   },
   {
     status: "architected",
-    statusLabel: "Architected, not yet shipping",
-    body: "Watcher agent polls regulator sources on a schedule, deduplicates against history, queues new in-scope publications. Per-regulator scrape adapters in v3 backlog.",
+    statusLabel: "Architected, shipping in v3",
+    body: "Watcher agent polls regulator sources on a schedule — EUR-Lex, FCA Handbook, EBA, ICO, ESMA — deduplicates against history, and surfaces new in-scope publications before they hit your inbox manually. Per-regulator scrape adapters in development; the architecture and registry already support multi-source polling.",
   },
   {
     status: "backlog",
     statusLabel: "v3 backlog",
-    body: "Multi-framework support (ISO 42001, SOC 2 AI Trust Criteria, customer-supplied control libraries). Critic parallelisation for 5–7 minute total runtime. Mapper batching for sustained throughput.",
+    body: "Forward-looking signals from regulator pipelines: published consultations, draft technical standards, work programmes. Distinguishes between 'binding next month' and 'consultation closing in March' so compliance teams can prioritise. Gives boards real horizon answers, not just last-week summaries.",
   },
 ];
 
 const statusClass: Record<Status, string> = {
-  "live-v2": "text-accent",
-  "live-v1": "text-text-secondary",
+  today: "text-accent",
   architected: "text-text-secondary",
   backlog: "text-text-muted",
 };
@@ -58,7 +52,15 @@ const statusClass: Record<Status, string> = {
   }
 </div>
 
+<p class="text-sm text-text-secondary mt-6 leading-relaxed max-w-[42rem]">
+  Today: ad-hoc triage. v3: scheduled monitoring. v3+: regulator pipeline
+  awareness. Honesty about which question Attestloop answers when matters
+  as much as the answers themselves.
+</p>
+
 <p class="text-xs font-mono text-text-muted mt-5 leading-relaxed">
-  Honesty about scope is itself an audit-trail feature. Where v1 doesn't
-  reach, the system says so.
+  The Watcher agent is the v3 work that converts Attestloop from on-demand
+  triage to scheduled regulatory monitoring. Multi-source polling,
+  per-regulator adapters, deduplication against historical runs, and
+  alerting integration are all tracked in the GitHub backlog.
 </p>
