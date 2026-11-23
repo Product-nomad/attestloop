@@ -175,3 +175,7 @@ rarely fires on real regulator URLs that classify confidently; the synthetic
 smoke test in
 [`scripts/smoke_clarifier.py`](scripts/smoke_clarifier.py) is the only
 production exercise of that code path.
+
+---
+
+Built by [Simon Newton](https://incubatelabs.ai/about/) at [Incubate Labs](https://incubatelabs.ai).
